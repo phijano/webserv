@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/01/17 10:44:48 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/01 12:27:39 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <fstream>
 #include <sstream>
 #include <fcntl.h>
 #include <unistd.h>
@@ -79,13 +80,14 @@ Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(siz
 			std::cout << "Error reading " << strerror(errno) << std::endl;
 		}
 		std::cout << "request bytes " << bytes << std::endl << buffer << std::endl;
-		
-		std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
-        std::ostringstream ss;
-        ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
-           << htmlFile;
 
+
+		//std::string resource = getMethod("testweb/index.html");
+		std::string resource = getMethod("erewrer");
 		
+		std::ostringstream ss; 
+		ss << resource;
+
 		long bytesSent;
 		//fcntl(_acceptSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC); I dont know whats is this for
 		bytesSent = write(_acceptSocket, ss.str().c_str(), ss.str().size());
@@ -117,4 +119,39 @@ Server::~Server()
 {
 	std::cout << "Server destructor called" << std::endl;
 	close(_socket);
+}
+
+std::string Server::getMethod(std::string path)
+{
+	std::ifstream file(path);
+	std::string line;
+	std::string resource;
+	std::stringstream ss;
+	std::string code;
+
+	if (file.is_open())
+	{
+		while (getline(file, line))
+		{
+			resource += line;
+		}
+		ss << "HTTP/1.1 " << "200 OK\n" << "Content-Type: text/html\nContent-Length: " << resource.size() << "\n\n" << resource;
+
+	}
+	else
+	{
+		std::ifstream file("errorpages/404.html");
+		if (file.is_open())
+		{
+			while (getline(file, line))
+			{
+				resource += line;
+			}
+			ss << "HTTP/1.1 " << "404 Not Found\n" << "Content-Type: text/html\nContent-Length: " << resource.size() << "\n\n" << resource;
+			std::cout << "Error, file not found" << std::endl;
+		}
+		else
+			std::cout << "not error page" << std::endl; // no idea what response send here
+	}
+	return ss.str();
 }
