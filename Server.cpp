@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/02 11:07:29 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/02 13:00:12 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,16 @@ std::string Server::postMethod(std::string path, std::string content)
 	return response.str();
 }
 
+std::string Server::deleteMethod(std::string path)
+{
+	std::stringstream response;
+	std::stringstream resource;
 
+	std::remove(path.c_str());
+	response << "HTTP/1.1 " << "204 No Content";
+	//check for errors to send correct error page like not allowed
+	return response.str();
+}
 
 
 

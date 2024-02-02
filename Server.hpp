@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:08:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/02 10:14:19 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/02 12:12:27 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Server
 		~Server();
 		std::string getMethod(std::string path);
 		std::string postMethod(std::string path, std::string content);
+		std::string deleteMethod(std::string path);
 
 	private:
 
