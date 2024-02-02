@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/01 12:27:39 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/02 11:07:29 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,8 @@ Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(siz
 		std::cout << "request bytes " << bytes << std::endl << buffer << std::endl;
 
 
-		//std::string resource = getMethod("testweb/index.html");
-		std::string resource = getMethod("erewrer");
+		std::string resource = getMethod("testweb/index.html");
+		//std::string resource = getMethod("erewrer");
 		
 		std::ostringstream ss; 
 		ss << resource;
@@ -124,34 +124,61 @@ Server::~Server()
 std::string Server::getMethod(std::string path)
 {
 	std::ifstream file(path);
-	std::string line;
-	std::string resource;
-	std::stringstream ss;
-	std::string code;
+	std::stringstream resource;
+	std::stringstream response;
 
 	if (file.is_open())
 	{
-		while (getline(file, line))
-		{
-			resource += line;
-		}
-		ss << "HTTP/1.1 " << "200 OK\n" << "Content-Type: text/html\nContent-Length: " << resource.size() << "\n\n" << resource;
-
+		resource << file.rdbuf();
+		response << "HTTP/1.1 " << "200 OK\n" << "Content-Type: text/html\nContent-Length: " << resource.str().size() << "\n\n" << resource.str();
 	}
 	else
 	{
+		std::cout << "Error, file not found" << std::endl;
 		std::ifstream file("errorpages/404.html");
 		if (file.is_open())
 		{
-			while (getline(file, line))
-			{
-				resource += line;
-			}
-			ss << "HTTP/1.1 " << "404 Not Found\n" << "Content-Type: text/html\nContent-Length: " << resource.size() << "\n\n" << resource;
-			std::cout << "Error, file not found" << std::endl;
+			resource << file.rdbuf();
+			response << "HTTP/1.1 " << "404 Not Found\n" << "Content-Type: text/html\nContent-Length: " << resource.str().size() << "\n\n" << resource.str();
 		}
 		else
 			std::cout << "not error page" << std::endl; // no idea what response send here
 	}
-	return ss.str();
+	return response.str();
 }
+
+std::string Server::postMethod(std::string path, std::string content)
+{
+
+	std::ifstream file(path);
+	std::stringstream response;
+	std::stringstream resource;
+
+	if (file.good())
+	{
+		std::cout << "Error file already exist";// I dont know what happen with overwrite
+		std::ifstream file("errorpages/409.html");
+		if (file.is_open())
+		{
+			resource << file.rdbuf();
+			response << "HTTP/1.1 " << "409 Conflict\n" << "Content-Type: text/html\nContent-Length: " << resource.str().size() << "\n\n" << resource.str();
+		}
+		else
+			std::cout << "not error page" << std::endl; // no idea what response send here
+	}
+	else
+	{
+		std::ofstream newFile(path);
+		newFile << content;
+		newFile.close();
+		response << "HTTP/1.1 " << "201 CREATED";
+	}
+	return response.str();
+}
+
+
+
+
+
+
+

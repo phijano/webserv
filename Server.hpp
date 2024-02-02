@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:08:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/01 12:03:57 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/02 10:14:19 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Server
 		Server &operator=(const Server &other);
 		~Server();
 		std::string getMethod(std::string path);
+		std::string postMethod(std::string path, std::string content);
 
 	private:
 
