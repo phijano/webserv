@@ -11,8 +11,8 @@
 <p><a href="javascript: deleteApp('filetodelete.tmp')">Delete filetodelete.tmp</a></p>
 <script>
 function deleteApp(branch) {
-  fetch('http:/localhost:8080/'+branch, {
-    method: 'DELETE',
+ 	fetch(branch, {
+	method: 'DELETE',
     headers: {
       'Authorization': 'Bearer <your_access_token>'
     }
