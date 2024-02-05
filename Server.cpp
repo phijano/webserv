@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/02 13:00:12 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/05 13:48:36 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <vector>
 
 Server::Server()
 {
@@ -81,21 +82,33 @@ Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(siz
 		}
 		std::cout << "request bytes " << bytes << std::endl << buffer << std::endl;
 
+		std::vector<std::string> request = parseRequest(buffer);
 
-		std::string resource = getMethod("testweb/index.html");
-		//std::string resource = getMethod("erewrer");
-		
-		std::ostringstream ss; 
-		ss << resource;
-
+		std::string response;
+		if (request.empty())
+			std::cout << "Error" << std::endl;
+		else if (request[0] == "GET")
+		{
+			std::cout << "GET" << std::endl;
+			response = getMethod(request[1]);
+		}
+		else if (request[0] == "POST")
+		{
+			std::cout << "POST" << std::endl;
+			response = getMethod("testweb/index.html");
+		}
+		else
+		{
+			std::cout << "DELETE" << std::endl;
+			response = deleteMethod(request[1]);
+		}
 		long bytesSent;
 		//fcntl(_acceptSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC); I dont know whats is this for
-		bytesSent = write(_acceptSocket, ss.str().c_str(), ss.str().size());
+		bytesSent = write(_acceptSocket, response.c_str(), response.size());
 		if (bytesSent < 0)
 		{
 			std::cout << "Error writing" << std::endl;
 		}
-
 		close(_acceptSocket);
 	}
 }
@@ -119,6 +132,60 @@ Server::~Server()
 {
 	std::cout << "Server destructor called" << std::endl;
 	close(_socket);
+}
+
+std::vector <std::string> Server::parseRequest(std::string request)
+{
+	std::stringstream ss(request); 
+	std::string line;
+	std::string word;
+	std::vector<std::string> requestParsed;
+
+	while(getline(ss, line))
+	{
+		std::stringstream ssLine(line);
+		ssLine >> word;
+		if (word == "GET" or word == "POST" or word == "DELETE")
+		{
+			requestParsed.push_back(word);
+			std::cout << "Method: " << word << std::endl;
+			ssLine >> word;
+			word = "testweb" + word; //add root to path
+			if (requestParsed[0] == "GET")
+				word += "index.html"; //add index to path
+			requestParsed.push_back(word);
+			std::cout << "Path: " << word << std::endl;
+			if (requestParsed[0] != "POST")
+				break;
+		}
+		else if (word == "Content-Disposition:")
+		{
+			std::cout << "***" << std::endl;
+
+			std::cout << ssLine.str() << std::endl;
+			
+			std::cout << "***" << std::endl;
+
+			while (!ssLine.fail())
+			{
+				ssLine >> word;
+
+				std::cout << word << std::endl;
+			}
+			std::cout << "FILE " << word << std::endl;
+			std::stringstream ssFileName(word);
+			getline(ssFileName, word, '\"');
+			getline(ssFileName, word, '\"');
+			std::cout << "FILENAME: " << word << std::endl;
+
+			//getline(ssLine, line, "filename=\"");
+			//getline(ssLine, line, '\"');
+			//std::cout << "fileName: " << line << std::endl;;
+			requestParsed.push_back(word);
+			//need to get file content
+		}
+	}
+	return requestParsed;
 }
 
 std::string Server::getMethod(std::string path)
@@ -147,9 +214,9 @@ std::string Server::getMethod(std::string path)
 	return response.str();
 }
 
-std::string Server::postMethod(std::string path, std::string content)
+std::string Server::postMethod(std::string path, std::string filename, std::string content)
 {
-
+	(void)filename;///
 	std::ifstream file(path);
 	std::stringstream response;
 	std::stringstream resource;
@@ -186,8 +253,3 @@ std::string Server::deleteMethod(std::string path)
 	//check for errors to send correct error page like not allowed
 	return response.str();
 }
-
-
-
-
-
