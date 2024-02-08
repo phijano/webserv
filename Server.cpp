@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/05 13:48:36 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/08 13:00:50 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,25 +82,26 @@ Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(siz
 		}
 		std::cout << "request bytes " << bytes << std::endl << buffer << std::endl;
 
-		std::vector<std::string> request = parseRequest(buffer);
+		std::vector<std::vector<std::string> > request = parseRequest(buffer);
 
 		std::string response;
 		if (request.empty())
 			std::cout << "Error" << std::endl;
-		else if (request[0] == "GET")
+		else if (request[0][0] == "GET")
 		{
 			std::cout << "GET" << std::endl;
-			response = getMethod(request[1]);
+			response = getMethod(request[0][1]);
 		}
-		else if (request[0] == "POST")
+		else if (request[0][0] == "POST")
 		{
 			std::cout << "POST" << std::endl;
-			response = getMethod("testweb/index.html");
+			//response = getMethod("testweb/index.html");
+			response = postMethod(request);
 		}
 		else
 		{
 			std::cout << "DELETE" << std::endl;
-			response = deleteMethod(request[1]);
+			response = deleteMethod(request[0][1]);
 		}
 		long bytesSent;
 		//fcntl(_acceptSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC); I dont know whats is this for
@@ -134,55 +135,90 @@ Server::~Server()
 	close(_socket);
 }
 
-std::vector <std::string> Server::parseRequest(std::string request)
+std::vector<std::string> getParam(std::string content)
+{
+	std::stringstream ss(content);
+	std::string line;
+	std::string value;
+	size_t startValue;
+	size_t endValue;
+	std::vector <std::string> param;
+
+	getline(ss, line);
+	startValue = line.find("\"");
+	endValue = line.find("\"", startValue + 1); 
+	value = line.substr(startValue + 1, endValue - startValue - 1);
+//	std::cout << "name " << value << std::endl;
+	param.push_back(value);
+	
+	startValue = line.find("\"", endValue + 1);
+	if (startValue != std::string::npos)
+	{
+		value = line.substr(startValue + 1, line.find("\"", startValue + 1) - startValue - 1);
+//		std::cout << "filename " << value << std::endl;
+		param.push_back(value);
+	}
+	getline(ss, line);
+
+	if (line != "\r")
+		getline(ss, line);
+	getline(ss, value, '\r');
+//	std::cout << "Content: " << value << "<-Content"<< std::endl;
+	param.push_back(value);
+	return param;
+}
+
+
+std::vector<std::vector<std::string> > Server::parseRequest(std::string request)
 {
 	std::stringstream ss(request); 
 	std::string line;
 	std::string word;
-	std::vector<std::string> requestParsed;
-
-	while(getline(ss, line))
+	std::vector<std::vector<std::string> > requestParsed;
+	std::vector<std::string> headParsed;
+	
+	if (getline(ss, line))
 	{
 		std::stringstream ssLine(line);
 		ssLine >> word;
 		if (word == "GET" or word == "POST" or word == "DELETE")
 		{
-			requestParsed.push_back(word);
+			headParsed.push_back(word);
 			std::cout << "Method: " << word << std::endl;
 			ssLine >> word;
 			word = "testweb" + word; //add root to path
-			if (requestParsed[0] == "GET")
+			if (headParsed[0] == "GET")
 				word += "index.html"; //add index to path
-			requestParsed.push_back(word);
+			headParsed.push_back(word);
 			std::cout << "Path: " << word << std::endl;
-			if (requestParsed[0] != "POST")
-				break;
-		}
-		else if (word == "Content-Disposition:")
-		{
-			std::cout << "***" << std::endl;
-
-			std::cout << ssLine.str() << std::endl;
 			
-			std::cout << "***" << std::endl;
+			requestParsed.push_back(headParsed);
 
-			while (!ssLine.fail())
+			size_t boundaryPos = ss.str().find("boundary=");
+			if (boundaryPos != std::string::npos)
 			{
-				ssLine >> word;
-
-				std::cout << word << std::endl;
+				std::string boundary;
+				std::stringstream ssLine(ss.str().substr(boundaryPos + 9, ss.str().size()));
+				getline(ssLine, boundary, '\r');
+				boundary = "--" + boundary;
+				std::cout << "Boundary: " << boundary << std::endl;
+				std::string body =	ss.str().substr(ss.str().find(boundary) + boundary.size() + 2, ss.str().size());
+				std::string content;
+				std::vector<std::vector <std::string> > parameters;
+				while (body.find(boundary)!=std::string::npos)
+				{
+					std::vector<std::string> param;
+					content = body.substr(0, body.find(boundary) - 1);
+					body = body.substr(body.find(boundary) + boundary.size() + 2, body.size());
+//					std::cout << "### " << content << std::endl;
+					param = getParam(content);
+					requestParsed.push_back(param);
+				}
 			}
-			std::cout << "FILE " << word << std::endl;
-			std::stringstream ssFileName(word);
-			getline(ssFileName, word, '\"');
-			getline(ssFileName, word, '\"');
-			std::cout << "FILENAME: " << word << std::endl;
-
-			//getline(ssLine, line, "filename=\"");
-			//getline(ssLine, line, '\"');
-			//std::cout << "fileName: " << line << std::endl;;
-			requestParsed.push_back(word);
-			//need to get file content
+			else
+			{
+				std::cout << "no body" << std::endl;
+			}
 		}
 	}
 	return requestParsed;
@@ -214,14 +250,28 @@ std::string Server::getMethod(std::string path)
 	return response.str();
 }
 
-std::string Server::postMethod(std::string path, std::string filename, std::string content)
+std::string Server::postMethod(std::vector<std::vector<std::string> > request)
 {
-	(void)filename;///
-	std::ifstream file(path);
 	std::stringstream response;
 	std::stringstream resource;
+	bool isAnyCreated = false;
 
-	if (file.good())
+	for (std::vector<std::vector<std::string> >::iterator it = request.begin() + 1; it != request.end(); it++)
+	{
+		if (it->size() == 3)
+		{
+			std::ifstream file(request[0][1] + (*it)[1]); // path + filename
+			if (!file.good())
+			{
+				std::ofstream newFile(request[0][1] + (*it)[1]);
+				newFile << (*it)[2]; //file content
+				newFile.close();
+				isAnyCreated = true;
+				response << "HTTP/1.1 " << "201 CREATED";
+			}
+		}
+	}
+	if (!isAnyCreated)
 	{
 		std::cout << "Error file already exist";// I dont know what happen with overwrite
 		std::ifstream file("errorpages/409.html");
@@ -233,14 +283,7 @@ std::string Server::postMethod(std::string path, std::string filename, std::stri
 		else
 			std::cout << "not error page" << std::endl; // no idea what response send here
 	}
-	else
-	{
-		std::ofstream newFile(path);
-		newFile << content;
-		newFile.close();
-		response << "HTTP/1.1 " << "201 CREATED";
-	}
-	return response.str();
+	return response.str();	
 }
 
 std::string Server::deleteMethod(std::string path)
