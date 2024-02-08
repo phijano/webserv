@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:08:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/05 12:58:37 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/08 12:21:53 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,10 @@ class Server
 		Server &operator=(const Server &other);
 		~Server();
 	
-		std::vector <std::string> parseRequest(std::string request);//its better to do a request class I think
-		std::string getMethod(std::string path);
-		std::string postMethod(std::string path, std::string fileName, std::string content);//maybe a file class if there are many files to upload at same time
+		std::vector <std::vector <std::string> > parseRequest(std::string request);//its better to do a request class I think
+		std::string getMethod(std::string path);	
+//		std::string postMethod(std::string path, std::string fileName, std::string content);//maybe a file class if there are many files to upload at same time
+		std::string postMethod(std::vector<std::vector<std::string> >);//maybe a file class if there are many files to upload at same time
 		std::string deleteMethod(std::string path);
 
 	private:
