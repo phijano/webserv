@@ -3,7 +3,7 @@ NAME = webserv
 MAIN = main.cpp
 
 SOURCES = \
-		  Server.cpp \
+		  Server.cpp Request.cpp\
 
 MAINOBJ = $(MAIN:.cpp=.o)
 OBJECTS = $(SOURCES:.cpp=.o)

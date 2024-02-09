@@ -6,17 +6,22 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:08:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/08 12:21:53 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/09 12:17:34 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
  #define SERVER_HPP
 
-#include <string>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <string>
+#include <vector>
+#include "Request.hpp"
 
 class Server
 {
@@ -28,10 +33,8 @@ class Server
 		Server &operator=(const Server &other);
 		~Server();
 	
-		std::vector <std::vector <std::string> > parseRequest(std::string request);//its better to do a request class I think
 		std::string getMethod(std::string path);	
-//		std::string postMethod(std::string path, std::string fileName, std::string content);//maybe a file class if there are many files to upload at same time
-		std::string postMethod(std::vector<std::vector<std::string> >);//maybe a file class if there are many files to upload at same time
+		std::string postMethod(std::string path, std::vector<std::vector<std::string> > parameters);
 		std::string deleteMethod(std::string path);
 
 	private:
