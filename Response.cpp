@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/12 13:15:10 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/12 13:31:15 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,10 +110,10 @@ void Response::getErrorPage(std::string error)
 	_code = "500 Internal Server Error";
 	_mime = "text/html";
 	_body = "<!DOCTYPE html><html lang=\"en\"><body><h1> 500 Internal Server Error </h1><p> Whooops! </p></body></html>";
-	getCode(error);
 	std::ifstream file("errorpages/" + error + ".html"); //look if there was other error pages provided in config
 	if (file.is_open())
 	{
+		getCode(error);
 		resource << file.rdbuf();
 		_body = resource.str();
 	}
