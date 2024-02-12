@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:08:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/09 12:17:34 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/12 13:19:49 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include "Request.hpp"
+#include "Response.hpp"
 
 class Server
 {
