@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/09 12:10:45 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/13 11:58:40 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ Request& Request::operator=(const Request& other)
 {
 	_method = other._method;
 	_path = other._path;
+	_file = other._file;
 	_parameters = other._parameters;
 	_error = other._error;
 
@@ -49,6 +50,11 @@ std::string Request::getMethod() const
 std::string Request::getPath() const
 {
 	return _path;
+}
+
+std::string Request::getFile() const
+{
+	return _file;
 }
 
 std::vector<std::vector<std::string> > Request::getParameters() const
@@ -94,6 +100,21 @@ void Request::parseParameter(std::string formField)
 	_parameters.push_back(param);
 }
 
+void Request::parseUrl(std::string url)//need to parse parameters
+{
+	size_t paramPos;
+
+	paramPos = url.find("?");
+	if (paramPos != std::string::npos)
+	{
+		_path = url.substr(0, paramPos);
+	}
+	else
+		_path = url;
+	_file = _path.substr( _path.find_last_of("/") + 1, _path.size());
+	_path = _path.substr(0, _path.find_last_of("/") + 1);
+}
+
 
 void Request::parseRequest(std::string request)
 {
@@ -112,8 +133,9 @@ void Request::parseRequest(std::string request)
 			ssLine >> word;
 			_path = "testweb" + word; //add root to path; this will be in response we need to check location for root
 			if (_method == "GET")
-				_path += "index.html"; //add index to path; tihs in response too
+				_path += "index.html"; //add index to path; this in response too
 			std::cout << "Path: " << _path << std::endl;
+			parseUrl(word);
 
 			size_t boundaryPos = ss.str().find("boundary=");
 			if (boundaryPos != std::string::npos)

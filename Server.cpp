@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/12 13:19:20 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/13 12:26:34 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,10 @@ Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(siz
 		{
 			std::cout << "Error reading " << strerror(errno) << std::endl;
 		}
+		std::cout << buffer << std::endl;
 		Request request(buffer);
 		Response response(request);
+		std::cout << "Response:\n" << response.getResponse();
 		long bytesSent;
 		//fcntl(_acceptSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC); I dont know whats is this for
 		bytesSent = write(_acceptSocket, response.getResponse().c_str(), response.getResponse().size());

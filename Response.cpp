@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/12 13:31:15 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/13 12:24:12 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,17 @@ Response::Response(Request request)
 	else if (request.getMethod() == "GET")
 	{
 		std::cout << "GET" << std::endl;
-		getMethod(request.getPath());
+		getMethod("testweb" + request.getPath(), request.getFile());//change testweb for root
 	}
 	else if (request.getMethod() == "POST")
 	{
 		std::cout << "POST" << std::endl;
-		postMethod(request.getPath(), request.getParameters());
+		postMethod("testweb" + request.getPath(), request.getParameters());//idem
 	}
 	else if (request.getMethod() == "DELETE")
 	{
 		std::cout << "DELETE" << std::endl;
-		deleteMethod(request.getPath());
+		deleteMethod("testweb" + request.getPath(), request.getFile());//idem
 	}
 	else
 		getErrorPage("501");
@@ -102,6 +102,33 @@ void	Response::getCode(std::string code) // add more codes as we need
 	}
 }
 
+void Response::getMime(std::string file)//no idea how many to put here
+{
+	std::string ext;
+	ext = file.substr(file.find_last_of("."), file.size());
+
+	if (ext == ".htm" or ext == ".html")
+		_mime = "text/html";
+	else if (ext == ".txt")
+		_mime = "text/plain";
+	else if (ext == ".css")
+		_mime = "text/css";
+	else if (ext == ".gif")
+		_mime = "image/gif";
+	else if (ext == ".ico")
+		_mime = "image/vnd.microsoft.icon";
+	else if (ext == ".jar")
+		_mime = "application/java-archive";
+	else if (ext == ".jpeg" or ext == ".jpg")
+		_mime = "image/jpeg";
+	else if (ext == ".js")
+		_mime = "text/javascript";
+	else if (ext == ".png")
+		_mime = "image/png";
+	else
+		_mime = "application/octet-stream";
+}
+
 
 void Response::getErrorPage(std::string error)
 {
@@ -119,18 +146,19 @@ void Response::getErrorPage(std::string error)
 	}
 }
 
-void Response::getMethod(std::string path)
+void Response::getMethod(std::string path, std::string file)
 {
-	std::ifstream file(path);
 	std::stringstream resource;
 	std::stringstream response;
 
-	if (file.is_open())
+	if (file == "")
+		file = "index.html";//config index
+	std::ifstream fileStream(path + file);
+	if (fileStream.is_open())
 	{
-		resource << file.rdbuf();
+		resource << fileStream.rdbuf();
 		getCode("200");
-		_mime = "text/html";// look for correct one
-		//getMime(path);
+		getMime(file);
 		_body = resource.str();
 	}
 	else
@@ -160,8 +188,11 @@ void Response::postMethod(std::string path, std::vector<std::vector<std::string>
 		getErrorPage("409");
 }
 
-void Response::deleteMethod(std::string path)
+void Response::deleteMethod(std::string path, std::string file)
 {
+	if (file == "")
+		getCode("noidea");
+	path = path + file;
 	std::remove(path.c_str());
 	getCode("204");
 	//check for errors to send correct error page like not allowed
