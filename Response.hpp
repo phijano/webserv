@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:48:47 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/12 13:12:07 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/13 12:25:01 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,12 @@ class Response
 		std::string	_body;
 
 		void	getCode(std::string code);
+		void	getMime(std::string file);
 		void	getErrorPage(std::string error);
 
-		void getMethod(std::string path);
+		void getMethod(std::string path, std::string file);
 		void postMethod(std::string path, std::vector<std::vector<std::string> > parameters);
-		void deleteMethod(std::string path);
+		void deleteMethod(std::string path, std::string file);
 };
 
 #endif
