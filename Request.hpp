@@ -3,20 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/13 11:45:54 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/16 18:02:43 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUEST_HPP
- #define REQUEST_HPP
+# define REQUEST_HPP
 
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sstream>
+# include <string>
+# include <vector>
+# include <iostream>
+# include <sstream>
 
 class Request
 {

@@ -3,23 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:48:47 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/16 12:02:23 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/16 18:09:02 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
- #define RESPONSE_HPP
+# define RESPONSE_HPP
 
-#include <unistd.h>
-#include <string>
-#include <vector>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include "Request.hpp"
+# include <unistd.h>
+# include <fstream>
+# include "Request.hpp"
 
 class Response
 {

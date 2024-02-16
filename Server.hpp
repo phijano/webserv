@@ -3,26 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:08:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/12 13:19:49 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/16 18:08:27 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
- #define SERVER_HPP
+# define SERVER_HPP
 
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <string>
-#include <vector>
-#include "Request.hpp"
-#include "Response.hpp"
+# include <netinet/in.h>
+# include <arpa/inet.h>
+# include "Request.hpp"
+# include "Response.hpp"
 
 class Server
 {
