@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/13 12:24:12 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/16 13:43:53 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ Response::Response(Request request)
 	else if (request.getMethod() == "POST")
 	{
 		std::cout << "POST" << std::endl;
-		postMethod("testweb" + request.getPath(), request.getParameters());//idem
+		postMethod("testweb" + request.getPath(), request.getFile(), request.getParameters());//idem
 	}
 	else if (request.getMethod() == "DELETE")
 	{
@@ -63,6 +63,12 @@ std::string Response::getResponse() const
 {
 	std::stringstream response;
 
+	//std::cout << "cgiresponse :" <<_cgiResponse << std::endl;;
+	if (!_cgiResponse.empty())
+	{
+		//std::cout << "SEND" << std::endl;
+		return _cgiResponse;
+	}
 	response << _protocol << " " << _code;
 	if (_mime != "")
 		response << "\nContent-Type: " << _mime << "\nContent-Length: " << _body.size() << "\n\n" << _body;
@@ -102,11 +108,22 @@ void	Response::getCode(std::string code) // add more codes as we need
 	}
 }
 
+std::string Response::getExtension(std::string file)
+{
+	std::string ext;
+	size_t pointPos;
+
+	pointPos = file.find_last_of(".");
+	if (pointPos != std::string::npos)
+		ext = file.substr(file.find_last_of("."), file.size());
+	return ext;
+}
+
 void Response::getMime(std::string file)//no idea how many to put here
 {
 	std::string ext;
-	ext = file.substr(file.find_last_of("."), file.size());
 
+	ext = getExtension(file);
 	if (ext == ".htm" or ext == ".html")
 		_mime = "text/html";
 	else if (ext == ".txt")
@@ -127,6 +144,7 @@ void Response::getMime(std::string file)//no idea how many to put here
 		_mime = "image/png";
 	else
 		_mime = "application/octet-stream";
+	std::cout << "EXT: " << ext << "<-" << std::endl;
 }
 
 
@@ -146,6 +164,55 @@ void Response::getErrorPage(std::string error)
 	}
 }
 
+void Response::execCgi(int *fd, std::string path, std::string file, char **env)
+{
+	char *command[] = {(char *)file.c_str(), NULL};
+	int error;
+
+	(void) env;
+	dup2(fd[1], STDOUT_FILENO);
+	close(fd[1]);
+	close(fd[0]);
+	path = "." + path;
+	error = execve(path.c_str(), command, env);
+	std::cout << "Child: path: " << path.c_str() << " cgi_file: " << command[0] << std::endl;
+	std::cout << "Error: " << error <<  " child exec fail" << std::endl;
+	exit(1);
+}
+
+void Response::sendToCgi(void)
+{
+	std::cout << "CGI" << std::endl;
+
+	pid_t pid;
+	int fd[2];
+	char buffer[30720];
+	std::string file = "test.cgi";
+	char *env[] = {(char*)"REQUEST_METHOD=GET", (char*)"SERVER_PROTOCOL=HTTP/1.1", NULL};
+
+	pipe(fd);
+	pid = fork();
+	if (pid == -1)
+		getErrorPage("505");
+	else if (pid == 0)
+		execCgi(fd, "/testweb/test.cgi", file, env);
+	else
+	{
+		int status;
+		std::cout << "READ" << std::endl;
+		close(fd[1]);
+		if (read(fd[0], buffer, 30720) > 0)
+		{
+			std::cout << "Father read: " << buffer << std::endl;
+		}
+		_cgiResponse = buffer;
+		std::cout << "CGI: *** " << _cgiResponse << "<-" << std::endl; 
+		close(fd[0]);
+		waitpid(pid, &status, 0);
+	}
+	std::cout << "***" << std::endl;
+}
+
 void Response::getMethod(std::string path, std::string file)
 {
 	std::stringstream resource;
@@ -153,39 +220,53 @@ void Response::getMethod(std::string path, std::string file)
 
 	if (file == "")
 		file = "index.html";//config index
-	std::ifstream fileStream(path + file);
-	if (fileStream.is_open())
+	if (getExtension(file) == ".cgi")//cgi extension config file
 	{
-		resource << fileStream.rdbuf();
-		getCode("200");
-		getMime(file);
-		_body = resource.str();
+		sendToCgi();
 	}
 	else
-		getErrorPage("404");
+	{
+		std::ifstream fileStream(path + file);
+		if (fileStream.is_open())
+		{
+			resource << fileStream.rdbuf();
+			getCode("200");
+			getMime(file);
+			_body = resource.str();
+		}
+		else
+			getErrorPage("404");
+	}
 }
 
-void Response::postMethod(std::string path, std::vector<std::vector<std::string> > parameters)//Dont know what response send if no files send only string fields
+void Response::postMethod(std::string path, std::string file, std::vector<std::vector<std::string> > parameters)//Dont know what response send if no files send only fields
 {
 	bool isAnyCreated = false;
 
-	for (std::vector<std::vector<std::string> >::iterator it = parameters.begin(); it != parameters.end(); it++)
+	if (getExtension(file) == ".cgi")//cgi extension config file
 	{
-		if ((*it).size() == 3)
+		sendToCgi();
+	}
+	else
+	{
+		for (std::vector<std::vector<std::string> >::iterator it = parameters.begin(); it != parameters.end(); it++)
 		{
-			std::ifstream file(path + (*it)[1]); // path + filename
-			if (!file.good())
+			if ((*it).size() == 3)
 			{
-				std::ofstream newFile(path + (*it)[1]);
-				newFile << (*it)[2]; //file content
-				newFile.close();
-				isAnyCreated = true;
-				getCode("201");
+				std::ifstream file(path + (*it)[1]); // path + filename
+				if (!file.good())
+				{
+					std::ofstream newFile(path + (*it)[1]);
+					newFile << (*it)[2]; //file content
+					newFile.close();
+					isAnyCreated = true;
+					getCode("201");
+				}
 			}
 		}
+		if (!isAnyCreated)
+			getErrorPage("409");
 	}
-	if (!isAnyCreated)
-		getErrorPage("409");
 }
 
 void Response::deleteMethod(std::string path, std::string file)
