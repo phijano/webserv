@@ -6,13 +6,14 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:48:47 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/13 12:25:01 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/16 12:02:23 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
  #define RESPONSE_HPP
 
+#include <unistd.h>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -38,14 +39,20 @@ class Response
 		std::string	_code;
 		std::string	_mime;
 		std::string	_body;
+		std::string _cgiResponse;
+
+		std::string getExtension(std::string file);
 
 		void	getCode(std::string code);
 		void	getMime(std::string file);
 		void	getErrorPage(std::string error);
 
 		void getMethod(std::string path, std::string file);
-		void postMethod(std::string path, std::vector<std::vector<std::string> > parameters);
+		void postMethod(std::string path, std::string file, std::vector<std::vector<std::string> > parameters);
 		void deleteMethod(std::string path, std::string file);
+
+		void execCgi(int *fd, std::string path, std::string file, char **env);
+		void sendToCgi(void);
 };
 
 #endif

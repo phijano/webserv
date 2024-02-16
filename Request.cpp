@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/13 11:58:40 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/14 10:38:35 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,12 +131,8 @@ void Request::parseRequest(std::string request)
 			_method = word;
 			std::cout << "Method: " << _method << std::endl;
 			ssLine >> word;
-			_path = "testweb" + word; //add root to path; this will be in response we need to check location for root
-			if (_method == "GET")
-				_path += "index.html"; //add index to path; this in response too
-			std::cout << "Path: " << _path << std::endl;
 			parseUrl(word);
-
+			std::cout << "Path: " << _path << _file << std::endl;
 			size_t boundaryPos = ss.str().find("boundary=");
 			if (boundaryPos != std::string::npos)
 			{
