@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/19 11:01:48 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/19 11:16:54 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,11 @@ std::string Request::getPath() const
 std::string Request::getFile() const
 {
 	return _file;
+}
+
+std::vector<std::vector<std::string> > Request::getQueryParameters() const
+{
+	return _queryParameters;
 }
 
 std::vector<std::vector<std::string> > Request::getParameters() const
