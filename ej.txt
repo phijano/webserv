@@ -1,0 +1,10 @@
+server
+{
+	listen 127.0.0.1:8080;
+	server_name example.org www.example.org;
+	error_page 404 /404.html;
+	location /
+	{
+		sub_filter /blog/ /blog-staging/;
+	}
+}
