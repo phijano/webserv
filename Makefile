@@ -1,30 +1,61 @@
+#PROGRAM NAME
 NAME = webserv
 
-MAIN = main.cpp
-
-SOURCES = \
-		  Server.cpp Request.cpp Response.cpp CgiHandler.cpp\
-
-MAINOBJ = $(MAIN:.cpp=.o)
-OBJECTS = $(SOURCES:.cpp=.o)
-
+#COMPILATOR
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 
-all: $(NAME)
+#SOURCES
+SRCSFD = srcs/
+SRCS = \
+		  main.cpp \
+		  Server.cpp \
+		  Request.cpp \
+		  Response.cpp \
+		  CgiHandler.cpp\
 
-$(NAME): $(MAINOBJ) $(OBJECTS)
-	$(CC) -o $(NAME) $(CFLAGS) $(MAINOBJ) $(OBJECTS)
+#OBJECTS
+OBJSFD = objs/
+OBJS = $(addprefix $(OBJSFD), $(SRCS:.cpp=.o))
 
-%.o: %.cpp
-	$(CC) -c $(CFLAGS) $?
+#HEADERS
+HDRSFD = includes/
+HDR = \
+	CgiHandler.hpp \
+	Config.hpp \
+	Location.hpp \
+	Request.hpp \
+	Response.hpp \
+	Server.hpp \
 
-clean:
-	rm -f $(MAINOBJ) $(OBJECTS)
+HDRS = $(addprefix $(HDRSFD), $(HDR))
+HDR_INC = -I./includes
 
-fclean: clean
-	rm -f $(NAME)
+#COLOURS
+RED = \033[0;31m
+GREEN = \033[0;32m
+NONE = \033[0m
 
-re: fclean all
+all: ${NAME}
 
-.PHONY: all bonus clean fclean re
+${OBJSFD}:
+		@mkdir $@
+		@echo "\t[ $(GREEN)✔$(NONE) ] $@ directory"
+
+${NAME}: ${OBJSFD} ${OBJS} ${HDRS}
+		@${CC} ${CFLAGS} ${OBJS} -o $@
+		@echo "\t[ $(GREEN)✔$(NONE) ] $@ executable"
+
+${OBJSFD}%.o: ${SRCSFD}%.cpp
+		@${CC} ${CFLAGS} ${HDR_INC} -o $@ -c $<
+
+clean: 
+		@/bin/rm -rf $(OBJSFD)
+		@echo "\t[ $(RED)✗$(NONE) ] $(OBJSFD) directory"
+fclean:	clean
+		@/bin/rm -f $(NAME)
+		@echo "\t[ $(RED)✗$(NONE) ] $(NAME) executable"
+
+re:	fclean all
+
+.PHONY: all clean fclean re 
