@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/16 13:43:53 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/19 13:35:20 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@ Response::Response(Request request)
 	else if (request.getMethod() == "GET")
 	{
 		std::cout << "GET" << std::endl;
-		getMethod("testweb" + request.getPath(), request.getFile());//change testweb for root
+		getMethod(request);//change testweb for root
 	}
 	else if (request.getMethod() == "POST")
 	{
 		std::cout << "POST" << std::endl;
-		postMethod("testweb" + request.getPath(), request.getFile(), request.getParameters());//idem
+		postMethod(request);//idem
 	}
 	else if (request.getMethod() == "DELETE")
 	{
@@ -164,65 +164,22 @@ void Response::getErrorPage(std::string error)
 	}
 }
 
-void Response::execCgi(int *fd, std::string path, std::string file, char **env)
-{
-	char *command[] = {(char *)file.c_str(), NULL};
-	int error;
-
-	(void) env;
-	dup2(fd[1], STDOUT_FILENO);
-	close(fd[1]);
-	close(fd[0]);
-	path = "." + path;
-	error = execve(path.c_str(), command, env);
-	std::cout << "Child: path: " << path.c_str() << " cgi_file: " << command[0] << std::endl;
-	std::cout << "Error: " << error <<  " child exec fail" << std::endl;
-	exit(1);
-}
-
-void Response::sendToCgi(void)
-{
-	std::cout << "CGI" << std::endl;
-
-	pid_t pid;
-	int fd[2];
-	char buffer[30720];
-	std::string file = "test.cgi";
-	char *env[] = {(char*)"REQUEST_METHOD=GET", (char*)"SERVER_PROTOCOL=HTTP/1.1", NULL};
-
-	pipe(fd);
-	pid = fork();
-	if (pid == -1)
-		getErrorPage("505");
-	else if (pid == 0)
-		execCgi(fd, "/testweb/test.cgi", file, env);
-	else
-	{
-		int status;
-		std::cout << "READ" << std::endl;
-		close(fd[1]);
-		if (read(fd[0], buffer, 30720) > 0)
-		{
-			std::cout << "Father read: " << buffer << std::endl;
-		}
-		_cgiResponse = buffer;
-		std::cout << "CGI: *** " << _cgiResponse << "<-" << std::endl; 
-		close(fd[0]);
-		waitpid(pid, &status, 0);
-	}
-	std::cout << "***" << std::endl;
-}
-
-void Response::getMethod(std::string path, std::string file)
+void Response::getMethod(Request request)
 {
 	std::stringstream resource;
 	std::stringstream response;
+	std::string file = request.getFile();
+	std::string path = "testweb" + request.getPath();
 
 	if (file == "")
 		file = "index.html";//config index
 	if (getExtension(file) == ".cgi")//cgi extension config file
 	{
-		sendToCgi();
+		CgiHandler cgi(request);
+		if (cgi.getError().empty())
+			_cgiResponse = cgi.getResponse();
+		else
+			getErrorPage(cgi.getError());
 	}
 	else
 	{
@@ -239,13 +196,20 @@ void Response::getMethod(std::string path, std::string file)
 	}
 }
 
-void Response::postMethod(std::string path, std::string file, std::vector<std::vector<std::string> > parameters)//Dont know what response send if no files send only fields
+void Response::postMethod(Request request)//Dont know what response send if no files send only fields
 {
 	bool isAnyCreated = false;
+	std::string path = "testweb" + request.getPath();
+	std::string file = request.getFile();
+	std::vector <std::vector<std::string> > parameters = request.getParameters();
 
 	if (getExtension(file) == ".cgi")//cgi extension config file
 	{
-		sendToCgi();
+		CgiHandler cgi(request);
+		if (cgi.getError().empty())
+			_cgiResponse = cgi.getResponse();
+		else
+			getErrorPage(cgi.getError());
 	}
 	else
 	{

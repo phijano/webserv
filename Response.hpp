@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:48:47 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/16 18:09:02 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/19 13:30:58 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <unistd.h>
 # include <fstream>
 # include "Request.hpp"
+# include "CgiHandler.hpp" 
 
 class Response
 {
@@ -43,12 +44,9 @@ class Response
 		void	getMime(std::string file);
 		void	getErrorPage(std::string error);
 
-		void getMethod(std::string path, std::string file);
-		void postMethod(std::string path, std::string file, std::vector<std::vector<std::string> > parameters);
+		void getMethod(Request request);
+		void postMethod(Request request);
 		void deleteMethod(std::string path, std::string file);
-
-		void execCgi(int *fd, std::string path, std::string file, char **env);
-		void sendToCgi(void);
 };
 
 #endif
