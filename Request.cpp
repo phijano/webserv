@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/19 11:16:54 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/19 12:28:27 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,9 @@ std::string Request::getFile() const
 	return _file;
 }
 
-std::vector<std::vector<std::string> > Request::getQueryParameters() const
+std::string Request::getQuery() const
 {
-	return _queryParameters;
+	return _query;
 }
 
 std::vector<std::vector<std::string> > Request::getParameters() const
@@ -113,19 +113,7 @@ void Request::parseUrl(std::string url)//need to parse parameters
 	if (paramPos != std::string::npos)//queryParse
 	{
 		_path = url.substr(0, paramPos);
-		std::stringstream query(url.substr(paramPos + 1, url.size()));
-		std::string pair;
-		while (getline(query, pair, '&'))
-		{
-			paramPos = pair.find("=");
-			if (paramPos != std::string::npos)
-			{
-				std::vector<std::string> parameter;
-				parameter.push_back(pair.substr(0, paramPos));
-				parameter.push_back(pair.substr(paramPos + 1, pair.size()));
-				_queryParameters.push_back(parameter);
-			}	
-		}
+		_query = url.substr(paramPos + 1, url.size());
 	} 
 	else
 		_path = url;

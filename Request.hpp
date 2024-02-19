@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/19 11:11:53 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/19 11:45:59 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class Request
 		std::string 							getPath() const;
 		std::string								getFile() const;
 
-		std::vector<std::vector<std::string> >	getQueryParameters() const;	
+		std::string								getQuery() const;	
 		std::vector<std::vector<std::string> >	getParameters() const;
 		bool	 								getError() const;
 
@@ -43,7 +43,7 @@ class Request
 		std::string 							_method;
 		std::string 							_path;
 		std::string								_file;
-		std::vector<std::vector<std::string> >	_queryParameters;
+		std::string								_query;
 		std::vector<std::vector<std::string> >	_parameters;
 		bool									_error;
 		
