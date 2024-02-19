@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/14 10:38:35 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/19 11:01:48 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,10 +105,23 @@ void Request::parseUrl(std::string url)//need to parse parameters
 	size_t paramPos;
 
 	paramPos = url.find("?");
-	if (paramPos != std::string::npos)
+	if (paramPos != std::string::npos)//queryParse
 	{
 		_path = url.substr(0, paramPos);
-	}
+		std::stringstream query(url.substr(paramPos + 1, url.size()));
+		std::string pair;
+		while (getline(query, pair, '&'))
+		{
+			paramPos = pair.find("=");
+			if (paramPos != std::string::npos)
+			{
+				std::vector<std::string> parameter;
+				parameter.push_back(pair.substr(0, paramPos));
+				parameter.push_back(pair.substr(paramPos + 1, pair.size()));
+				_queryParameters.push_back(parameter);
+			}	
+		}
+	} 
 	else
 		_path = url;
 	_file = _path.substr( _path.find_last_of("/") + 1, _path.size());
