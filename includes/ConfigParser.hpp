@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 13:42:17 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/19 15:00:15 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/19 19:43:09 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,11 @@
 # define CONFIGPARSER_HPP
 
 # include <string>
+# include <vector>
 # include <fstream>
+# include <sstream>
+
+class Config;
 
 class ConfigParser
 {
@@ -24,6 +28,10 @@ class ConfigParser
 
 		void	parseFile(const std::string& fileName);
 		bool	isValidConfigFile(const std::string& fileName);
+		void	removeWhitespace(std::string& content);
+		void	splitServers(std::string& content);
+		size_t	findStartOfServer(size_t start, std::string& content);
+		size_t	findEndOfServer(size_t start, std::string& content);
 
 		class ConfigFileException : public std::exception
 		{
@@ -35,6 +43,11 @@ class ConfigParser
 			private:
     			std::string message;
 		};
+	
+	private:
+		size_t						_nbr_servers;
+		std::vector<std::string>	_server_contents;
+		std::vector<Config>			_servers;
 };
 
 #endif
