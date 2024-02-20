@@ -9,6 +9,8 @@ class ErrorPage
 		std::string path;
 		int	code;
 	public:
+		ErrorPage();
+		~ErrorPage();
 		std::string getPath();
 		int			getCode();
 	

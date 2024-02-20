@@ -15,6 +15,8 @@ class Location
 		bool	autoIndex;
 		bool	allowUploads;
 	public:
+		Location();
+		~Location();
 		std::string getRoute();
 		std::string getRoot();
 		std::string getIndex();
