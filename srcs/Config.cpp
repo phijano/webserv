@@ -8,7 +8,11 @@ Config::Config():
     root("/var/www"),
     index("index.html"),
     errors(nullptr),
-    locations(nullptr){}
+    locations(nullptr)
+{
+	
+}
+
 Config::~Config(){}
 
 // Getter Methods

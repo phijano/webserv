@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/19 19:43:59 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/20 18:13:34 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,49 @@ void	ConfigParser::parseFile(const std::string& fileName)
 	file.close();
 	removeWhitespace(content);
 	splitServers(content);
+
+	for (size_t i = 0; i < _nbr_servers; i++)
+	{
+		Config	server;
+		parseServer(_server_contents[i], server, i);
+		_servers.push_back(server);
+	}
+}
+
+void	ConfigParser::parseServer(std::string& content, Config server, int serverNum)
+{
+	std::vector<std::string>	tokens;
+	
+	tokens = splitContent(content);
+	
+	std::cout << "Server " << serverNum << ":" << std::endl;
+	for (size_t i = 0; i < tokens.size(); i++)
+	{
+		std::cout << tokens[i] << std::endl;
+	}
+	(void)server;
+}
+
+std::vector<std::string>	ConfigParser::splitContent(const std::string& content)
+{
+	std::vector<std::string>	tokens;
+	const std::string			separators = " \n\t";
+	size_t						start = 0;
+	size_t						end;
+
+	while ((end = content.find_first_of(separators, start)) != std::string::npos)
+	{
+		if (end > start)
+			tokens.push_back(content.substr(start, end - start));
+		start = content.find_first_not_of(separators, end);
+		if (start == std::string::npos)
+			break ;
+	}
+
+	if (start < content.length())
+		tokens.push_back(content.substr(start));
+
+	return (tokens);
 }
 
 void	ConfigParser::splitServers(std::string& content)
@@ -60,21 +103,24 @@ void	ConfigParser::splitServers(std::string& content)
 
 size_t	ConfigParser::findStartOfServer(size_t start, std::string& content)
 {
-	size_t i;
+	size_t i = start;
+    bool foundServer = false;
 
-	for (i = start; content[i]; i++)
+	while (i < content.length())
 	{
-		if (content[i] == 's')
+		if (content.compare(i, 6, "server") == 0)
+		{
+			foundServer = true;
+			i += 6;
 			break ;
+		}
 		else if (!isspace(content[i]))
 			throw ConfigFileException("Invalid character found outside of server scope");
+		i++;
 	}
-	if (!content[i])
+	if (!foundServer)
 		return (start);
-	if (content.compare(i, 6, "server") != 0)
-		throw ConfigFileException("Wrong character found outside of server scope");
-	i += 6;
-	while (content[i] && isspace(content[i]))
+	while (i < content.length() && isspace(content[i]))
 		i++;
 	if (content[i] == '{')
 		return (i);

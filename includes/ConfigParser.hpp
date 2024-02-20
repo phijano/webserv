@@ -6,19 +6,18 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 13:42:17 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/19 19:43:09 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/20 18:13:48 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIGPARSER_HPP
 # define CONFIGPARSER_HPP
 
-# include <string>
+# include <iostream>
 # include <vector>
 # include <fstream>
 # include <sstream>
-
-class Config;
+# include "Config.hpp"
 
 class ConfigParser
 {
@@ -26,12 +25,14 @@ class ConfigParser
 		ConfigParser();
 		~ConfigParser();
 
-		void	parseFile(const std::string& fileName);
-		bool	isValidConfigFile(const std::string& fileName);
-		void	removeWhitespace(std::string& content);
-		void	splitServers(std::string& content);
-		size_t	findStartOfServer(size_t start, std::string& content);
-		size_t	findEndOfServer(size_t start, std::string& content);
+		void						parseFile(const std::string& fileName);
+		bool						isValidConfigFile(const std::string& fileName);
+		void						removeWhitespace(std::string& content);
+		void						splitServers(std::string& content);
+		size_t						findStartOfServer(size_t start, std::string& content);
+		size_t						findEndOfServer(size_t start, std::string& content);
+		void						parseServer(std::string& content, Config server, int serverNum);
+		std::vector<std::string>	splitContent(const std::string& content);
 
 		class ConfigFileException : public std::exception
 		{
