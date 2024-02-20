@@ -5,10 +5,12 @@
 
 class ErrorPage
 {
-	public:
-
 	private:
 		std::string path;
 		int	code;
+	public:
+		std::string getPath();
+		int			getCode();
+	
 };
 #endif

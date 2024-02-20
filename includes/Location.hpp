@@ -5,16 +5,23 @@
 
 class Location
 {
-	public:
-
 	private:
 		std::string route;
 		std::string root;
 		std::string index;
-		std::string cgi_ext;
-		std::string *allow_methods;
-		std::string uploaded_path;
+		std::string cgiExt;
+		std::string *allowMethods;
+		std::string uploadedPath;
 		bool	autoIndex;
 		bool	allowUploads;
+	public:
+		std::string getRoute();
+		std::string getRoot();
+		std::string getIndex();
+		std::string getCgiExt();
+		std::string *getAllowMethods();
+		std::string getUploadedPath();
+		bool	getAutoIndex();
+		bool	getAllowUploads();
 };
 #endif
