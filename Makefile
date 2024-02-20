@@ -13,6 +13,9 @@ SRCS = \
 		  Request.cpp \
 		  Response.cpp \
 		  CgiHandler.cpp\
+		  Location.cpp\
+		  Configuration.cpp\
+		  ErrorPage.cpp
 
 #OBJECTS
 OBJSFD = objs/
@@ -24,6 +27,7 @@ HDR = \
 	CgiHandler.hpp \
 	Config.hpp \
 	Location.hpp \
+	ErrorPage.hpp \
 	Request.hpp \
 	Response.hpp \
 	Server.hpp \

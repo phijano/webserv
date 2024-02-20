@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/16 13:21:33 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/19 16:28:51 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,13 +57,11 @@ Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(siz
 	while (true)
 	{
 		_acceptSocket = accept(_socket, (sockaddr *) &_socketAddress, &_addressLen);
-
 		if (_acceptSocket < 0)
 		{
 			//handle error
 			std::cout << "Error accepting" << std::endl;
 		}
-
 		bytes = read(_acceptSocket, buffer, 30720); 
 		if (bytes < 0)
 		{
