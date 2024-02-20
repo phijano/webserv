@@ -15,6 +15,10 @@ class Location
 		bool	autoIndex;
 		bool	allowUploads;
 	public:
+		//Constructors
+		Location();
+		~Location();
+		//Getters
 		std::string getRoute();
 		std::string getRoot();
 		std::string getIndex();
@@ -23,5 +27,14 @@ class Location
 		std::string getUploadedPath();
 		bool	getAutoIndex();
 		bool	getAllowUploads();
-};
+		//Setters
+		void setRoute(const std::string newRoute);
+		void setRoot(const std::string newRoot);
+		void setIndex(const std::string newIndex);
+		void setCgiExt(const std::string newCgiExt);
+		void setAllowMethods(std::string* newAllowMethods);
+		void setUploadedPath(const std::string newUploadedPath);
+		void setAutoIndex(bool newAutoIndex);
+		void setAllowUploads(bool newAllowUploads);
+	};
 #endif

@@ -14,7 +14,7 @@ SRCS = \
 		  Response.cpp \
 		  CgiHandler.cpp\
 		  Location.cpp\
-		  Configuration.cpp\
+		  Config.cpp\
 		  ErrorPage.cpp
 
 #OBJECTS
