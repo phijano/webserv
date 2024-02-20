@@ -1,9 +1,19 @@
 #include "Location.hpp"
 
-Location::Location(){}
+Location::Location():
+    route(""),
+    root(""),
+    index(""),
+    cgiExt(""),
+    allowMethods(nullptr),
+    uploadedPath(""),
+    autoIndex(false),
+    allowUploads(false)
+{}
 
 Location::~Location(){}
 
+// Getter Methods
 std::string Location::getRoute() {
     return this->route;
 }
@@ -34,4 +44,36 @@ bool Location::getAutoIndex() {
 
 bool Location::getAllowUploads() {
     return this->allowUploads;
+}
+// Setter Methods
+void Location::setRoute(const std::string newRoute) {
+    route = newRoute;
+}
+
+void Location::setRoot(const std::string newRoot) {
+    root = newRoot;
+}
+
+void Location::setIndex(const std::string newIndex) {
+    index = newIndex;
+}
+
+void Location::setCgiExt(const std::string newCgiExt) {
+    cgiExt = newCgiExt;
+}
+
+void Location::setAllowMethods(std::string* newAllowMethods) {
+    allowMethods = newAllowMethods;
+}
+
+void Location::setUploadedPath(const std::string newUploadedPath) {
+    uploadedPath = newUploadedPath;
+}
+
+void Location::setAutoIndex(bool newAutoIndex) {
+    autoIndex = newAutoIndex;
+}
+
+void Location::setAllowUploads(bool newAllowUploads) {
+    allowUploads = newAllowUploads;
 }

@@ -17,8 +17,10 @@ class Config
 		ErrorPage	*errors;
 		Location 	*locations;
 	public:
+		//Constructor
 		Config();
 		~Config();
+		//Getters
 		std::string	getHost();
 		int			getPort();
 		std::string	getRoot();
@@ -26,5 +28,14 @@ class Config
 		std::string	*getServerNames();
 		ErrorPage	*getErrorPages();
 		Location	*getLocations();
+		//Setters
+		void setHost(const std::string newHost);
+		void setServerNames(std::string* newServerNames);
+		void setPort(int newPort);
+		void setBodySize(const std::string newSize);
+		void setRoot(const std::string newRoot);
+		void setIndex(const std::string newIndex);
+		void setErrors(ErrorPage* newErrors);
+		void setLocations(Location* newLocations);
 };
 #endif
