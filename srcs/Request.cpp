@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/19 12:28:27 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/20 13:02:18 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ Request& Request::operator=(const Request& other)
 	_method = other._method;
 	_path = other._path;
 	_file = other._file;
+	_query = other._query;
 	_parameters = other._parameters;
 	_error = other._error;
 
@@ -114,6 +115,7 @@ void Request::parseUrl(std::string url)//need to parse parameters
 	{
 		_path = url.substr(0, paramPos);
 		_query = url.substr(paramPos + 1, url.size());
+		std::cout << "Query: " << _query << std::endl;
 	} 
 	else
 		_path = url;
