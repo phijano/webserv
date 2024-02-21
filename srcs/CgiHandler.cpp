@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 11:09:06 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/21 14:59:53 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,21 +83,12 @@ void CgiHandler::setCgiEnv(Request request)//
 	_env[11] = setEnvParam("REMOTE_HOST=" + a);
 	_env[12] = setEnvParam("REMOTE_ADDR=" + a);
 	_env[13] = setEnvParam("REMOTE_USER=" + a);
-	_env[14] = setEnvParam("CONTENT_TYPE=" + a);
-	_env[15] = setEnvParam("CONTENT_LENGTH=" + a);
+	_env[14] = setEnvParam("CONTENT_TYPE=" + request.getContentType());
+	_env[15] = setEnvParam("CONTENT_LENGTH=" + request.getContentLength());
 	_env[16] = NULL;
 }
 
-void CgiHandler::postWrite(int *fd)
-{
-	dup2(fd[1], STDOUT_FILENO);
-	close(fd[1]);
-	close(fd[0]);
-	std::cout << "POST THING" << std::endl;
-	exit(0);
-}
-
-void CgiHandler::postFork(int *fd)
+void CgiHandler::postFork(int *fd, std::string body)
 {
 	pid_t pidPost;
 
@@ -106,7 +97,13 @@ void CgiHandler::postFork(int *fd)
 	if (pidPost == -1)
 		_error = "505";
 	else if (pidPost == 0)
-		postWrite(fd);
+	{
+		dup2(fd[1], STDOUT_FILENO);
+		close(fd[1]);
+		close(fd[0]);
+		std::cout << body;
+		exit(0);
+	}
 	close(fd[1]);
 	wait(NULL);
 }
@@ -141,8 +138,10 @@ void CgiHandler::sendToCgi(Request request)//if method is POST an extra fork to 
 	int fdCgi[2];
 	char buffer[30720];
 
+	std::cout << "BODY CGI: " << request.getBody() << std::endl;
+
 	if (request.getMethod() == "POST")
-		postFork(fdPost);
+		postFork(fdPost, request.getBody());
 	std::cout << "Post forked" << std::endl;
 	pipe(fdCgi);
 	pid = fork();
