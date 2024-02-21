@@ -1,17 +1,32 @@
 server
 {
-	listen 80;
-	root example/;
-	host 127.0.0.1;
+	listen 192.21.23:80;
+	root /path/example;
 	server_name example.com www.example.org;
-	cgi_path /usr/bin/python3;
 	error_page 405 /405.html;
 	error_page 404 /404.html;
+	client_max_body_size	10M;
+	index	index.html;
 	location /img
 	{
 		root img/docs;
 		index index.html;
-		allow_methods: GET;
-		cgi_ext: .py;
+		allow_methods GET POST DELETE;
+		uploaded_path /docs/img;
+		autoindex on;
+	}
+
+	location /cgi/bin/python
+	{
+		index index.html;
+		cgi_ext .py;
+		cgi_path /usr/bin/python;
+	}
+
+	location /cgi/bin/php
+	{
+		index index.html;
+		cgi_ext .php;
+		cgi_path /usr/bin/php;
 	}
 }
