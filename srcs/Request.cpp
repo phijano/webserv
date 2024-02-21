@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/20 13:02:18 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/21 14:46:39 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,9 @@ Request& Request::operator=(const Request& other)
 	_path = other._path;
 	_file = other._file;
 	_query = other._query;
-	_parameters = other._parameters;
+	_contentType = other._contentType;
+	_contentLength = other._contentLength;
+	_body = other._body;
 	_error = other._error;
 
 	return *this;
@@ -63,9 +65,19 @@ std::string Request::getQuery() const
 	return _query;
 }
 
-std::vector<std::vector<std::string> > Request::getParameters() const
+std::string Request::getContentType() const
 {
-	return _parameters;
+	return _contentType;
+}
+
+std::string Request::getContentLength() const
+{
+	return _contentLength;
+}
+
+std::string Request::getBody() const
+{
+	return _body;
 }
 
 bool Request::getError() const
@@ -73,40 +85,7 @@ bool Request::getError() const
 	return _error;
 }
 
-void Request::parseParameter(std::string formField)
-{
-	std::stringstream ss(formField);
-	std::string line;
-	std::string value;
-	size_t startValue;
-	size_t endValue;
-	std::vector <std::string> param;
-
-	getline(ss, line);
-	startValue = line.find("\"");
-	endValue = line.find("\"", startValue + 1);
-	value = line.substr(startValue + 1, endValue - startValue - 1);
-//	std::cout << "name " << value << std::endl;
-	param.push_back(value);
-
-	startValue = line.find("\"", endValue + 1);
-	if (startValue != std::string::npos)
-	{
-		value = line.substr(startValue + 1, line.find("\"", startValue + 1) - startValue - 1);
-//		std::cout << "filename " << value << std::endl;
-		param.push_back(value);
-	}
-	getline(ss, line);
-
-	if (line != "\r")
-		getline(ss, line);
-	getline(ss, value, '\r');
-//	std::cout << "Content: " << value << "<-Content"<< std::endl;
-	param.push_back(value);
-	_parameters.push_back(param);
-}
-
-void Request::parseUrl(std::string url)//need to parse parameters
+void Request::parseUrl(std::string url)
 {
 	size_t paramPos;
 
@@ -123,6 +102,36 @@ void Request::parseUrl(std::string url)//need to parse parameters
 	_path = _path.substr(0, _path.find_last_of("/") + 1);
 }
 
+void Request::parseHeader(std::string header)
+{
+	std::stringstream ss(header);
+	std::string line;
+	std::string word;
+
+	std::cout << "HEADER:\n" << header << "<-" << std::endl;
+	getline(ss, line);
+	std::stringstream ssLine(line);
+	ssLine >> word;
+	_method = word;
+	std::cout << "Method: " << _method << std::endl;
+	ssLine >> word;
+	parseUrl(word);
+	std::cout << "Path: " << _path << _file << std::endl;
+	size_t contentPos = ss.str().find("Content-Type: ");
+	if (contentPos != std::string::npos)
+	{
+		std::stringstream ssLine(ss.str().substr(contentPos + 14, ss.str().size()));
+		getline(ssLine, _contentType, '\r');
+		std::cout << "Content-Type: " << _contentType << std::endl;
+		contentPos = ss.str().find("Content-Length: ");
+		if (contentPos != std::string::npos)
+		{
+			std::stringstream ssLine(ss.str().substr(contentPos + 16, ss.str().size()));
+			getline(ssLine, _contentLength, '\r');
+			std::cout << "Content-Length: " << _contentLength << std::endl;
+		}
+	}
+}
 
 void Request::parseRequest(std::string request)
 {
@@ -130,39 +139,8 @@ void Request::parseRequest(std::string request)
 	std::string line;
 	std::string word;
 
-	if (getline(ss, line))
-	{
-		std::stringstream ssLine(line);
-		ssLine >> word;
-		if (word == "GET" or word == "POST" or word == "DELETE")
-		{
-			_method = word;
-			std::cout << "Method: " << _method << std::endl;
-			ssLine >> word;
-			parseUrl(word);
-			std::cout << "Path: " << _path << _file << std::endl;
-			size_t boundaryPos = ss.str().find("boundary=");
-			if (boundaryPos != std::string::npos)
-			{
-				std::string boundary;
-				std::stringstream ssLine(ss.str().substr(boundaryPos + 9, ss.str().size()));
-				getline(ssLine, boundary, '\r');
-				boundary = "--" + boundary;
-				std::cout << "Boundary: " << boundary << std::endl;
-				std::string body =	ss.str().substr(ss.str().find(boundary) + boundary.size() + 2, ss.str().size());
-				std::string formField;
-				while (body.find(boundary)!=std::string::npos)
-				{
-					formField = body.substr(0, body.find(boundary) - 1);
-					body = body.substr(body.find(boundary) + boundary.size() + 2, body.size());
-					std::cout << "### " << formField << std::endl;
-					parseParameter(formField);
-				}
-			}
-			else
-			{
-				std::cout << "no body" << std::endl;
-			}
-		}
-	}
+	size_t headerEnd = ss.str().find("\r\n\r\n");
+	parseHeader(ss.str().substr(0, headerEnd + 2));
+	_body = ss.str().substr(headerEnd + 4, ss.str().size());
 }
+

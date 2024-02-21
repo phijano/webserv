@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/19 13:35:20 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/21 14:49:26 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,13 +196,65 @@ void Response::getMethod(Request request)
 	}
 }
 
+void Response::uploadFile(std::string path, std::string formField)
+{
+	std::stringstream ss(formField);
+	std::string line;
+	std::string fileName;
+	std::string fileContent;
+	size_t startFileName;
+	size_t endFileName;
+
+	getline(ss, line);
+	startFileName = line.find("filename=\"");
+	if (startFileName != std::string::npos)
+	{
+		endFileName = line.find("\"", startFileName + 10);
+		fileName = line.substr(startFileName + 10, endFileName - startFileName - 10);
+		std::cout << "filename: " << fileName << std::endl;
+	}
+	getline(ss, line);
+	if (line != "\r")
+		getline(ss, line);
+	getline(ss, fileContent, '\r');
+	std::cout << "Content: " << fileContent << "<-Content"<< std::endl;
+	std::ifstream file(path + fileName); // path + filename
+	if (!file.good())
+	{
+		std::ofstream newFile(path + fileName);
+		newFile << fileContent; //file content
+		newFile.close();
+		getCode("201");
+	}
+}
+
+void Response::staticPost(Request request)
+{
+	std::string path = "testweb" + request.getPath();
+	size_t boundaryPos = request.getContentType().find("boundary=");
+	if (boundaryPos != std::string::npos)
+	{
+		std::string boundary = "--" + request.getContentType().substr(boundaryPos + 9, request.getContentType().size());
+		std::cout << "Boundary: " << boundary << std::endl;
+		std::string body = request.getBody().substr(boundary.size() + 2, request.getBody().size());
+		std::string formField;
+		while (body.find(boundary)!=std::string::npos)
+		{
+			formField = body.substr(0, body.find(boundary) - 1);
+			body = body.substr(body.find(boundary) + boundary.size() + 2, body.size());
+			std::cout << "### " << formField << std::endl;
+			uploadFile(path, formField);
+		}
+	}
+	if (_code == "")
+		getErrorPage("409");
+}
+
 void Response::postMethod(Request request)//Dont know what response send if no files send only fields
 {
-	bool isAnyCreated = false;
-	std::string path = "testweb" + request.getPath();
 	std::string file = request.getFile();
-	std::vector <std::vector<std::string> > parameters = request.getParameters();
 
+	std::cout << "POST 2" << std::endl;
 	if (getExtension(file) == ".cgi")//cgi extension config file
 	{
 		CgiHandler cgi(request);
@@ -213,23 +265,8 @@ void Response::postMethod(Request request)//Dont know what response send if no f
 	}
 	else
 	{
-		for (std::vector<std::vector<std::string> >::iterator it = parameters.begin(); it != parameters.end(); it++)
-		{
-			if ((*it).size() == 3)
-			{
-				std::ifstream file(path + (*it)[1]); // path + filename
-				if (!file.good())
-				{
-					std::ofstream newFile(path + (*it)[1]);
-					newFile << (*it)[2]; //file content
-					newFile.close();
-					isAnyCreated = true;
-					getCode("201");
-				}
-			}
-		}
-		if (!isAnyCreated)
-			getErrorPage("409");
+		std::cout << "POST 3" << std::endl;
+		staticPost(request);
 	}
 }
 
