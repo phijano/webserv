@@ -28,13 +28,10 @@ echo CONTENT_LENGTH = $CONTENT_LENGTH
 
 if [[ $REQUEST_METHOD == "POST" ]]
 then
-	read POST_DATA
-	echo POST_DATA = $POST_DATA
-#	if [ "$CONTENT_LENGTH" -gt 0 ]
-#	then
-#        read -n $CONTENT_LENGTH POST_DATA <&0
-#        echo POST_DATA = $POST_DATA
-#    fi
+echo POST DATA:
+while read POST_DATA
+do
+  echo "$POST_DATA"
+done < "/dev/stdin"
 fi
-
 echo END
