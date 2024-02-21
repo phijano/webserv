@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/19 16:28:51 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/21 16:30:32 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,11 @@ Server::Server()
 
 Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(sizeof(_socketAddress))
 {
-	_socketAddress.sin_family = PF_INET;
+	_socketAddress.sin_family = AF_INET;
 	_socketAddress.sin_port = htons(_port);
 	_socketAddress.sin_addr.s_addr = inet_addr(_ip.c_str());
 	
-	_socket = socket(PF_INET, SOCK_STREAM, 0);
+	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket < 0)
 	{
 		//handle error
@@ -50,6 +50,7 @@ Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(siz
 	}
 	std::cout << "listening: address " << inet_ntoa(_socketAddress.sin_addr) << " port " << ntohs(_socketAddress.sin_port) << std::endl;
 
+	std::vector<pollfd> fds(1);
 	// fd, buffer, buffer size,
 	char buffer[30720];
 	long bytes;
@@ -80,6 +81,7 @@ Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(siz
 		}
 		close(_acceptSocket);
 	}
+	close(_socket);
 }
 
 Server::Server(const Server& other)

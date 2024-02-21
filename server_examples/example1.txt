@@ -6,7 +6,7 @@ server
 	location /
 	{
 		cgi_path /usr/bin/php;
-		allow_uploads: on;
+		allow_uploads on;
 		
 	}
 }
