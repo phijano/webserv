@@ -1,23 +1,15 @@
 #ifndef LOCATION_H
-#define LOCATION_H
+# define LOCATION_H
 
-#include <string>
+# include <string>
+# include <iostream>
 
 class Location
 {
-	private:
-		std::string route;
-		std::string root;
-		std::string index;
-		std::string cgiExt;
-		std::string *allowMethods;
-		std::string uploadedPath;
-		bool	autoIndex;
-		bool	allowUploads;
 	public:
-		//Constructors
 		Location();
 		~Location();
+
 		//Getters
 		std::string getRoute();
 		std::string getRoot();
@@ -28,6 +20,7 @@ class Location
 		bool	getAutoIndex();
 		bool	getAllowUploads();
 		//Setters
+
 		void setRoute(const std::string newRoute);
 		void setRoot(const std::string newRoot);
 		void setIndex(const std::string newIndex);
@@ -36,5 +29,18 @@ class Location
 		void setUploadedPath(const std::string newUploadedPath);
 		void setAutoIndex(bool newAutoIndex);
 		void setAllowUploads(bool newAllowUploads);
-	};
+	
+	friend std::ostream& operator<<(std::ostream& os, const Location& location);
+
+	private:
+		std::string route;
+		std::string root;
+		std::string index;
+		std::string cgiExt;
+		std::string *allowMethods;
+		std::string uploadedPath;
+		bool	autoIndex;
+		bool	allowUploads;
+};
+
 #endif

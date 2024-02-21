@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/20 18:13:34 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/21 19:31:32 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,51 @@ void	ConfigParser::parseServer(std::string& content, Config server, int serverNu
 	std::cout << "Server " << serverNum << ":" << std::endl;
 	for (size_t i = 0; i < tokens.size(); i++)
 	{
-		std::cout << tokens[i] << std::endl;
+		if (tokens[i] == "host")
+			server.setHost(tokens[++i].substr(0, tokens[i].length() - 1));
+		else if (tokens[i] == "root")
+			server.setRoot(tokens[++i].substr(0, tokens[i].length() - 1));
+		else if (tokens[i] == "index")
+			server.setIndex(tokens[++i].substr(0, tokens[i].length() - 1));
+		else if (tokens[i] == "server_name")
+		{
+			while (1)
+			{
+				if (tokens[++i][tokens[i].length() - 1] == ';')
+				{
+					server.addServerName(tokens[i].substr(0, tokens[i].length() - 1));
+					break ;
+				}
+				else
+					server.addServerName(tokens[i]);
+			}
+		}
+		else if (tokens[i] == "listen")
+		{
+			std::string::size_type delim = tokens[++i].find(':');
+			if (delim == std::string::npos)
+				server.setPort(std::stoi(tokens[i]));
+			else
+			{
+				server.setHost(tokens[i].substr(0, delim));
+				server.setPort(std::stoi(tokens[i].substr(delim + 1)));
+			}
+		}
+		else if (tokens[i] == "error_page")
+		{
+			ErrorPage errorPage;
+			
+			errorPage.setCode(std::stoi(tokens[++i]));
+			errorPage.setPath(tokens[++i]);
+			server.addErrorPage(errorPage);
+		}
+		else if (tokens[i] == "location")
+		{
+			//parseLocation
+			while (tokens[++i] != "}")
+				;
+		}
 	}
-	(void)server;
 }
 
 std::vector<std::string>	ConfigParser::splitContent(const std::string& content)
@@ -103,8 +145,8 @@ void	ConfigParser::splitServers(std::string& content)
 
 size_t	ConfigParser::findStartOfServer(size_t start, std::string& content)
 {
-	size_t i = start;
-    bool foundServer = false;
+	size_t	i = start;
+    bool	foundServer = false;
 
 	while (i < content.length())
 	{
