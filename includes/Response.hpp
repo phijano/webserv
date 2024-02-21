@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:48:47 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/19 13:30:58 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/21 14:06:23 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ class Response
 		void	getErrorPage(std::string error);
 
 		void getMethod(Request request);
+		void uploadFile(std::string path, std::string field);
+		void staticPost(Request request);
 		void postMethod(Request request);
 		void deleteMethod(std::string path, std::string file);
 };
