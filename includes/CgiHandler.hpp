@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:34:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/19 13:25:38 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/21 14:52:41 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,15 @@ class CgiHandler
 
 		std::string _response;
 		std::string _error;	
+		char**	_env;
 
-		void execCgi(int *fd, std::string path, std::string file, char **env);
-		void sendToCgi(void);
+
+		void sendToCgi(Request request);
+		void postFork(int *fd, std::string body);
+		void execCgi(int *fdPost, int *fdCgi, Request request);
+		void setCgiEnv(Request request);
+		char* setEnvParam(std::string param);
+		void freeEnv();
 };
 
 #endif
