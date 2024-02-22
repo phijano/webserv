@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 14:59:53 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/22 12:42:33 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,24 +88,16 @@ void CgiHandler::setCgiEnv(Request request)//
 	_env[16] = NULL;
 }
 
-void CgiHandler::postFork(int *fd, std::string body)
+void CgiHandler::postPipe(int *fd, std::string body)
 {
-	pid_t pidPost;
+	int temp = 0;
 
+	dup2(STDOUT_FILENO, temp);
 	pipe(fd);
-	pidPost = fork();
-	if (pidPost == -1)
-		_error = "505";
-	else if (pidPost == 0)
-	{
-		dup2(fd[1], STDOUT_FILENO);
-		close(fd[1]);
-		close(fd[0]);
-		std::cout << body;
-		exit(0);
-	}
+	dup2(fd[1], STDOUT_FILENO);
 	close(fd[1]);
-	wait(NULL);
+	std::cout << body;
+	dup2(temp, STDOUT_FILENO);
 }
 
 void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
@@ -123,12 +115,10 @@ void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
 	close(fd[1]);
 	close(fd[0]);
 	error = execve(path.c_str(), command, _env);
-	std::cout << "Child: path: " << path.c_str() << " cgi_file: " << command[0] << std::endl;
-	std::cout << "Error: " << error << " child exec fail" << std::endl;
 	exit(1);
 }
 
-void CgiHandler::sendToCgi(Request request)//if method is POST an extra fork to send params to stdin for cgi
+void CgiHandler::sendToCgi(Request request)
 {
 	std::cout << "CGI" << std::endl;
 
@@ -138,31 +128,24 @@ void CgiHandler::sendToCgi(Request request)//if method is POST an extra fork to 
 	int fdCgi[2];
 	char buffer[30720];
 
-	std::cout << "BODY CGI: " << request.getBody() << std::endl;
-
 	if (request.getMethod() == "POST")
-		postFork(fdPost, request.getBody());
-	std::cout << "Post forked" << std::endl;
+		postPipe(fdPost, request.getBody());
 	pipe(fdCgi);
 	pid = fork();
 	if (pid == -1)
 		_error = "505";
 	else if (pid == 0)
 		execCgi(fdPost, fdCgi, request);
-	else
+	if (request.getMethod() == "POST")
+		close(fdPost[0]);
+	close(fdCgi[1]);
+	wait(NULL);
+	if (read(fdCgi[0], buffer, 30720) > 0)//we cant wait for read and read should be do it with poll or whatever
 	{
-//		int status;
-		close(fdCgi[1]);
-		wait(NULL);
-		if (read(fdCgi[0], buffer, 30720) > 0)
-		{
-			std::cout << "Father read: " << buffer << std::endl;
-		}
-		_response = buffer;
-		std::cout << "CGI: *** " << _response << "<-" << std::endl;
-		close(fdCgi[0]);
-		//waitpid(pid, &status, 0);
+		std::cout << "Father read: " << buffer << std::endl;
 	}
-	std::cout << "***" << std::endl;
+	_response = buffer;
+	std::cout << "CGI response:\n" << _response << "<-" << std::endl;
+	close(fdCgi[0]);
 	freeEnv();
 }
