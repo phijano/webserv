@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 09:49:39 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 19:16:15 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/22 19:53:09 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,18 +25,14 @@ int main(int argc, char **argv)
 		ConfigParser	parser;
 		parser.parseFile(argv[1]);
 		std::vector<Config>	servers = parser.getServers();
-
-		for (size_t i = 0; i < servers.size(); i++)
-		{
-			// make servers from config class
-		}
+		Server test2 = Server(&servers[0]);
+		(void)test2;
+		// for (size_t i = 0; i < servers.size(); i++)
+		// {
+		// 	// make servers from config class
+		// }
 	}
 	catch (const ConfigParser::ConfigFileException& e) 
 		{std::cerr << e.what() << std::endl;}
-	
-	Server test2 = Server("0.0.0.0", 8080);
-	(void)test2;
-	std::cout << "Hello webserv" << std::endl;
-	
 	return 0;
 }

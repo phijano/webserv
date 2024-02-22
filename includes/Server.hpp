@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:08:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 20:51:18 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/22 20:01:39 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,22 +19,21 @@
 # include <sys/poll.h>
 # include "Request.hpp"
 # include "Response.hpp"
+# include "Config.hpp"
 
 class Server
 {
 	private:
-		std::string	_ip;
-		int			_port;
-		int			_socket;
-		sockaddr_in _socketAddress;
-		int			_acceptSocket;
-		socklen_t	_addressLen;
+		Config		*config;
+		int			serverSocket;
+		sockaddr_in *serverAddress;
+		int			acceptSocket;
+		socklen_t	addressLen;
 
 	public:
 		Server();
-		Server(std::string ip, int port);
+		Server(Config *config);
 		Server(const Server &other);
-		Server &operator=(const Server &other);
 		~Server();
 		void	initServer(void);
 };

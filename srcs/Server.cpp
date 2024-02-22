@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 21:05:48 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/22 20:05:04 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,21 +15,21 @@
 Server::Server()
 {
 	std::cout << "Server default constructor called" << std::endl;
-	_socket = socket(PF_INET, SOCK_STREAM, 0);
-	if (_socket < 0)
+	serverSocket = socket(PF_INET, SOCK_STREAM, 0);
+	if (serverSocket < 0)
 	{
 		//handle error
 		std::cout << "Error socket" << std::endl;
 	}
 }
 
-Server::Server(std::string ip, int port): _ip(ip), _port(port) , _addressLen(sizeof(_socketAddress))
+Server::Server(Config *config): config(config)
 {
-	_socketAddress.sin_family = AF_INET;
-	_socketAddress.sin_port = htons(_port);
-	_socketAddress.sin_addr.s_addr = inet_addr(_ip.c_str());
-	_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (_socket < 0)
+	serverAddress->sin_family = AF_INET;
+	serverAddress->sin_port = htons(8080);
+	serverAddress->sin_addr.s_addr = inet_addr("0.0.0.0");
+	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (serverSocket < 0)
 		std::cout << "Error socket" << std::endl;
 	initServer();
 }
@@ -39,17 +39,9 @@ Server::Server(const Server& other)
 	*this = other;
 }
 
-Server& Server::operator=(const Server& other)
-{
-	_ip = other._ip;
-	_port = other._port;
-	_socket = other._socket;
-	return *this;
-}
-
 Server::~Server()
 {
-	close(_socket);
+	close(serverSocket);
 }
 
 void	Server::initServer()
@@ -58,18 +50,23 @@ void	Server::initServer()
 	long bytes;
 	std::vector<pollfd> fds(5);
 
-	if (bind(_socket, (sockaddr *) &_socketAddress, _addressLen) < 0)
+	if (bind(serverSocket, (struct sockaddr*) serverAddress, addressLen) < 0)
+	{
+		std::cout<<config->getPort()<< std::endl;
 		std::cout << "Error connect socket to adress" << std::endl;
+		close(serverSocket);
+		exit(1);
+	}
 		
-	if (listen(_socket, 20) < 0 )
+	if (listen(serverSocket, 20) < 0 )
 		std::cout << "Error listen" << std::endl;
 
-	if (fcntl(_socket, F_SETFL, O_NONBLOCK) < 0) 
+	if (fcntl(serverSocket, F_SETFL, O_NONBLOCK) < 0) 
        std::cout << "Error listen" << std::endl;
 	
-	std::cout << "listening: address " << inet_ntoa(_socketAddress.sin_addr) << " port " << ntohs(_socketAddress.sin_port) << std::endl;
+	std::cout << "listening: address " << inet_ntoa(serverAddress->sin_addr) << " port " << ntohs(serverAddress->sin_port) << std::endl;
 
-	fds[0].fd = _socket;
+	fds[0].fd = serverSocket;
 	fds[0].events = POLLIN;
 	while (true)
 	{
@@ -80,17 +77,15 @@ void	Server::initServer()
 		//New client socket
 		if (fds[0].revents & POLLIN)
 		{
-			std::cout<<"holaalal"<<std::endl;
-			_acceptSocket = accept(_socket, (sockaddr *) &_socketAddress, &_addressLen);
-			if (_acceptSocket < 0)
+			acceptSocket = accept(serverSocket, (sockaddr *) &serverAddress, &addressLen);
+			if (acceptSocket < 0)
 				std::cout << "Error accepting" << std::endl;
-			std::cout<<_acceptSocket<<std::endl;
 			//Assigning the new Client socket to the pollfd list that is empty
 			for (size_t i = 1; i < fds.size(); i++)
 			{
 				if (fds[i].fd == 0)
 				{
-					fds[i].fd = _acceptSocket;
+					fds[i].fd = acceptSocket;
 					fds[i].events = POLLIN;
 					break;
 				}
@@ -115,12 +110,12 @@ void	Server::initServer()
 					Request request(buffer);
 					Response response(request);
 					long bytesSent;
-					bytesSent = write(_acceptSocket, response.getResponse().c_str(), response.getResponse().size());
+					bytesSent = write(acceptSocket, response.getResponse().c_str(), response.getResponse().size());
 					if (bytesSent < 0)
 						std::cout << "Error writing" << std::endl;
 				}
 			}
 		}
 	}
-	close(_socket);
+	close(serverSocket);
 }
