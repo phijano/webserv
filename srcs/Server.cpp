@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 20:05:04 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/22 20:14:02 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,11 @@ Server::Server()
 
 Server::Server(Config *config): config(config)
 {
-	serverAddress->sin_family = AF_INET;
-	serverAddress->sin_port = htons(8080);
-	serverAddress->sin_addr.s_addr = inet_addr("0.0.0.0");
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_port = htons(config->getPort());
+	serverAddress.sin_addr.s_addr = inet_addr(config->getHost().c_str());
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	addressLen = sizeof(serverAddress);
 	if (serverSocket < 0)
 		std::cout << "Error socket" << std::endl;
 	initServer();
@@ -50,7 +51,7 @@ void	Server::initServer()
 	long bytes;
 	std::vector<pollfd> fds(5);
 
-	if (bind(serverSocket, (struct sockaddr*) serverAddress, addressLen) < 0)
+	if (bind(serverSocket, (struct sockaddr *) &serverAddress, addressLen) < 0)
 	{
 		std::cout<<config->getPort()<< std::endl;
 		std::cout << "Error connect socket to adress" << std::endl;
@@ -64,7 +65,7 @@ void	Server::initServer()
 	if (fcntl(serverSocket, F_SETFL, O_NONBLOCK) < 0) 
        std::cout << "Error listen" << std::endl;
 	
-	std::cout << "listening: address " << inet_ntoa(serverAddress->sin_addr) << " port " << ntohs(serverAddress->sin_port) << std::endl;
+	std::cout << "listening: address " << inet_ntoa(serverAddress.sin_addr) << " port " << ntohs(serverAddress.sin_port) << std::endl;
 
 	fds[0].fd = serverSocket;
 	fds[0].events = POLLIN;

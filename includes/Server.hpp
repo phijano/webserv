@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:08:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 20:01:39 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/22 20:09:27 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class Server
 	private:
 		Config		*config;
 		int			serverSocket;
-		sockaddr_in *serverAddress;
+		sockaddr_in serverAddress;
 		int			acceptSocket;
 		socklen_t	addressLen;
 

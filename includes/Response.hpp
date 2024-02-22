@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:48:47 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 14:06:23 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/22 20:17:07 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <unistd.h>
 # include <fstream>
 # include "Request.hpp"
+# include "Config.hpp"
 # include "CgiHandler.hpp" 
 
 class Response
@@ -24,6 +25,7 @@ class Response
 
 		Response();
 		Response(Request request);
+		Response(Request request, Config config);
 		Response(const Response &other);
 		Response &operator=(const Response &other);
 		~Response();
@@ -32,6 +34,7 @@ class Response
 
 	private:
 
+		Config		config;
 		std::string	_protocol;
 		std::string	_code;
 		std::string	_mime;
