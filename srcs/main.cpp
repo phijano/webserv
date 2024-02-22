@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 09:49:39 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 18:52:08 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/22 19:16:15 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,16 +28,15 @@ int main(int argc, char **argv)
 
 		for (size_t i = 0; i < servers.size(); i++)
 		{
-			
-			std::cout << "Server " << i + 1 << ":\n" << servers[i];
+			// make servers from config class
 		}
 	}
 	catch (const ConfigParser::ConfigFileException& e) 
 		{std::cerr << e.what() << std::endl;}
 	
-	//Server test2 = Server("0.0.0.0", 8080);
-	//(void)test2;
-	//std::cout << "Hello webserv" << std::endl;
+	Server test2 = Server("0.0.0.0", 8080);
+	(void)test2;
+	std::cout << "Hello webserv" << std::endl;
 	
 	return 0;
 }
