@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 14:49:26 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/22 11:46:11 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,17 @@ Response::Response(Request request)
 	else if (request.getMethod() == "GET")
 	{
 		std::cout << "GET" << std::endl;
-		getMethod(request);//change testweb for root
+		getMethod(request);
 	}
 	else if (request.getMethod() == "POST")
 	{
 		std::cout << "POST" << std::endl;
-		postMethod(request);//idem
+		postMethod(request);
 	}
 	else if (request.getMethod() == "DELETE")
 	{
 		std::cout << "DELETE" << std::endl;
-		deleteMethod("testweb" + request.getPath(), request.getFile());//idem
+		deleteMethod("testweb" + request.getPath(), request.getFile());
 	}
 	else
 		getErrorPage("501");
@@ -67,6 +67,7 @@ std::string Response::getResponse() const
 	if (!_cgiResponse.empty())
 	{
 		//std::cout << "SEND" << std::endl;
+
 		return _cgiResponse;
 	}
 	response << _protocol << " " << _code;
