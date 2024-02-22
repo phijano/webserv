@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:08:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 20:51:18 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/22 18:20:58 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 # include <netinet/in.h>
 # include <arpa/inet.h>
+# include <iostream>
+# include <sys/socket.h>
 #include <fcntl.h>
 # include <sys/poll.h>
 # include "Request.hpp"

@@ -6,15 +6,15 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 09:49:39 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 21:06:55 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/22 19:01:16 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-int main(void)
+int main()
 {
-	Server test2 = Server("10.12.6.6 ", 8080);
+	Server test2 = Server("10.12.6.6", 8080);
 	(void)test2;
 	std::cout << "Hello webserv" << std::endl;
 	return 0;

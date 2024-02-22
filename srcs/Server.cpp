@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 21:05:48 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/22 18:57:30 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,6 @@ void	Server::initServer()
 		//New client socket
 		if (fds[0].revents & POLLIN)
 		{
-			std::cout<<"holaalal"<<std::endl;
 			_acceptSocket = accept(_socket, (sockaddr *) &_socketAddress, &_addressLen);
 			if (_acceptSocket < 0)
 				std::cout << "Error accepting" << std::endl;
@@ -96,11 +95,11 @@ void	Server::initServer()
 				}
 			}	
 		}
+		std::cout<<"FDS.REVENTS = "<<fds[0].revents<<std::endl;
 		for (size_t i = 1; i< fds.size(); i++)
 		{
 			if (fds[i].revents & POLLIN) {
 				bytes = read(fds[i].fd, buffer, 30720);
-				// std::cout << buffer << std::endl;
 				if (bytes < 0)
 					std::cout << "Error reading " << strerror(errno) << std::endl;
 				//Client disconnected
@@ -108,17 +107,20 @@ void	Server::initServer()
 				{
 					std::cout << "Host disconnected" <<std::endl;
 					close(fds[i].fd);
-					fds[i].fd = 0;	
+					fds[i].fd = 0;
 				}
 				else
-				{
+					fds[i].events = POLLOUT;
+			}
+			if (fds[i].revents & POLLOUT) 
+			{
 					Request request(buffer);
 					Response response(request);
 					long bytesSent;
-					bytesSent = write(_acceptSocket, response.getResponse().c_str(), response.getResponse().size());
+					bytesSent = send(fds[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
 					if (bytesSent < 0)
 						std::cout << "Error writing" << std::endl;
-				}
+				fds[i].events = POLLIN;
 			}
 		}
 	}
