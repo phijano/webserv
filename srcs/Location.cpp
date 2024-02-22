@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Location.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/02/22 17:02:38 by vnaslund          #+#    #+#             */
+/*   Updated: 2024/02/22 18:43:14 by vnaslund         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Location.hpp"
 
 Location::Location():
@@ -5,7 +17,6 @@ Location::Location():
     root(""),
     index(""),
     cgiExt(""),
-    allowMethods(nullptr),
     uploadedPath(""),
     autoIndex(false),
     allowUploads(false)
@@ -30,8 +41,12 @@ std::string Location::getCgiExt() {
     return this->cgiExt;
 }
 
-std::string* Location::getAllowMethods() {
-    return this->allowMethods;
+std::string Location::getCgiPath() {
+    return this->cgiPath;
+}
+
+std::vector<std::string>	Location::getAllowedMethods() {
+    return this->allowedMethods;
 }
 
 std::string Location::getUploadedPath() {
@@ -45,6 +60,7 @@ bool Location::getAutoIndex() {
 bool Location::getAllowUploads() {
     return this->allowUploads;
 }
+
 // Setter Methods
 void Location::setRoute(const std::string newRoute) {
     route = newRoute;
@@ -62,8 +78,12 @@ void Location::setCgiExt(const std::string newCgiExt) {
     cgiExt = newCgiExt;
 }
 
-void Location::setAllowMethods(std::string* newAllowMethods) {
-    allowMethods = newAllowMethods;
+void Location::setCgiPath(const std::string newCgiPath) {
+    cgiPath = newCgiPath;
+}
+
+void Location::addAllowedMethod(std::string newMethod) {
+    allowedMethods.push_back(newMethod);
 }
 
 void Location::setUploadedPath(const std::string newUploadedPath) {
@@ -76,4 +96,24 @@ void Location::setAutoIndex(bool newAutoIndex) {
 
 void Location::setAllowUploads(bool newAllowUploads) {
     allowUploads = newAllowUploads;
+}
+
+std::ostream& operator<<(std::ostream& os, Location& location) 
+{
+    os << "Route: " << location.getRoute() << std::endl
+       << "Root: " << location.getRoot() << std::endl
+       << "Index: " << location.getIndex() << std::endl
+       << "CGI Extension: " << location.getCgiExt() << std::endl
+       << "CGI Path: " << location.getCgiPath() << std::endl
+       << "Uploaded Path: " << location.getUploadedPath() << std::endl
+       << "Auto Index: " << (location.getAutoIndex() ? "yes" : "no") << std::endl
+       << "Allow Uploads: " << (location.getAllowUploads() ? "yes" : "no") << std::endl
+       << "Allowed Methods: ";
+    const std::vector<std::string>& methods = location.getAllowedMethods();
+    for (size_t i = 0; i < methods.size(); ++i) {
+        os << methods[i];
+        if (i < methods.size() - 1) os << ", ";
+    }
+    os << std::endl;
+    return os;
 }

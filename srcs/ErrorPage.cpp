@@ -29,3 +29,9 @@ void	ErrorPage::setCode(int	newCode)
 {
 	this->code = newCode;
 }
+
+std::ostream& operator<<(std::ostream& os, const ErrorPage& errorPage)
+{
+    os << "Error Page: Code = " << errorPage.code << ", Path = " << errorPage.path;
+    return os;
+}
