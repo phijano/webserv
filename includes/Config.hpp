@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Config.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/02/22 17:02:11 by vnaslund          #+#    #+#             */
+/*   Updated: 2024/02/22 18:21:36 by vnaslund         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef CONFIG_H
 # define CONFIG_H
 
@@ -32,7 +44,7 @@ class Config
 		void 	addLocation(Location newLocation);
 
 
-	friend std::ostream& operator<<(std::ostream& os, const Config& config);
+		friend std::ostream& operator<<(std::ostream& os, Config& config);
 
 	private:
 		std::string 				host; // Should host be string or other type ???

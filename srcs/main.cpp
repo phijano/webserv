@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 09:49:39 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/20 18:02:21 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/22 18:52:08 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,13 @@ int main(int argc, char **argv)
 	{
 		ConfigParser	parser;
 		parser.parseFile(argv[1]);
+		std::vector<Config>	servers = parser.getServers();
+
+		for (size_t i = 0; i < servers.size(); i++)
+		{
+			
+			std::cout << "Server " << i + 1 << ":\n" << servers[i];
+		}
 	}
 	catch (const ConfigParser::ConfigFileException& e) 
 		{std::cerr << e.what() << std::endl;}

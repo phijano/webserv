@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 13:42:17 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/20 18:13:48 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/22 18:30:43 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define CONFIGPARSER_HPP
 
 # include <iostream>
-# include <vector>
 # include <fstream>
 # include <sstream>
 # include "Config.hpp"
@@ -31,8 +30,10 @@ class ConfigParser
 		void						splitServers(std::string& content);
 		size_t						findStartOfServer(size_t start, std::string& content);
 		size_t						findEndOfServer(size_t start, std::string& content);
-		void						parseServer(std::string& content, Config server, int serverNum);
+		void						parseServer(std::string& content, Config& server);
 		std::vector<std::string>	splitContent(const std::string& content);
+
+		std::vector<Config>&		getServers(void);
 
 		class ConfigFileException : public std::exception
 		{

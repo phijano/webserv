@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Config.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/02/22 17:02:29 by vnaslund          #+#    #+#             */
+/*   Updated: 2024/02/22 18:47:16 by vnaslund         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Config.hpp"
 
 Config::Config():
@@ -11,6 +23,11 @@ Config::Config():
 Config::~Config(){}
 
 // Getter Methods
+
+
+std::string Config::getHost() {
+    return this->host;
+}
 
 int Config::getPort() {
     return this->port;
@@ -69,21 +86,24 @@ void Config::addLocation(Location newLocation) {
     locations.push_back(newLocation);
 }
 
-std::ostream& operator<<(std::ostream& os, const Config& config)
-{
-    os << "Host: " << config.host << "\nPort: " << config.port
-       << "\nRoot: " << config.root << "\nIndex: " << config.index
+std::ostream& operator<<(std::ostream& os, Config& config) {
+    os << "Host: " << config.getHost() << "\nPort: " << config.getPort()
+       << "\nRoot: " << config.getRoot() << "\nIndex: " << config.getIndex()
        << "\nServer Names: ";
-    for (size_t i = 0; i < config.serverNames.size(); ++i) {
-        os << config.serverNames[i] << " ";
+    std::vector<std::string> serverNames = config.getServerNames();
+    for (size_t i = 0; i < serverNames.size(); ++i) {
+        os << serverNames[i] << " ";
     }
     os << "\nError Pages:\n";
-    for (size_t i = 0; i < config.errors.size(); ++i) {
-        os << config.errors[i] << "\n";
+    std::vector<ErrorPage> errors = config.getErrorPages();
+    for (size_t i = 0; i < errors.size(); ++i) {
+        os << errors[i] << "\n";
     }
+	os << "\n";
     os << "Locations:\n";
-    for (size_t i = 0; i < config.locations.size(); ++i) {
-        os << config.locations[i] << "\n";
+    std::vector<Location> locations = config.getLocations();
+    for (size_t i = 0; i < locations.size(); ++i) {
+        os << locations[i] << "\n";
     }
     return os;
 }

@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/21 19:31:32 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/22 18:54:39 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,11 @@ ConfigParser::ConfigParser()
 ConfigParser::~ConfigParser()
 {
 	
+}
+
+std::vector<Config>&	ConfigParser::getServers(void)
+{
+	return (_servers);
 }
 
 void	ConfigParser::parseFile(const std::string& fileName)
@@ -40,31 +45,40 @@ void	ConfigParser::parseFile(const std::string& fileName)
 	for (size_t i = 0; i < _nbr_servers; i++)
 	{
 		Config	server;
-		parseServer(_server_contents[i], server, i);
+		parseServer(_server_contents[i], server);
 		_servers.push_back(server);
 	}
 }
 
-void	ConfigParser::parseServer(std::string& content, Config server, int serverNum)
+void	ConfigParser::parseServer(std::string& content, Config& server)
 {
 	std::vector<std::string>	tokens;
 	
 	tokens = splitContent(content);
-	
-	std::cout << "Server " << serverNum << ":" << std::endl;
+
 	for (size_t i = 0; i < tokens.size(); i++)
 	{
 		if (tokens[i] == "host")
-			server.setHost(tokens[++i].substr(0, tokens[i].length() - 1));
+		{
+			i++;
+			server.setHost(tokens[i].substr(0, tokens[i].length() - 1));
+		}
 		else if (tokens[i] == "root")
-			server.setRoot(tokens[++i].substr(0, tokens[i].length() - 1));
+		{
+			i++;
+			server.setRoot(tokens[i].substr(0, tokens[i].length() - 1));
+		}
 		else if (tokens[i] == "index")
-			server.setIndex(tokens[++i].substr(0, tokens[i].length() - 1));
+		{
+			i++;
+			server.setIndex(tokens[i].substr(0, tokens[i].length() - 1));
+		}
 		else if (tokens[i] == "server_name")
 		{
 			while (1)
 			{
-				if (tokens[++i][tokens[i].length() - 1] == ';')
+				i++;
+				if (tokens[i][tokens[i].length() - 1] == ';')
 				{
 					server.addServerName(tokens[i].substr(0, tokens[i].length() - 1));
 					break ;
@@ -86,7 +100,7 @@ void	ConfigParser::parseServer(std::string& content, Config server, int serverNu
 		}
 		else if (tokens[i] == "error_page")
 		{
-			ErrorPage errorPage;
+			ErrorPage	errorPage;
 			
 			errorPage.setCode(std::stoi(tokens[++i]));
 			errorPage.setPath(tokens[++i]);
@@ -94,9 +108,64 @@ void	ConfigParser::parseServer(std::string& content, Config server, int serverNu
 		}
 		else if (tokens[i] == "location")
 		{
-			//parseLocation
+			Location	location;
+			
+			location.setRoute(tokens[++i]);
 			while (tokens[++i] != "}")
-				;
+			{
+				if (tokens[i] == "root")
+				{
+					i++;
+					location.setRoot(tokens[i].substr(0, tokens[i].length() - 1));
+				}
+				else if (tokens[i] == "index")
+				{
+					i++;
+					location.setIndex(tokens[i].substr(0, tokens[i].length() - 1));
+				}
+				else if (tokens[i] == "uploaded_path")
+				{
+					i++;
+					location.setUploadedPath(tokens[i].substr(0, tokens[i].length() - 1));
+				}
+				else if (tokens[i] == "cgi_ext")
+				{
+					i++;
+					location.setCgiExt(tokens[i].substr(0, tokens[i].length() - 1));
+				}
+				else if (tokens[i] == "cgi_path")
+				{
+					i++;
+					location.setCgiPath(tokens[i].substr(0, tokens[i].length() - 1));
+				}
+				else if (tokens[i] == "allow_uploads:" || tokens[i] == "allow_uploads")
+				{
+					i++;
+					if (tokens[i] == "on;" || tokens[i] == "yes;")
+						location.setAllowUploads(true);
+				}
+				else if (tokens[i] == "autoindex" || tokens[i] == "autoindex:")
+				{
+					i++;
+					if (tokens[i] == "on;" || tokens[i] == "yes;")
+						location.setAutoIndex(true);
+				}
+				else if (tokens[i] == "allow_methods")
+				{
+					while (1)
+					{
+						i++;
+						if (tokens[i][tokens[i].length() - 1] == ';')
+						{
+							location.addAllowedMethod(tokens[i].substr(0, tokens[i].length() - 1));
+							break ;
+						}
+						else
+							location.addAllowedMethod(tokens[i]);
+					}
+				}
+			}
+			server.addLocation(location);
 		}
 	}
 }
