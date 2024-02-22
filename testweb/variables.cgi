@@ -6,9 +6,6 @@ echo
 echo CGI/1.0 test script report:
 echo
 
-echo argc is $#. argv is "$*".
-echo
-
 echo SERVER_SOFTWARE = $SERVER_SOFTWARE
 echo SERVER_NAME = $SERVER_NAME
 echo GATEWAY_INTERFACE = $GATEWAY_INTERFACE
