@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:01:56 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/22 18:43:23 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/23 14:04:11 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ class Location
 		std::string					getUploadedPath();
 		bool						getAutoIndex();
 		bool						getAllowUploads();
+		
 		//Setters
-
 		void	setRoute(const std::string newRoute);
 		void	setRoot(const std::string newRoot);
 		void	setIndex(const std::string newIndex);

@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:29 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/22 18:47:16 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/23 14:27:41 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ std::vector<std::string> Config::getServerNames() {
     return this->serverNames;
 }
 
-std::vector<ErrorPage> Config::getErrorPages() {
+std::map<int, std::string> Config::getErrorPages() {
     return this->errors;
 }
 
@@ -78,8 +78,8 @@ void Config::setIndex(const std::string newIndex) {
     index = newIndex;
 }
 
-void Config::addErrorPage(ErrorPage newError) {
-    errors.push_back(newError);
+void Config::addErrorPage(int code, std::string path) {
+    errors[code] = path;
 }
 
 void Config::addLocation(Location newLocation) {
@@ -95,12 +95,11 @@ std::ostream& operator<<(std::ostream& os, Config& config) {
         os << serverNames[i] << " ";
     }
     os << "\nError Pages:\n";
-    std::vector<ErrorPage> errors = config.getErrorPages();
-    for (size_t i = 0; i < errors.size(); ++i) {
-        os << errors[i] << "\n";
+    const std::map<int, std::string>& errors = config.getErrorPages();
+    for (std::map<int, std::string>::const_iterator it = errors.begin(); it != errors.end(); ++it) {
+        os << "Code " << it->first << ": " << it->second << "\n";
     }
-	os << "\n";
-    os << "Locations:\n";
+    os << "\nLocations:\n";
     std::vector<Location> locations = config.getLocations();
     for (size_t i = 0; i < locations.size(); ++i) {
         os << locations[i] << "\n";

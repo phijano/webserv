@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 19:35:02 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/21 19:43:21 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/23 14:28:05 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <string>
 # include <iostream>
 
+// UNUSED CLASS
 class ErrorPage
 {
 	public:

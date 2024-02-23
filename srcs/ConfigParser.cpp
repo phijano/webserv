@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/22 18:54:39 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/23 14:26:01 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,11 +100,8 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 		}
 		else if (tokens[i] == "error_page")
 		{
-			ErrorPage	errorPage;
-			
-			errorPage.setCode(std::stoi(tokens[++i]));
-			errorPage.setPath(tokens[++i]);
-			server.addErrorPage(errorPage);
+			int	error_code = std::stoi(tokens[++i]);
+			server.addErrorPage(error_code, tokens[++i]);
 		}
 		else if (tokens[i] == "location")
 		{
