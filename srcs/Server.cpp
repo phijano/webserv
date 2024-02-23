@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 20:14:02 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/23 10:34:44 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void	Server::initServer()
 				else
 				{
 					Request request(buffer);
-					Response response(request);
+					Response response(request, config[0]);
 					long bytesSent;
 					bytesSent = write(acceptSocket, response.getResponse().c_str(), response.getResponse().size());
 					if (bytesSent < 0)

@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 11:46:11 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/23 13:56:03 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,30 +16,51 @@ Response::Response()
 {
 }
 
-Response::Response(Request request)
+Response::Response(Request request, Config config)
 {
+	std::cout << "sadas" << std::endl;
 	_protocol = "HTTP/1.1";
 	if (request.getError())
 		getErrorPage("400");
-	else if (request.getMethod() == "GET")
-	{
-		std::cout << "GET" << std::endl;
-		getMethod(request);
-	}
-	else if (request.getMethod() == "POST")
-	{
-		std::cout << "POST" << std::endl;
-		postMethod(request);
-	}
-	else if (request.getMethod() == "DELETE")
-	{
-		std::cout << "DELETE" << std::endl;
-		deleteMethod("testweb" + request.getPath(), request.getFile());
-	}
 	else
-		getErrorPage("501");
+	{
+		_location = getRequestLocation(request, config);
+		if (_location)
+			std::cout << "Location selected" << _location->getRoute() << std::endl;
+		if (request.getMethod() == "GET")
+		{
+			if (isAllowedMethod("GET"))
+			{	
+			std::cout << "GET" << std::endl;
+			getMethod(request, config);
+			}
+			else
+				getErrorPage("405");
+		}
+		else if (request.getMethod() == "POST")
+		{
+			if (isAllowedMethod("POST"))
+			{
+				std::cout << "POST" << std::endl;
+				postMethod(request, config);
+			}
+			else
+				getErrorPage("405");
+		}
+		else if (request.getMethod() == "DELETE")
+		{
+			if (isAllowedMethod("DELETE"))
+			{
+				std::cout << "DELETE" << std::endl;
+				deleteMethod("testweb" + request.getPath(), request.getFile());
+			}
+			else
+				getErrorPage("405");
+		}
+		else
+			getErrorPage("501");
+	}
 }
-
 Response::Response(const Response& other)
 {
 	*this = other;
@@ -57,6 +78,19 @@ Response& Response::operator=(const Response& other)
 
 Response::~Response()
 {
+}
+
+bool Response::isAllowedMethod(std::string method)
+{
+	if (_location)
+	{
+		std::vector<std::string> methods = _location->getAllowedMethods();
+		for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end();it++)
+			if (method == *it)
+				return true;
+		return false;
+	}
+	return true;
 }
 
 std::string Response::getResponse() const
@@ -148,6 +182,24 @@ void Response::getMime(std::string file)//no idea how many to put here
 	std::cout << "EXT: " << ext << "<-" << std::endl;
 }
 
+Location *Response::getRequestLocation(Request request, Config config)
+{
+	std::vector<Location> locations = config.getLocations();
+	Location* loc = NULL;
+
+	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++)
+	{
+		if (it->getRoute() == request.getPath().substr(0, it->getRoute().size()))
+		{
+			std::cout << "Location found:" << it->getRoute() << std::endl;
+			if (!loc or loc->getRoute().size() < it->getRoute().size())
+			{
+				loc = &*it;
+			}
+		}
+	}
+	return loc;
+}
 
 void Response::getErrorPage(std::string error)
 {
@@ -165,15 +217,28 @@ void Response::getErrorPage(std::string error)
 	}
 }
 
-void Response::getMethod(Request request)
+std::string Response::getPath(Request request, Config config)
+{
+	std::string path;
+	if (_location and _location->getRoot() != "")
+		path = _location->getRoot();
+	else
+		path = config.getRoot();
+	path += request.getPath();	
+	return path;
+}
+
+void Response::getMethod(Request request, Config config)
 {
 	std::stringstream resource;
 	std::stringstream response;
 	std::string file = request.getFile();
-	std::string path = "testweb" + request.getPath();
-
-	if (file == "")
+	std::string path = getPath(request, config);
+	
+	if (file == "")//autolisting ??
+	{
 		file = "index.html";//config index
+	}
 	if (getExtension(file) == ".cgi")//cgi extension config file
 	{
 		CgiHandler cgi(request);
@@ -195,6 +260,7 @@ void Response::getMethod(Request request)
 		else
 			getErrorPage("404");
 	}
+	std::cout << "sdffd" << std::endl;
 }
 
 void Response::uploadFile(std::string path, std::string formField)
@@ -251,8 +317,9 @@ void Response::staticPost(Request request)
 		getErrorPage("409");
 }
 
-void Response::postMethod(Request request)//Dont know what response send if no files send only fields
+void Response::postMethod(Request request, Config config)//Dont know what response send if no files send only fields
 {
+	(void)config;
 	std::string file = request.getFile();
 
 	std::cout << "POST 2" << std::endl;
