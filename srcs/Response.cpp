@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/26 12:50:28 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/26 14:11:09 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Response::Response(Request request, Config config)
 	std::cout << "sadas" << std::endl;
 	_protocol = "HTTP/1.1";
 	if (request.getError())
-		getErrorPage("400");
+		getErrorPage(config, "400");
 	else
 	{
 		_location = getRequestLocation(request, config);
@@ -35,7 +35,7 @@ Response::Response(Request request, Config config)
 			getMethod(request, config);
 			}
 			else
-				getErrorPage("405");
+				getErrorPage(config, "405");
 		}
 		else if (request.getMethod() == "POST")
 		{
@@ -45,7 +45,7 @@ Response::Response(Request request, Config config)
 				postMethod(request, config);
 			}
 			else
-				getErrorPage("405");
+				getErrorPage(config, "405");
 		}
 		else if (request.getMethod() == "DELETE")
 		{
@@ -55,10 +55,10 @@ Response::Response(Request request, Config config)
 				deleteMethod(request, config);
 			}
 			else
-				getErrorPage("405");
+				getErrorPage(config, "405");
 		}
 		else
-			getErrorPage("501");
+			getErrorPage(config, "501");
 	}
 }
 Response::Response(const Response& other)
@@ -206,20 +206,28 @@ Location *Response::getRequestLocation(Request request, Config config)
 	return loc;
 }
 
-void Response::getErrorPage(std::string error)
+void Response::getErrorPage(Config config, std::string error)
 {
 	std::stringstream resource;
+	std::string path;
 
-	_code = "500 Internal Server Error";
-	_mime = "text/html";
-	_body = "<!DOCTYPE html><html lang=\"en\"><body><h1> 500 Internal Server Error </h1><p> Whooops! </p></body></html>";
-	std::ifstream file("errorpages/" + error + ".html"); //look if there was other error pages provided in config
-	if (file.is_open())
+	getCode(error);
+	if (config.getErrorPages().count(atoi(error.c_str())) > 0)
 	{
-		getCode(error);
-		resource << file.rdbuf();
-		_body = resource.str();
+		path = config.getRoot() + config.getErrorPages()[atoi(error.c_str())];
+		std::cout << "Error page path: " << path <<std::endl;
+		std::ifstream file(path);
+		if (file.is_open())
+		{
+			std::cout << "error page opened" << std::endl;
+			getMime(path);
+			resource << file.rdbuf();
+			_body = resource.str();
+			return;
+		}
 	}
+	_mime = "text/html";
+	_body = "<!DOCTYPE html><html lang=\"en\"><body><h1> " + _code + " </h1><p> Whooops! </p></body></html>";
 }
 
 std::string Response::getPath(Request request, Config config)
@@ -264,13 +272,13 @@ void Response::getMethod(Request request, Config config)
 		else
 			file = getIndex(config);
 	}
-	if (_location and file != "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
+	if (_location and _location->getCgiExt()!= "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
 	{
 		CgiHandler cgi(request);//fix Cgi to use config and location path if exist
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();
 		else
-			getErrorPage(cgi.getError());
+			getErrorPage(config, cgi.getError());
 	}
 	else
 	{
@@ -283,7 +291,7 @@ void Response::getMethod(Request request, Config config)
 			_body = resource.str();
 		}
 		else
-			getErrorPage("404");
+			getErrorPage(config, "404");
 	}
 	std::cout << "END GET" << std::endl;
 }
@@ -343,7 +351,7 @@ void Response::staticPost(Request request, Config config)
 		}
 	}
 	if (_code == "")
-		getErrorPage("409");
+		getErrorPage(config, "409");
 }
 
 void Response::postMethod(Request request, Config config)//Dont know what response send if no files send only fields
@@ -352,13 +360,13 @@ void Response::postMethod(Request request, Config config)//Dont know what respon
 	std::string file = request.getFile();
 
 	std::cout << "POST 2" << std::endl;
-	if (_location and file != "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
+	if (_location and _location->getCgiExt()!= "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
 	{
 		CgiHandler cgi(request);
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();
 		else
-			getErrorPage(cgi.getError());
+			getErrorPage(config, cgi.getError());
 	}
 	else if (_location and _location->getAllowUploads())
 	{
@@ -367,7 +375,7 @@ void Response::postMethod(Request request, Config config)//Dont know what respon
 		staticPost(request, config);
 	}
 	else
-		getErrorPage("405");
+		getErrorPage(config, "403");
 }
 
 void Response::deleteMethod(Request request, Config config)
