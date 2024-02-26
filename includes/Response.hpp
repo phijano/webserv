@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:48:47 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/26 12:13:04 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/26 13:03:09 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Response
 
 		void	getCode(std::string code);
 		void	getMime(std::string file);
-		void	getErrorPage(std::string error);
+		void	getErrorPage(Config config, std::string error);
 
 		Location *getRequestLocation(Request request, Config config);
 		std::string getPath(Request request, Config config);
