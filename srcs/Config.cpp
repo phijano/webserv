@@ -79,7 +79,7 @@ void Config::setIndex(const std::string newIndex) {
 }
 
 void Config::addErrorPage(int code, std::string path) {
-    errors[code] = path;
+    errors[code] = path.substr(0, path.length() - 1);
 }
 
 void Config::addLocation(Location newLocation) {

@@ -101,7 +101,7 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 		else if (tokens[i] == "error_page")
 		{
 			int	error_code = std::stoi(tokens[++i]);
-			server.addErrorPage(error_code, tokens[++i].substr(0, tokens[i].length() - 1));
+			server.addErrorPage(error_code, tokens[++i]);
 		}
 		else if (tokens[i] == "location")
 		{
