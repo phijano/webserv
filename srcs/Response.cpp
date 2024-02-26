@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/23 13:56:03 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/26 12:50:28 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ Response::Response(Request request, Config config)
 			if (isAllowedMethod("DELETE"))
 			{
 				std::cout << "DELETE" << std::endl;
-				deleteMethod("testweb" + request.getPath(), request.getFile());
+				deleteMethod(request, config);
 			}
 			else
 				getErrorPage("405");
@@ -78,6 +78,8 @@ Response& Response::operator=(const Response& other)
 
 Response::~Response()
 {
+	if (_location)
+		delete _location;
 }
 
 bool Response::isAllowedMethod(std::string method)
@@ -191,13 +193,16 @@ Location *Response::getRequestLocation(Request request, Config config)
 	{
 		if (it->getRoute() == request.getPath().substr(0, it->getRoute().size()))
 		{
-			std::cout << "Location found:" << it->getRoute() << std::endl;
+			std::cout << it->getRoute() << " == " << request.getPath().substr(0, it->getRoute().size()) << std::endl;
+			std::cout << "Location found: " << it->getRoute() << std::endl;
 			if (!loc or loc->getRoute().size() < it->getRoute().size())
 			{
+				std::cout << "assigned loc" << std::endl;
 				loc = &*it;
 			}
 		}
 	}
+	loc = new Location(*loc);
 	return loc;
 }
 
@@ -220,6 +225,7 @@ void Response::getErrorPage(std::string error)
 std::string Response::getPath(Request request, Config config)
 {
 	std::string path;
+
 	if (_location and _location->getRoot() != "")
 		path = _location->getRoot();
 	else
@@ -228,20 +234,39 @@ std::string Response::getPath(Request request, Config config)
 	return path;
 }
 
+std::string Response::getIndex(Config config)
+{
+	std::string index;
+
+	if (_location and _location->getIndex() != "")
+		index = _location->getIndex();
+	else
+		index = config.getIndex();
+	return index;
+}
+
+
 void Response::getMethod(Request request, Config config)
 {
 	std::stringstream resource;
 	std::stringstream response;
 	std::string file = request.getFile();
 	std::string path = getPath(request, config);
+	std::cout << "GET PATH: " << path << std::endl; 
 	
 	if (file == "")//autolisting ??
 	{
-		file = "index.html";//config index
+		if (_location and !_location->getAutoIndex())
+		{
+			std::cout << "list directory" << std::endl;
+			return;
+		}
+		else
+			file = getIndex(config);
 	}
-	if (getExtension(file) == ".cgi")//cgi extension config file
+	if (_location and file != "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
 	{
-		CgiHandler cgi(request);
+		CgiHandler cgi(request);//fix Cgi to use config and location path if exist
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();
 		else
@@ -260,7 +285,7 @@ void Response::getMethod(Request request, Config config)
 		else
 			getErrorPage("404");
 	}
-	std::cout << "sdffd" << std::endl;
+	std::cout << "END GET" << std::endl;
 }
 
 void Response::uploadFile(std::string path, std::string formField)
@@ -295,9 +320,13 @@ void Response::uploadFile(std::string path, std::string formField)
 	}
 }
 
-void Response::staticPost(Request request)
+void Response::staticPost(Request request, Config config)
 {
-	std::string path = "testweb" + request.getPath();
+	std::string path;
+	if (_location->getUploadedPath() != "")
+		path = _location->getUploadedPath();
+	else
+		path = getPath(request, config);
 	size_t boundaryPos = request.getContentType().find("boundary=");
 	if (boundaryPos != std::string::npos)
 	{
@@ -323,7 +352,7 @@ void Response::postMethod(Request request, Config config)//Dont know what respon
 	std::string file = request.getFile();
 
 	std::cout << "POST 2" << std::endl;
-	if (getExtension(file) == ".cgi")//cgi extension config file
+	if (_location and file != "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
 	{
 		CgiHandler cgi(request);
 		if (cgi.getError().empty())
@@ -331,18 +360,22 @@ void Response::postMethod(Request request, Config config)//Dont know what respon
 		else
 			getErrorPage(cgi.getError());
 	}
-	else
+	else if (_location and _location->getAllowUploads())
 	{
+		
 		std::cout << "POST 3" << std::endl;
-		staticPost(request);
+		staticPost(request, config);
 	}
+	else
+		getErrorPage("405");
 }
 
-void Response::deleteMethod(std::string path, std::string file)
+void Response::deleteMethod(Request request, Config config)
 {
-	if (file == "")
+	std::string path = getPath(request, config);
+	if (request.getFile() == "")
 		getCode("noidea");
-	path = path + file;
+	path += request.getFile();
 	std::remove(path.c_str());
 	getCode("204");
 	//check for errors to send correct error page like not allowed

@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:48:47 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/23 13:55:32 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/26 12:13:04 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,13 @@ class Response
 
 		Location *getRequestLocation(Request request, Config config);
 		std::string getPath(Request request, Config config);
+		std::string getIndex(Config config);
 		bool isAllowedMethod(std::string method);
 		void getMethod(Request request, Config config);
 		void uploadFile(std::string path, std::string field);
-		void staticPost(Request request);
+		void staticPost(Request request, Config config);
 		void postMethod(Request request, Config config);
-		void deleteMethod(std::string path, std::string file);
+		void deleteMethod(Request, Config config);
 };
 
 #endif
