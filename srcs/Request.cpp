@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/27 11:21:32 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/27 13:33:39 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ Request& Request::operator=(const Request& other)
 	_host = other._host;
 	_contentType = other._contentType;
 	_contentLength = other._contentLength;
+	_cgiHeaderParams = other._cgiHeaderParams;
 	_body = other._body;
 	_error = other._error;
 
@@ -87,6 +88,10 @@ std::string Request::getContentLength() const
 	return _contentLength;
 }
 
+std::map<std::string, std::string> Request::getCgiHeaderParams() const
+{
+	return _cgiHeaderParams;
+}
 std::string Request::getBody() const
 {
 	return _body;
@@ -119,6 +124,7 @@ void Request::parseHeader(std::string header)
 	std::stringstream ss(header);
 	std::string line;
 	std::string word;
+	size_t paramSepPos;
 
 	std::cout << "HEADER:\n" << header << "<-" << std::endl;
 	getline(ss, line);
@@ -135,18 +141,29 @@ void Request::parseHeader(std::string header)
 	ssLine >> word;
 	ssLine >> _host;
 	std::cout << "Host: " << _host << std::endl;
-	size_t contentPos = ss.str().find("Content-Type: ");
-	if (contentPos != std::string::npos)
+	while (getline(ss, line))
 	{
-		std::stringstream ssLine(ss.str().substr(contentPos + 14, ss.str().size()));
-		getline(ssLine, _contentType, '\r');
-		std::cout << "Content-Type: " << _contentType << std::endl;
-		contentPos = ss.str().find("Content-Length: ");
-		if (contentPos != std::string::npos)
+		paramSepPos = line.find(":");
+		if (paramSepPos!=std::string::npos)
 		{
-			std::stringstream ssLine(ss.str().substr(contentPos + 16, ss.str().size()));
-			getline(ssLine, _contentLength, '\r');
-			std::cout << "Content-Length: " << _contentLength << std::endl;
+			word = line.substr(0, paramSepPos);
+			if (word == "Content-Type")
+			{
+				_contentType = line.substr(paramSepPos + 2, line.size() - paramSepPos - 3);
+				std::cout << "CType: " << _contentType << std::endl;
+				continue;
+			}
+			else if (word == "Content-Length")
+			{
+				_contentLength = line.substr(paramSepPos + 2, line.size() - paramSepPos - 3);
+				std::cout << "CLength: " << _contentLength << std::endl;
+				continue;
+			}
+			else
+			{
+				_cgiHeaderParams["HTTP_" + word] = line.substr(paramSepPos + 2, line.size() - paramSepPos - 3);
+				std::cout << word << " : " << _cgiHeaderParams["HTTP_" + word] << std::endl;
+			}
 		}
 	}
 }
