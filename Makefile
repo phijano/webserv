@@ -15,7 +15,6 @@ SRCS = \
 		  CgiHandler.cpp\
 		  Location.cpp\
 		  Config.cpp\
-		  ErrorPage.cpp\
 		  ConfigParser.cpp
 
 #OBJECTS
@@ -28,7 +27,6 @@ HDR = \
 	CgiHandler.hpp \
 	Config.hpp \
 	Location.hpp \
-	ErrorPage.hpp \
 	Request.hpp \
 	Response.hpp \
 	Server.hpp \

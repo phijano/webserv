@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:11 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/23 14:21:15 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/27 13:43:26 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 # include <vector>
 # include <map>
 # include "Location.hpp"
-# include "ErrorPage.hpp"
 
 class Config
 {
