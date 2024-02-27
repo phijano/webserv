@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 14:37:21 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/27 10:40:33 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ class Request
 		std::string 							getPath() const;
 		std::string								getFile() const;
 		std::string								getQuery() const;
+		std::string								getProtocol() const;
+		std::string								getHost() const;
 		std::string								getContentType() const;
 		std::string								getContentLength() const;
 		std::string								getBody() const;
@@ -39,14 +41,16 @@ class Request
 
 	private:
 
-		std::string 							_method;
-		std::string 							_path;
-		std::string								_file;
-		std::string								_query;
-		std::string								_contentType;
-		std::string								_contentLength;
-		std::string								_body;
-		bool									_error;
+		std::string _method;
+		std::string _path;
+		std::string	_file;
+		std::string _query;
+		std::string _protocol;
+		std::string _host;
+		std::string _contentType;
+		std::string	_contentLength;
+		std::string	_body;
+		bool		_error;
 	
 		void parseRequest(std::string request);
 		void parseHeader(std::string header);

@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 12:42:33 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/27 12:25:06 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,11 @@ CgiHandler::CgiHandler()
 {
 }
 
-CgiHandler::CgiHandler(Request request)
+CgiHandler::CgiHandler(Request request, Config config, std::string path)
 {
-	sendToCgi(request);
+	_path = path;
+	std::cout << "CGI Ha: " << _path << std::endl;
+	sendToCgi(request, config);
 }
 
 CgiHandler::CgiHandler(const CgiHandler& other)
@@ -29,7 +31,9 @@ CgiHandler::CgiHandler(const CgiHandler& other)
 CgiHandler& CgiHandler::operator=(const CgiHandler& other)
 {
 
-	(void)other;
+	_path = other._path;
+	_response = other._response;
+	_error = other._error;
 	return *this;
 }
 
@@ -63,29 +67,39 @@ char* CgiHandler::setEnvParam(std::string param)
 	return temp;
 }
 
-void CgiHandler::setCgiEnv(Request request)//
+std::string CgiHandler::intToString(int number)
+{
+	std::stringstream ss;
+	ss << number;
+	std::string str = ss.str();
+	return str;
+}
+
+void CgiHandler::setCgiEnv(Request request, Config config)//
 {
 	std::string a = "a";//delete
 
-	_env = new char*[17];
+	_env = new char*[17];// 16 + extra lines, need to calculate 
 
-	_env[0] = setEnvParam("SERVER_SOFTWARE=" + a);
-	_env[1] = setEnvParam("SERVER_NAME=" + a);
-	_env[2] = setEnvParam("GATEWAY_INTERFACE=" + a);
+	_env[0] = setEnvParam("SERVER_SOFTWARE=webserver");
+	_env[1] = setEnvParam("SERVER_NAME=" + request.getHost());
+	_env[2] = setEnvParam("GATEWAY_INTERFACE=CGI/1.1");
 	_env[3] = setEnvParam("SERVER_PROTOCOL=HTTP/1.1");
-	_env[4] = setEnvParam("SERVER_PORT=" + a);
+	_env[4] = setEnvParam("SERVER_PORT=" + intToString(config.getPort()));
 	_env[5] = setEnvParam("REQUEST_METHOD=" + request.getMethod());
-	_env[6] = setEnvParam("HTTP_ACCEPT=" + a);
-	_env[7] = setEnvParam("PATH_INFO=" + a);
-	_env[8] = setEnvParam("PATH_TRANSLATED=" + a);
-	_env[9] = setEnvParam("SCRIPT_NAME=" + a);
+	_env[6] = setEnvParam("HTTP_ACCEPT=" + a);// it goes the last
+	_env[7] = setEnvParam("PATH_INFO=");
+	_env[8] = setEnvParam("PATH_TRANSLATED=" + _path + request.getFile());
+	_env[9] = setEnvParam("SCRIPT_NAME=" + _path + request. getFile());
 	_env[10] = setEnvParam("QUERY_STRING=" + request.getQuery());
-	_env[11] = setEnvParam("REMOTE_HOST=" + a);
-	_env[12] = setEnvParam("REMOTE_ADDR=" + a);
-	_env[13] = setEnvParam("REMOTE_USER=" + a);
+	_env[11] = setEnvParam("REMOTE_HOST=" + a);//no idea
+	_env[12] = setEnvParam("REMOTE_ADDR=" + a);//
+	_env[13] = setEnvParam("REMOTE_USER=" + a);//
 	_env[14] = setEnvParam("CONTENT_TYPE=" + request.getContentType());
 	_env[15] = setEnvParam("CONTENT_LENGTH=" + request.getContentLength());
 	_env[16] = NULL;
+	//need to add the rest of header lines
+	//HTTTP_line
 }
 
 void CgiHandler::postPipe(int *fd, std::string body)
@@ -103,7 +117,7 @@ void CgiHandler::postPipe(int *fd, std::string body)
 void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
 {
 	std::string file = request.getFile();
-	std::string path = "./testweb" + request.getPath() + request.getFile();
+	std::string path = _path + request.getFile();
 	char *command[] = {(char *)file.c_str(), NULL};
 	int error;
 	if (request.getMethod() == "POST")
@@ -118,11 +132,11 @@ void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
 	exit(1);
 }
 
-void CgiHandler::sendToCgi(Request request)
+void CgiHandler::sendToCgi(Request request, Config config)
 {
 	std::cout << "CGI" << std::endl;
 
-	setCgiEnv(request);
+	setCgiEnv(request, config);
 	pid_t pid;
 	int fdPost[2];
 	int fdCgi[2];
@@ -136,16 +150,19 @@ void CgiHandler::sendToCgi(Request request)
 		_error = "505";
 	else if (pid == 0)
 		execCgi(fdPost, fdCgi, request);
-	if (request.getMethod() == "POST")
-		close(fdPost[0]);
-	close(fdCgi[1]);
-	wait(NULL);
-	if (read(fdCgi[0], buffer, 30720) > 0)//we cant wait for read and read should be do it with poll or whatever
+	else
 	{
-		std::cout << "Father read: " << buffer << std::endl;
+		if (request.getMethod() == "POST")
+			close(fdPost[0]);
+		close(fdCgi[1]);
+		wait(NULL);
+		if (read(fdCgi[0], buffer, 30720) > 0)//we cant wait for read and read should be do it with poll or whatever
+		{
+			std::cout << "Father read: " << buffer << std::endl;
+		}
+		_response = buffer;
+		std::cout << "CGI response:\n" << _response << "<-" << std::endl;
+		close(fdCgi[0]);
 	}
-	_response = buffer;
-	std::cout << "CGI response:\n" << _response << "<-" << std::endl;
-	close(fdCgi[0]);
 	freeEnv();
 }
