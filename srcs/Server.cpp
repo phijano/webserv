@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 21:16:48 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/22 21:28:50 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ void	Server::initServer()
 
 	if (bind(serverSocket, (struct sockaddr *) &serverAddress, addressLen) < 0)
 	{
-		std::cout<<config->getPort()<< std::endl;
 		std::cout << "Error connect socket to adress" << std::endl;
 		close(serverSocket);
 		exit(1);
@@ -92,7 +91,6 @@ void	Server::initServer()
 				}
 			}	
 		}
-		std::cout<<"FDS.REVENTS = "<<fds[0].revents<<std::endl;
 		for (size_t i = 1; i< fds.size(); i++)
 		{
 			if (fds[i].revents & POLLIN) {
