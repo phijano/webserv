@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:29 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/23 14:27:41 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/27 13:28:11 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void Config::setIndex(const std::string newIndex) {
 }
 
 void Config::addErrorPage(int code, std::string path) {
-    errors[code] = path.substr(0, path.length() - 1);
+    errors[code] = path;
 }
 
 void Config::addLocation(Location newLocation) {

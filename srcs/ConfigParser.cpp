@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/23 14:26:01 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/27 13:36:31 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,9 +75,8 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 		}
 		else if (tokens[i] == "server_name")
 		{
-			while (1)
+			while (++i < tokens.size())
 			{
-				i++;
 				if (tokens[i][tokens[i].length() - 1] == ';')
 				{
 					server.addServerName(tokens[i].substr(0, tokens[i].length() - 1));
@@ -101,7 +100,8 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 		else if (tokens[i] == "error_page")
 		{
 			int	error_code = std::stoi(tokens[++i]);
-			server.addErrorPage(error_code, tokens[++i]);
+			i++;
+			server.addErrorPage(error_code, tokens[i].substr(0, tokens[i].length() - 1));
 		}
 		else if (tokens[i] == "location")
 		{
@@ -149,9 +149,8 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 				}
 				else if (tokens[i] == "allow_methods")
 				{
-					while (1)
+					while (++i < tokens.size())
 					{
-						i++;
 						if (tokens[i][tokens[i].length() - 1] == ';')
 						{
 							location.addAllowedMethod(tokens[i].substr(0, tokens[i].length() - 1));
