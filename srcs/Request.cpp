@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/23 13:22:59 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/27 11:21:32 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ Request& Request::operator=(const Request& other)
 	_path = other._path;
 	_file = other._file;
 	_query = other._query;
+	_protocol = other._protocol;
+	_host = other._host;
 	_contentType = other._contentType;
 	_contentLength = other._contentLength;
 	_body = other._body;
@@ -63,6 +65,16 @@ std::string Request::getFile() const
 std::string Request::getQuery() const
 {
 	return _query;
+}
+
+std::string Request::getProtocol() const
+{
+	return _protocol;
+}
+
+std::string Request::getHost() const
+{
+	return _host;
 }
 
 std::string Request::getContentType() const
@@ -111,12 +123,18 @@ void Request::parseHeader(std::string header)
 	std::cout << "HEADER:\n" << header << "<-" << std::endl;
 	getline(ss, line);
 	std::stringstream ssLine(line);
-	ssLine >> word;
-	_method = word;
+	ssLine >> _method;
 	std::cout << "Method: " << _method << std::endl;
 	ssLine >> word;
+	ssLine >> _protocol;
 	parseUrl(word);
 	std::cout << "Path: " << _path << _file << std::endl;
+	getline(ss, line);
+	ssLine.str(line);
+	ssLine.clear();
+	ssLine >> word;
+	ssLine >> _host;
+	std::cout << "Host: " << _host << std::endl;
 	size_t contentPos = ss.str().find("Content-Type: ");
 	if (contentPos != std::string::npos)
 	{
