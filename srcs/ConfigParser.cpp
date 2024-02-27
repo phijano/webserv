@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/27 13:36:31 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/27 15:56:27 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,11 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 			int	error_code = std::stoi(tokens[++i]);
 			i++;
 			server.addErrorPage(error_code, tokens[i].substr(0, tokens[i].length() - 1));
+		}
+		else if (tokens[i] == "client_max_body_size")
+		{
+			int	size = std::stoi(tokens[++i]);
+			server.setBodySize(size);
 		}
 		else if (tokens[i] == "location")
 		{
