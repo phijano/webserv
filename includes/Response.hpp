@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:48:47 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 20:17:07 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/26 13:03:09 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,13 @@
 # include <fstream>
 # include "Request.hpp"
 # include "Config.hpp"
-# include "CgiHandler.hpp" 
+# include "CgiHandler.hpp"
 
 class Response
 {
 	public:
 
 		Response();
-		Response(Request request);
 		Response(Request request, Config config);
 		Response(const Response &other);
 		Response &operator=(const Response &other);
@@ -34,7 +33,8 @@ class Response
 
 	private:
 
-		Config		config;
+		Location*	_location;
+
 		std::string	_protocol;
 		std::string	_code;
 		std::string	_mime;
@@ -45,13 +45,17 @@ class Response
 
 		void	getCode(std::string code);
 		void	getMime(std::string file);
-		void	getErrorPage(std::string error);
+		void	getErrorPage(Config config, std::string error);
 
-		void getMethod(Request request);
+		Location *getRequestLocation(Request request, Config config);
+		std::string getPath(Request request, Config config);
+		std::string getIndex(Config config);
+		bool isAllowedMethod(std::string method);
+		void getMethod(Request request, Config config);
 		void uploadFile(std::string path, std::string field);
-		void staticPost(Request request);
-		void postMethod(Request request);
-		void deleteMethod(std::string path, std::string file);
+		void staticPost(Request request, Config config);
+		void postMethod(Request request, Config config);
+		void deleteMethod(Request, Config config);
 };
 
 #endif

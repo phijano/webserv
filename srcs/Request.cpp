@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/21 14:46:39 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/23 13:22:59 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,6 +140,12 @@ void Request::parseRequest(std::string request)
 	std::string word;
 
 	size_t headerEnd = ss.str().find("\r\n\r\n");
+	if (headerEnd == std::string::npos)
+	{
+		std::cout << "header: " << request << std::endl;
+		_error = true;
+		return;
+	}
 	parseHeader(ss.str().substr(0, headerEnd + 2));
 	_body = ss.str().substr(headerEnd + 4, ss.str().size());
 }
