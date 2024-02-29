@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/27 19:11:43 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/02/29 15:58:06 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,8 @@ void	Server::initServer()
 {
 	char buffer[30720];
 	long bytes;
-	std::vector<pollfd> fds(4);
+	int acceptSocket;
+	std::vector<pollfd> fds(8);
 
 	connectServerAddress();
 	fds[0].fd = serverSocket;
@@ -87,50 +88,47 @@ void	Server::initServer()
 	std::cout << "listening: address " << inet_ntoa(serverAddress.sin_addr) << " port " << ntohs(serverAddress.sin_port) << std::endl;
 	while (true)
 	{
-		int activity = poll(fds.data(), fds.size(), -1);
+		int activity = poll(fds.data(), fds.size(), 1000);
 		if (activity < 0)
 			std::cout<<"Error activity"<<std::endl;
 		if (fds[0].revents & POLLIN)
 		{
+			acceptSocket = accept(serverSocket, (sockaddr *) &serverAddress, &addressLen);
+			if (acceptSocket < 0)
+				std::cout << "Error accepting" << std::endl;
+			std::cout<<"New client"<<std::endl;
 			for (size_t i = 1; i < fds.size(); i++)
 			{
 				if (fds[i].fd == 0)
 				{
-					fds[i].fd = accept(serverSocket, (sockaddr *) &serverAddress, &addressLen);
-					if (fds[i].fd < 0)
-						std::cout << "Error accepting" << std::endl;
+					fds[i].fd = acceptSocket;					
 					fds[i].events = POLLIN;
 					break;
 				}
 			}	
 		}
-		for (size_t i = 1; i< fds.size(); i++)
+		for (size_t i = 0; i < fds.size(); i++)
 		{
-			if (fds[i].revents & POLLIN) {
-				
+			if (fds[i].revents & POLLIN && fds[i].fd != 0) {
 				bytes = read(fds[i].fd, buffer, 30720);
 				if (bytes < 0)
 					std::cout << "Error reading " << strerror(errno) << std::endl;
-				//Client disconnected
-				if (bytes == 0)
-				{
-					std::cout << "Host disconnected\n" <<std::endl;
-					close(fds[i].fd);
-					fds[i].fd = 0;
-				}
 				else
-					fds[i].events = POLLOUT;
-			}
-			if (fds[i].revents & POLLOUT) 
-			{	
-				// Request request(buffer);
-				// Response response(request, config[0]);
-				std::string body = "<h1>Hello, world!</h1>";
-				std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
-				write(fds[i].fd, response.c_str(), response.length());
-				fds[i].events = POLLIN;
+				{
+					std::cout<<bytes<<std::endl;
+					if (bytes == 0)
+					{
+						std::cout << "Host disconnected\n" <<std::endl;
+						close(fds[i].fd);
+						fds[i].fd = 0;
+					}
+					
+					std::string body = "<h1>Hello, world!</h1>";
+					std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
+					send(fds[i].fd, response.c_str(), response.length(), 0);	
+				}
 			}
 		}
-		close(serverSocket);
 	}
+	close(serverSocket);
 }
