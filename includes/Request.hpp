@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/29 11:11:44 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/29 12:37:49 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ class Request
 		bool		_error;
 	
 		void parseRequest(std::string request);
+		void parseFirstLine(std::string line);
+		void parseHost(std::string hostLine);
 		void parseHeader(std::string header);
 		void parseUrl(std::string url);
 		void checkRequest();

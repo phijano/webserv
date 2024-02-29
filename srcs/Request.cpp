@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/29 11:50:57 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/29 12:41:46 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void Request::parseUrl(std::string url)
 	size_t paramPos;
 
 	paramPos = url.find("?");
-	if (paramPos != std::string::npos)//queryParse
+	if (paramPos != std::string::npos)	
 	{
 		_path = url.substr(0, paramPos);
 		_query = url.substr(paramPos + 1, url.size());
@@ -115,8 +115,33 @@ void Request::parseUrl(std::string url)
 	} 
 	else
 		_path = url;
-	_file = _path.substr( _path.find_last_of("/") + 1, _path.size());
-	_path = _path.substr(0, _path.find_last_of("/") + 1);
+	paramPos = _path.find_last_of("/");
+	if (paramPos != std::string::npos)
+	{
+		_file = _path.substr( _path.find_last_of("/") + 1, _path.size());
+		_path = _path.substr(0, _path.find_last_of("/") + 1);
+	}
+}
+
+void Request::parseFirstLine(std::string line)
+{
+	std::stringstream ssLine(line);
+	std::string url;
+
+	ssLine >> _method;
+	ssLine >> url;
+	parseUrl(url);
+	ssLine >> _protocol;
+
+}
+
+void Request::parseHost(std::string hostLine)
+{
+	std::stringstream ssLine(hostLine);
+	std::string word;
+
+	ssLine >> word;
+	ssLine >> _host;
 }
 
 void Request::parseHeader(std::string header)
@@ -128,19 +153,9 @@ void Request::parseHeader(std::string header)
 
 	std::cout << "HEADER:\n" << header << "<-" << std::endl;
 	getline(ss, line);
-	std::stringstream ssLine(line);
-	ssLine >> _method;
-	std::cout << "Method: " << _method << std::endl;
-	ssLine >> word;
-	ssLine >> _protocol;
-	parseUrl(word);
-	std::cout << "Path: " << _path << _file << std::endl;
+	parseFirstLine(line);
 	getline(ss, line);
-	ssLine.str(line);
-	ssLine.clear();
-	ssLine >> word;
-	ssLine >> _host;
-	std::cout << "Host: " << _host << std::endl;
+	parseHost(line);
 	while (getline(ss, line))
 	{
 		paramSepPos = line.find(":");
@@ -148,22 +163,11 @@ void Request::parseHeader(std::string header)
 		{
 			word = line.substr(0, paramSepPos);
 			if (word == "Content-Type")
-			{
 				_contentType = line.substr(paramSepPos + 2, line.size() - paramSepPos - 3);
-				std::cout << "CType: " << _contentType << std::endl;
-				continue;
-			}
 			else if (word == "Content-Length")
-			{
 				_contentLength = line.substr(paramSepPos + 2, line.size() - paramSepPos - 3);
-				std::cout << "CLength: " << _contentLength << std::endl;
-				continue;
-			}
 			else
-			{
 				_cgiHeaderParams["HTTP_" + word] = line.substr(paramSepPos + 2, line.size() - paramSepPos - 3);
-				std::cout << word << " : " << _cgiHeaderParams["HTTP_" + word] << std::endl;
-			}
 		}
 	}
 }
@@ -181,15 +185,12 @@ void Request::parseRequest(std::string request)
 	std::string word;	
 	
 	size_t headerEnd = ss.str().find("\r\n\r\n");
-	if (headerEnd == std::string::npos)
+	if (headerEnd != std::string::npos)
 	{
-		std::cout << "Error" << std::endl;
-		std::cout << "header: " << request << std::endl;
-		_error = true;
-		return;
+		parseHeader(ss.str().substr(0, headerEnd + 2));
+		_body = ss.str().substr(headerEnd + 4, ss.str().size());
+		std::cout << "BODY:\n" << _body << "<-" << std::endl;
 	}
-	parseHeader(ss.str().substr(0, headerEnd + 2));
-	_body = ss.str().substr(headerEnd + 4, ss.str().size());
 	checkRequest();
 }
 
