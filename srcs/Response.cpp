@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/27 12:13:40 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/29 11:20:44 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Response::Response()
 Response::Response(Request request, Config config)
 {
 	std::cout << "sadas" << std::endl;
-	_protocol = request.getProtocol();
+	_protocol = "HTTP/1.1";
 	if (request.getError())
 		getErrorPage(config, "400");
 	else
