@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/27 13:33:31 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/29 11:11:44 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ class Request
 		void parseRequest(std::string request);
 		void parseHeader(std::string header);
 		void parseUrl(std::string url);
+		void checkRequest();
 };
 
 #endif

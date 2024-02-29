@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/27 13:33:39 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/02/29 11:50:57 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,20 +168,28 @@ void Request::parseHeader(std::string header)
 	}
 }
 
+void Request::checkRequest()
+{
+	if (_method == "" or _path == "" or _path[0] != '/' or _protocol == "")
+		_error = true;
+}
+
 void Request::parseRequest(std::string request)
 {
 	std::stringstream ss(request);
 	std::string line;
-	std::string word;
-
+	std::string word;	
+	
 	size_t headerEnd = ss.str().find("\r\n\r\n");
 	if (headerEnd == std::string::npos)
 	{
+		std::cout << "Error" << std::endl;
 		std::cout << "header: " << request << std::endl;
 		_error = true;
 		return;
 	}
 	parseHeader(ss.str().substr(0, headerEnd + 2));
 	_body = ss.str().substr(headerEnd + 4, ss.str().size());
+	checkRequest();
 }
 
