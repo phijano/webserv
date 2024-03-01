@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/29 12:41:46 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/01 12:48:44 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,12 @@ Request::Request(const Request& other)
 
 Request& Request::operator=(const Request& other)
 {
+	_clientIp = other._clientIp;
 	_method = other._method;
 	_path = other._path;
 	_file = other._file;
 	_query = other._query;
+	_pathInfo = other._pathInfo;
 	_protocol = other._protocol;
 	_host = other._host;
 	_contentType = other._contentType;
@@ -46,6 +48,16 @@ Request& Request::operator=(const Request& other)
 
 Request::~Request()
 {
+}
+
+void Request::setClientIp(std::string clientIp)
+{
+	_clientIp = clientIp;
+}
+
+std::string Request::getClientIp() const
+{
+	return _clientIp;
 }
 
 std::string Request::getMethod() const
@@ -66,6 +78,11 @@ std::string Request::getFile() const
 std::string Request::getQuery() const
 {
 	return _query;
+}
+
+std::string Request::getPathInfo() const
+{
+	return _pathInfo;
 }
 
 std::string Request::getProtocol() const
@@ -110,16 +127,25 @@ void Request::parseUrl(std::string url)
 	if (paramPos != std::string::npos)	
 	{
 		_path = url.substr(0, paramPos);
-		_query = url.substr(paramPos + 1, url.size());
-		std::cout << "Query: " << _query << std::endl;
+		_query = url.substr(paramPos + 1, url.size() - paramPos -1);
 	} 
 	else
 		_path = url;
-	paramPos = _path.find_last_of("/");
+	paramPos = _path.find(".");
 	if (paramPos != std::string::npos)
 	{
-		_file = _path.substr( _path.find_last_of("/") + 1, _path.size());
-		_path = _path.substr(0, _path.find_last_of("/") + 1);
+		paramPos = _path.find("/", paramPos);
+		if (paramPos != std::string::npos)
+		{
+			_pathInfo = _path.substr(paramPos, _path.size() - paramPos);
+			_path = _path.substr(0, paramPos);
+		}
+		paramPos = _path.find_last_of("/");
+		if (paramPos != std::string::npos)
+		{
+			_file = _path.substr(paramPos + 1, _path.size() - paramPos - 1);
+			_path = _path.substr(0, paramPos + 1);
+		}
 	}
 }
 
