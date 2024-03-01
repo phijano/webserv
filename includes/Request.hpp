@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/29 12:37:49 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/01 11:53:26 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,13 @@ class Request
 		Request &operator=(const Request &other);
 		~Request();
 
+		void								setClientIp(std::string clientIp);
+		std::string							getClientIp() const;
 		std::string 						getMethod() const;
 		std::string 						getPath() const;
 		std::string							getFile() const;
 		std::string							getQuery() const;
+		std::string							getPathInfo() const;
 		std::string							getProtocol() const;
 		std::string							getHost() const;
 		std::string							getContentType() const;
@@ -42,10 +45,12 @@ class Request
 
 	private:
 
+		std::string _clientIp; //need to set this in server or constructor
 		std::string _method;
 		std::string _path;
 		std::string	_file;
 		std::string _query;
+		std::string _pathInfo;
 		std::string _protocol;
 		std::string _host;
 		std::map<std::string, std::string> _cgiHeaderParams;

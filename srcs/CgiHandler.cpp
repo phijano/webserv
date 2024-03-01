@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/27 13:43:06 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/01 12:57:51 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,12 @@ std::string CgiHandler::intToString(int number)
 	return str;
 }
 
+std::string CgiHandler::toUppercase(std::string str)
+{
+	transform(str.begin(), str.end(), str.begin(), ::toupper);
+	return str;
+}
+
 void CgiHandler::setCgiEnv(Request request, Config config)
 {
 	std::map<std::string, std::string> params = request.getCgiHeaderParams();
@@ -85,23 +91,23 @@ void CgiHandler::setCgiEnv(Request request, Config config)
 	_env[3] = setEnvParam("SERVER_PROTOCOL=HTTP/1.1");
 	_env[4] = setEnvParam("SERVER_PORT=" + intToString(config.getPort()));
 	_env[5] = setEnvParam("REQUEST_METHOD=" + request.getMethod());
-	_env[6] = setEnvParam("PATH_INFO=");
+	_env[6] = setEnvParam("PATH_INFO=" +request.getPathInfo());
 	_env[7] = setEnvParam("PATH_TRANSLATED=" + _path + request.getFile());
 	_env[8] = setEnvParam("SCRIPT_NAME=" + _path + request. getFile());
 	_env[9] = setEnvParam("QUERY_STRING=" + request.getQuery());
 	_env[10] = setEnvParam("REMOTE_HOST=");
-	_env[11] = setEnvParam("REMOTE_ADDR=");// ip del que hace la request
+	_env[11] = setEnvParam("REMOTE_ADDR=" + request.getClientIp());
 	_env[12] = setEnvParam("CONTENT_TYPE=" + request.getContentType());
 	_env[13] = setEnvParam("CONTENT_LENGTH=" + request.getContentLength());
 
 	int i = 14;
 	for (std::map<std::string, std::string>::iterator it = params.begin(); it != params.end(); it++)
 	{
-		_env[i] = setEnvParam(it->first + "=" + it->second);
+		_env[i] = setEnvParam(toUppercase(it->first) + "=" + it->second);
 		std::cout << "cgi param: " << _env[i] << std::endl;
 		i++;
 	}
-	_env[i] = NULL;//
+	_env[i] = NULL;
 }
 
 void CgiHandler::postPipe(int *fd, std::string body)
@@ -134,7 +140,7 @@ void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
 	exit(1);
 }
 
-void CgiHandler::sendToCgi(Request request, Config config)
+void CgiHandler::sendToCgi(Request request, Config config)//it need time for infinite loop cgi and read in poll
 {
 	std::cout << "CGI" << std::endl;
 
