@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Response.cpp                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/29 11:20:44 by phijano-         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Response.hpp"
 
 Response::Response()
@@ -313,13 +301,13 @@ void Response::uploadFile(std::string path, std::string formField)
 	{
 		endFileName = line.find("\"", startFileName + 10);
 		fileName = line.substr(startFileName + 10, endFileName - startFileName - 10);
-		std::cout << "filename: " << fileName << std::endl;
+		// std::cout << "filename: " << fileName << std::endl;
 	}
 	getline(ss, line);
 	if (line != "\r")
 		getline(ss, line);
 	getline(ss, fileContent, '\r');
-	std::cout << "Content: " << fileContent << "<-Content"<< std::endl;
+	// std::cout << "Content: " << fileContent << "<-Content"<< std::endl;
 	std::ifstream file(path + fileName); // path + filename
 	if (!file.good())
 	{
@@ -341,14 +329,14 @@ void Response::staticPost(Request request, Config config)
 	if (boundaryPos != std::string::npos)
 	{
 		std::string boundary = "--" + request.getContentType().substr(boundaryPos + 9, request.getContentType().size());
-		std::cout << "Boundary: " << boundary << std::endl;
+		// std::cout << "Boundary: " << boundary << std::endl;
 		std::string body = request.getBody().substr(boundary.size() + 2, request.getBody().size());
 		std::string formField;
 		while (body.find(boundary)!=std::string::npos)
 		{
 			formField = body.substr(0, body.find(boundary) - 1);
 			body = body.substr(body.find(boundary) + boundary.size() + 2, body.size());
-			std::cout << "### " << formField << std::endl;
+			// std::cout << "### " << formField << std::endl;
 			uploadFile(path, formField);
 		}
 	}
