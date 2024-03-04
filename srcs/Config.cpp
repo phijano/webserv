@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:29 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/23 14:27:41 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/02/27 16:04:21 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Config::Config():
 	host("localhost"),
     port(80),
-    bodySize("1MB"),
+    bodySize(1),
     root("/var/www"),
     index("index.html")
 {}
@@ -31,6 +31,10 @@ std::string Config::getHost() {
 
 int Config::getPort() {
     return this->port;
+}
+
+int	Config::getBodySize() {
+	return this->bodySize;
 }
 
 std::string Config::getRoot() {
@@ -66,7 +70,7 @@ void Config::setPort(int newPort) {
     port = newPort;
 }
 
-void Config::setBodySize(const std::string newSize) {
+void Config::setBodySize(int newSize) {
     bodySize = newSize;
 }
 
@@ -79,7 +83,7 @@ void Config::setIndex(const std::string newIndex) {
 }
 
 void Config::addErrorPage(int code, std::string path) {
-    errors[code] = path.substr(0, path.length() - 1);
+    errors[code] = path;
 }
 
 void Config::addLocation(Location newLocation) {
@@ -89,7 +93,7 @@ void Config::addLocation(Location newLocation) {
 std::ostream& operator<<(std::ostream& os, Config& config) {
     os << "Host: " << config.getHost() << "\nPort: " << config.getPort()
        << "\nRoot: " << config.getRoot() << "\nIndex: " << config.getIndex()
-       << "\nServer Names: ";
+       << "\nBody size: " << config.getBodySize() << "\nServer Names: ";
     std::vector<std::string> serverNames = config.getServerNames();
     for (size_t i = 0; i < serverNames.size(); ++i) {
         os << serverNames[i] << " ";

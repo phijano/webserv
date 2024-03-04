@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Response.cpp                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/12 10:57:54 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/27 12:22:09 by pbengoec         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Response.hpp"
 
 Response::Response()
@@ -274,7 +262,9 @@ void Response::getMethod(Request request, Config config)
 	}
 	if (_location and _location->getCgiExt()!= "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
 	{
-		CgiHandler cgi(request);//fix Cgi to use config and location path if exist
+		if (_location->getCgiPath() != "")
+			path = _location->getCgiPath();
+		CgiHandler cgi(request, config, path);
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();
 		else
@@ -362,7 +352,12 @@ void Response::postMethod(Request request, Config config)//Dont know what respon
 	std::cout << "POST 2" << std::endl;
 	if (_location and _location->getCgiExt()!= "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
 	{
-		CgiHandler cgi(request);
+		std::string path;
+		if (_location->getCgiPath() != "")
+			path = _location->getCgiPath();
+		else
+			path = getPath(request, config);
+		CgiHandler cgi(request, config, path);
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();
 		else
