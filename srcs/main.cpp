@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 09:49:39 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/22 21:14:55 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/04 19:23:35 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,6 @@ int main(int argc, char **argv)
 		std::vector<Config>	servers = parser.getServers();
 		Server test2 = Server(&servers[0]);
 		(void)test2;
-		// for (size_t i = 0; i < servers.size(); i++)
-		// {
-		// 	// make servers from config class
-		// }
 	}
 	catch (const ConfigParser::ConfigFileException& e) 
 		{std::cerr << e.what() << std::endl;}

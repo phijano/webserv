@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/02/29 15:58:06 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/04 19:25:49 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,12 @@ Server::Server()
 
 Server::Server(Config *config): config(config)
 {
-	setServerAddress(this->config);
-	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	//transform this error in try catch
-	if (serverSocket < 0)
-		std::cout << "Error socket" << std::endl;
-	initServer();
+		setServerAddress(this->config);
+		serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+		//transform this error in try catch
+		if (serverSocket < 0)
+			std::cout << "Error socket" << std::endl;
+		initServer();
 }
 
 Server::Server(const Server& other)
@@ -61,6 +61,12 @@ void	Server::connectServerAddress(void)
 		exit (1);
     }
 
+	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse)) == -1) {
+        std::cerr << "Error establishing SO_REUSEADDR." << std::endl;
+        close(serverSocket);
+		exit (1);
+    }
+
 	if (bind(serverSocket, (struct sockaddr *) &serverAddress, addressLen) < 0)
 	{
 		std::cout << "Error connect socket to adress" << std::endl;
@@ -77,58 +83,75 @@ void	Server::connectServerAddress(void)
 
 void	Server::initServer()
 {
-	char buffer[30720];
-	long bytes;
+	char buffer[1024] = {0};
 	int acceptSocket;
-	std::vector<pollfd> fds(8);
+	std::vector<pollfd> fds(2);
+	int activity;
 
 	connectServerAddress();
+	std::cout << "listening: address " << inet_ntoa(serverAddress.sin_addr) << " port " << ntohs(serverAddress.sin_port) << std::endl;
 	fds[0].fd = serverSocket;
 	fds[0].events = POLLIN;
-	std::cout << "listening: address " << inet_ntoa(serverAddress.sin_addr) << " port " << ntohs(serverAddress.sin_port) << std::endl;
-	while (true)
+	while (1)
 	{
-		int activity = poll(fds.data(), fds.size(), 1000);
-		if (activity < 0)
-			std::cout<<"Error activity"<<std::endl;
+		activity = poll(fds.data(), fds.size(), -1);
 		if (fds[0].revents & POLLIN)
 		{
-			acceptSocket = accept(serverSocket, (sockaddr *) &serverAddress, &addressLen);
-			if (acceptSocket < 0)
-				std::cout << "Error accepting" << std::endl;
-			std::cout<<"New client"<<std::endl;
+			acceptSocket = accept(serverSocket, (struct sockaddr *)&serverAddress, &addressLen);
+			if (fcntl(acceptSocket, F_SETFL, O_NONBLOCK) < 0)
+				std::cout<<"Error"<<std::endl;
 			for (size_t i = 1; i < fds.size(); i++)
 			{
 				if (fds[i].fd == 0)
 				{
-					fds[i].fd = acceptSocket;					
+					std::cout<<"New Client"<<std::endl;
+					fds[i].fd = acceptSocket;
 					fds[i].events = POLLIN;
 					break;
 				}
-			}	
+			}
 		}
-		for (size_t i = 0; i < fds.size(); i++)
+		else
 		{
-			if (fds[i].revents & POLLIN && fds[i].fd != 0) {
-				bytes = read(fds[i].fd, buffer, 30720);
-				if (bytes < 0)
-					std::cout << "Error reading " << strerror(errno) << std::endl;
-				else
+			for (size_t i = 1; i < fds.size(); i++)
+			{
+				if (fds[i].revents & POLLIN && fds[i].fd != 0)
 				{
-					std::cout<<bytes<<std::endl;
-					if (bytes == 0)
+					ssize_t bytesRead = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+					if (bytesRead >= 0) 
 					{
-						std::cout << "Host disconnected\n" <<std::endl;
-						close(fds[i].fd);
-						fds[i].fd = 0;
+						if (bytesRead > 0)
+							fds[i].events = POLLOUT;		
 					}
+					else
+						std::cerr << "Error de lectura del cliente\n";
 					
+				}
+				if (fds[i].revents & POLLOUT)
+				{
 					std::string body = "<h1>Hello, world!</h1>";
-					std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
-					send(fds[i].fd, response.c_str(), response.length(), 0);	
+					std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(body.length()) + "\r\nConnection: close\r\n\r\n" + body;
+					send(fds[i].fd, response.c_str(), response.length(), 0);
+					//Quitar lo de arriba y descomentar lo de abajo para usar response y request
+					//Request request(buffer);
+					//Response response(request, config[0]);
+					//send(fds[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
+				}
+				if (fds[i].revents & POLLHUP)
+				{
+					std::cout << "Client disconnected\n";
+					close(fds[i].fd);
+					fds[i].fd = 0;
+				}
+				if (fds[i].revents & POLLERR)
+				{
+					std::cout << "There have benn an error[POLLERR]\n";
+					close(fds[i].fd);
+					fds[i].fd = 0;
 				}
 			}
 		}
+		
 	}
 	close(serverSocket);
 }
