@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/01 12:57:51 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:57:26 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,6 @@ void CgiHandler::setCgiEnv(Request request, Config config)
 	for (std::map<std::string, std::string>::iterator it = params.begin(); it != params.end(); it++)
 	{
 		_env[i] = setEnvParam(toUppercase(it->first) + "=" + it->second);
-		std::cout << "cgi param: " << _env[i] << std::endl;
 		i++;
 	}
 	_env[i] = NULL;
@@ -155,7 +154,7 @@ void CgiHandler::sendToCgi(Request request, Config config)//it need time for inf
 	pipe(fdCgi);
 	pid = fork();
 	if (pid == -1)
-		_error = "505";
+		_error = "500";
 	else if (pid == 0)
 		execCgi(fdPost, fdCgi, request);
 	else
@@ -163,13 +162,17 @@ void CgiHandler::sendToCgi(Request request, Config config)//it need time for inf
 		if (request.getMethod() == "POST")
 			close(fdPost[0]);
 		close(fdCgi[1]);
-		wait(NULL);
-		if (read(fdCgi[0], buffer, 30720) > 0)//we cant wait for read and read should be do it with poll or whatever
+		while (read(fdCgi[0], buffer, 30720) > 0)//we cant wait for read and read should be do it with poll or whatever
+			_response += buffer;
+		int status;
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
 		{
-			std::cout << "Father read: " << buffer << std::endl;
+			int exitCode = WEXITSTATUS(status);
+			if (exitCode != 0)
+				_error = "500";
 		}
 		_response = buffer;
-		std::cout << "CGI response:\n" << _response << "<-" << std::endl;
 		close(fdCgi[0]);
 	}
 	freeEnv();

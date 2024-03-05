@@ -87,11 +87,8 @@ std::string Response::getResponse() const
 {
 	std::stringstream response;
 
-	//std::cout << "cgiresponse :" <<_cgiResponse << std::endl;;
 	if (!_cgiResponse.empty())
 	{
-		//std::cout << "SEND" << std::endl;
-
 		return _cgiResponse;
 	}
 	response << _protocol << " " << _code;
@@ -124,6 +121,9 @@ void	Response::getCode(std::string code) // add more codes as we need
 			break;
 		case 409:
 			_code = "409 Conflict";
+			break;
+		case 500:
+			_code = "500 Internal Server Error";
 			break;
 		case 501:
 			_code = "501 Not Implemented";
