@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:34:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/01 10:18:42 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/05 14:38:58 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,10 @@ class CgiHandler
 
 
 		void sendToCgi(Request request, Config config);
+		void setCgiEnv(Request request, Config config);
 		void postPipe(int *fd, std::string body);
 		void execCgi(int *fdPost, int *fdCgi, Request request);
-		void setCgiEnv(Request request, Config config);
+		void exitStatus(int pid);
 		std::string intToString(int number);
 		std::string toUppercase(std::string str);
 		char* setEnvParam(std::string param);

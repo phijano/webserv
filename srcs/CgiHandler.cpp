@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/05 14:10:59 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/05 15:10:10 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,10 +138,24 @@ void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
 	exit(127);
 }
 
+void CgiHandler::exitStatus(int pid)
+{
+	int status;
+	int exitCode;
+
+	waitpid(pid, &status, 0);
+	if (WIFEXITED(status))
+	{
+		exitCode = WEXITSTATUS(status);
+		if (exitCode == 127)
+			_error = "404";
+		else if (exitCode != 0)
+			_error = "500";
+	}
+}
+
 void CgiHandler::sendToCgi(Request request, Config config)//it need time for infinite loop cgi and read in poll
 {
-	std::cout << "CGI" << std::endl;
-
 	setCgiEnv(request, config);
 	pid_t pid;
 	int fdPost[2];
@@ -163,18 +177,8 @@ void CgiHandler::sendToCgi(Request request, Config config)//it need time for inf
 		close(fdCgi[1]);
 		while (read(fdCgi[0], buffer, 30720) > 0)//we cant wait for read and read should be do it with poll or whatever
 			_response += buffer;
-		int status;
-		waitpid(pid, &status, 0);
-		if (WIFEXITED(status))
-		{
-			int exitCode = WEXITSTATUS(status);
-			if (exitCode == 127)
-				_error = "404";
-			else if (exitCode != 0)
-				_error = "500";
-		}
-		_response = buffer;
 		close(fdCgi[0]);
+		exitStatus(pid);
 	}
 	freeEnv();
 }
