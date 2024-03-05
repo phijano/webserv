@@ -4,7 +4,7 @@ Response::Response()
 {
 }
 
-Response::Response(Request request, Config config)
+Response::Response(Request& request, Config& config)
 {
 	std::cout << "sadas" << std::endl;
 	_protocol = "HTTP/1.1";
@@ -70,7 +70,7 @@ Response::~Response()
 		delete _location;
 }
 
-bool Response::isAllowedMethod(std::string method)
+bool Response::isAllowedMethod(const std::string& method)
 {
 	if (_location)
 	{
@@ -97,7 +97,7 @@ std::string Response::getResponse() const
 	return response.str();
 }
 
-void	Response::getCode(std::string code) // add more codes as we need
+void	Response::getCode(const std::string& code) // add more codes as we need
 {
 	switch(atoi(code.c_str()))
 	{
@@ -133,7 +133,7 @@ void	Response::getCode(std::string code) // add more codes as we need
 	}
 }
 
-std::string Response::getExtension(std::string file)
+std::string Response::getExtension(const std::string& file)
 {
 	std::string ext;
 	size_t pointPos;
@@ -144,7 +144,7 @@ std::string Response::getExtension(std::string file)
 	return ext;
 }
 
-void Response::getMime(std::string file)//no idea how many to put here
+void Response::getMime(const std::string& file)//no idea how many to put here
 {
 	std::string ext;
 
@@ -172,7 +172,7 @@ void Response::getMime(std::string file)//no idea how many to put here
 	std::cout << "EXT: " << ext << "<-" << std::endl;
 }
 
-Location *Response::getRequestLocation(Request request, Config config)
+Location *Response::getRequestLocation(const Request& request, const Config& config)
 {
 	std::vector<Location> locations = config.getLocations();
 	Location* loc = NULL;
@@ -194,7 +194,7 @@ Location *Response::getRequestLocation(Request request, Config config)
 	return loc;
 }
 
-void Response::getErrorPage(Config config, std::string error)
+void Response::getErrorPage(const Config& config, const std::string error)
 {
 	std::stringstream resource;
 	std::string path;
@@ -218,7 +218,7 @@ void Response::getErrorPage(Config config, std::string error)
 	_body = "<!DOCTYPE html><html lang=\"en\"><body><h1> " + _code + " </h1><p> Whooops! </p></body></html>";
 }
 
-std::string Response::getPath(Request request, Config config)
+std::string Response::getPath(const Request& request, const Config& config)
 {
 	std::string path;
 
@@ -230,7 +230,7 @@ std::string Response::getPath(Request request, Config config)
 	return path;
 }
 
-std::string Response::getIndex(Config config)
+std::string Response::getIndex(const Config& config)
 {
 	std::string index;
 
@@ -242,7 +242,7 @@ std::string Response::getIndex(Config config)
 }
 
 
-void Response::getMethod(Request request, Config config)
+void Response::getMethod(const Request& request, const Config& config)
 {
 	std::stringstream resource;
 	std::stringstream response;
@@ -286,7 +286,7 @@ void Response::getMethod(Request request, Config config)
 	std::cout << "END GET" << std::endl;
 }
 
-void Response::uploadFile(std::string path, std::string formField)
+void Response::uploadFile(const std::string& path, const std::string& formField)
 {
 	std::stringstream ss(formField);
 	std::string line;
@@ -318,7 +318,7 @@ void Response::uploadFile(std::string path, std::string formField)
 	}
 }
 
-void Response::staticPost(Request request, Config config)
+void Response::staticPost(const Request& request, const Config& config)
 {
 	std::string path;
 	if (_location->getUploadedPath() != "")
@@ -344,7 +344,7 @@ void Response::staticPost(Request request, Config config)
 		getErrorPage(config, "409");
 }
 
-void Response::postMethod(Request request, Config config)//Dont know what response send if no files send only fields
+void Response::postMethod(const Request& request, const Config& config)//Dont know what response send if no files send only fields
 {
 	(void)config;
 	std::string file = request.getFile();
@@ -373,7 +373,7 @@ void Response::postMethod(Request request, Config config)//Dont know what respon
 		getErrorPage(config, "403");
 }
 
-void Response::deleteMethod(Request request, Config config)
+void Response::deleteMethod(const Request& request, const Config& config)
 {
 	std::string path = getPath(request, config);
 	if (request.getFile() == "")

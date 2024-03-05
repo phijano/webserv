@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:29 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/27 16:04:21 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/05 18:00:53 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,72 +25,89 @@ Config::~Config(){}
 // Getter Methods
 
 
-std::string Config::getHost() {
+std::string Config::getHost() const
+{
     return this->host;
 }
 
-int Config::getPort() {
+int Config::getPort() const
+{
     return this->port;
 }
 
-int	Config::getBodySize() {
+int	Config::getBodySize() const
+{
 	return this->bodySize;
 }
 
-std::string Config::getRoot() {
+std::string Config::getRoot() const
+{
     return this->root;
 }
 
-std::string Config::getIndex() {
+std::string Config::getIndex() const
+{
     return this->index;
 }
 
-std::vector<std::string> Config::getServerNames() {
+std::vector<std::string> Config::getServerNames() const
+{
     return this->serverNames;
 }
 
-std::map<int, std::string> Config::getErrorPages() {
+std::map<int, std::string> Config::getErrorPages() const
+{
     return this->errors;
 }
 
-std::vector<Location> Config::getLocations() {
+std::vector<Location> Config::getLocations() const
+{
     return this->locations;
 }
 
 // Setter Methods
-void Config::setHost(const std::string newHost) {
+void Config::setHost(const std::string newHost)
+{
     host = newHost;
 }
 
-void Config::addServerName(std::string newServerName) {
+void Config::addServerName(std::string newServerName)
+{
     serverNames.push_back(newServerName);
 }
 
-void Config::setPort(int newPort) {
+void Config::setPort(int newPort)
+{
     port = newPort;
 }
 
-void Config::setBodySize(int newSize) {
+void Config::setBodySize(int newSize)
+{
     bodySize = newSize;
 }
 
-void Config::setRoot(const std::string newRoot) {
+void Config::setRoot(const std::string newRoot)
+{
     root = newRoot;
 }
 
-void Config::setIndex(const std::string newIndex) {
+void Config::setIndex(const std::string newIndex)
+{
     index = newIndex;
 }
 
-void Config::addErrorPage(int code, std::string path) {
+void Config::addErrorPage(int code, std::string path)
+{
     errors[code] = path;
 }
 
-void Config::addLocation(Location newLocation) {
+void Config::addLocation(Location newLocation)
+{
     locations.push_back(newLocation);
 }
 
-std::ostream& operator<<(std::ostream& os, Config& config) {
+std::ostream& operator<<(std::ostream& os, Config& config)
+{
     os << "Host: " << config.getHost() << "\nPort: " << config.getPort()
        << "\nRoot: " << config.getRoot() << "\nIndex: " << config.getIndex()
        << "\nBody size: " << config.getBodySize() << "\nServer Names: ";
