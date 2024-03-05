@@ -1,12 +1,10 @@
-#ifndef SERVER_HPP
-# define SERVER_HPP
-
+#ifndef SERVERSMANAGMENT_HPP
+# define SERVERSMANAGMENT_HPP
 # include "Library.hpp"
-
-class Server
+class ServersManagment
 {
 	private:
-		Config		*config;
+		Server		*servers;
 		int			serverSocket;
 		sockaddr_in serverAddress;
 		socklen_t	addressLen;
@@ -14,10 +12,10 @@ class Server
 		void		connectServerAddress(void);
 
 	public:
-		Server();
+		ServersManagment();
 		Server(Config *config);
 		Server(const Server &other);
-		~Server();
+		~ServersManagment();
 		void	setServerAddress(Config *config);
 };
 

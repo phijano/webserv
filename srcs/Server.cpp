@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/04 19:25:49 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/05 11:57:39 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void	Server::initServer()
 {
 	char buffer[1024] = {0};
 	int acceptSocket;
-	std::vector<pollfd> fds(2);
+	std::vector<pollfd> fds(3);
 	int activity;
 
 	connectServerAddress();
@@ -104,7 +104,7 @@ void	Server::initServer()
 			{
 				if (fds[i].fd == 0)
 				{
-					std::cout<<"New Client"<<std::endl;
+					std::cout<<"New Client connected to socket number "<< i <<std::endl;
 					fds[i].fd = acceptSocket;
 					fds[i].events = POLLIN;
 					break;
@@ -118,6 +118,7 @@ void	Server::initServer()
 				if (fds[i].revents & POLLIN && fds[i].fd != 0)
 				{
 					ssize_t bytesRead = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+					std::cout<<"hola"<<std::endl;
 					if (bytesRead >= 0) 
 					{
 						if (bytesRead > 0)
@@ -129,17 +130,17 @@ void	Server::initServer()
 				}
 				if (fds[i].revents & POLLOUT)
 				{
-					std::string body = "<h1>Hello, world!</h1>";
-					std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(body.length()) + "\r\nConnection: close\r\n\r\n" + body;
-					send(fds[i].fd, response.c_str(), response.length(), 0);
-					//Quitar lo de arriba y descomentar lo de abajo para usar response y request
-					//Request request(buffer);
-					//Response response(request, config[0]);
-					//send(fds[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
+					// std::string body = "<h1>Hello, world!</h1>";
+					// std::string response = "HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-Length: " + std::to_string(body.length()) + "\r\nKeep-Alive: timeout=10, max=100\r\n\r\n" + body;
+					// send(fds[i].fd, response.c_str(), response.length(), 0);
+					Request request(buffer);
+					Response response(request, config[0]);
+					send(fds[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
+					fds[i].events = POLLIN;
 				}
 				if (fds[i].revents & POLLHUP)
 				{
-					std::cout << "Client disconnected\n";
+					std::cout << "Client associated to socket number "<<i<<" is disconnected\n";
 					close(fds[i].fd);
 					fds[i].fd = 0;
 				}

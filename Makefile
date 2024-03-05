@@ -30,6 +30,7 @@ HDR = \
 	Request.hpp \
 	Response.hpp \
 	Server.hpp \
+	Library.hpp
 
 HDRS = $(addprefix $(HDRSFD), $(HDR))
 HDR_INC = -I./includes

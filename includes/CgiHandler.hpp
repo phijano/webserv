@@ -3,22 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandler.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:34:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/01 10:18:42 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/04 20:03:03 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CGIHANDLER_HPP
 # define CGIHANDLER_HPP
-
-# include <unistd.h>
-# include <fstream>
-# include <algorithm>
-# include "Request.hpp"
-# include "Config.hpp"
-
+# include "Library.hpp"
 class CgiHandler
 {
 	public:

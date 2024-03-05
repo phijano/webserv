@@ -3,20 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/01 11:53:26 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/04 20:02:52 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# include <string>
-# include <map>
-# include <iostream>
-# include <sstream>
+# include "Library.hpp"
 
 class Request
 {

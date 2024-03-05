@@ -3,19 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:01:56 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/23 14:04:11 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/04 20:02:54 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATION_H
 # define LOCATION_H
-
-# include <vector>
-# include <iostream>
-
+# include "Library.hpp"
 class Location
 {
 	public:
