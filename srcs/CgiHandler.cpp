@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/05 12:57:26 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/05 14:10:59 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,6 @@ void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
 	std::string file = request.getFile();
 	std::string path = _path + request.getFile();
 	char *command[] = {(char *)file.c_str(), NULL};
-	int error;
 	if (request.getMethod() == "POST")
 	{
 		dup2(fdPost[0], STDIN_FILENO);
@@ -135,8 +134,8 @@ void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
 	dup2(fd[1], STDOUT_FILENO);
 	close(fd[1]);
 	close(fd[0]);
-	error = execve(path.c_str(), command, _env);
-	exit(1);
+	execve(path.c_str(), command, _env);
+	exit(127);
 }
 
 void CgiHandler::sendToCgi(Request request, Config config)//it need time for infinite loop cgi and read in poll
@@ -169,7 +168,9 @@ void CgiHandler::sendToCgi(Request request, Config config)//it need time for inf
 		if (WIFEXITED(status))
 		{
 			int exitCode = WEXITSTATUS(status);
-			if (exitCode != 0)
+			if (exitCode == 127)
+				_error = "404";
+			else if (exitCode != 0)
 				_error = "500";
 		}
 		_response = buffer;
