@@ -66,8 +66,7 @@ Response& Response::operator=(const Response& other)
 
 Response::~Response()
 {
-	if (_location)
-		delete _location;
+	
 }
 
 bool Response::isAllowedMethod(const std::string& method)
@@ -172,27 +171,27 @@ void Response::getMime(const std::string& file)//no idea how many to put here
 	std::cout << "EXT: " << ext << "<-" << std::endl;
 }
 
-Location *Response::getRequestLocation(const Request& request, const Config& config)
+Location* Response::getRequestLocation(const Request& request, Config& config)
 {
-	std::vector<Location> locations = config.getLocations();
-	Location* loc = NULL;
+    std::vector<Location> locations = config.getLocations();
+    Location* mostSpecificLocation = NULL;
+    size_t longestMatchLength = 0;
 
-	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++)
-	{
-		if (it->getRoute() == request.getPath().substr(0, it->getRoute().size()))
+    for (size_t i = 0; i < locations.size(); ++i) {
+        const std::string& route = locations[i].getRoute();
+        if (request.getPath().compare(0, route.length(), route) == 0)
 		{
-			std::cout << it->getRoute() << " == " << request.getPath().substr(0, it->getRoute().size()) << std::endl;
-			std::cout << "Location found: " << it->getRoute() << std::endl;
-			if (!loc or loc->getRoute().size() < it->getRoute().size())
+            if (route.length() > longestMatchLength)
 			{
-				std::cout << "assigned loc" << std::endl;
-				loc = &*it;
-			}
-		}
-	}
-	loc = new Location(*loc);
-	return loc;
+                mostSpecificLocation = &locations[i];
+                longestMatchLength = route.length();
+            }
+        }
+    }
+    // Returns NULL if no matching location is found, or pointer to the most specific matching location
+    return mostSpecificLocation;
 }
+
 
 void Response::getErrorPage(const Config& config, const std::string error)
 {
