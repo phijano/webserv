@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/05 15:10:10 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/07 11:42:33 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ CgiHandler::CgiHandler()
 {
 }
 
-CgiHandler::CgiHandler(Request request, Config config, std::string path)
+CgiHandler::CgiHandler(const Request& request, const Config& config, const std::string& path)
 {
 	_path = path;
 	sendToCgi(request, config);
@@ -59,14 +59,14 @@ void CgiHandler::freeEnv()
 	free (_env);
 }
 
-char* CgiHandler::setEnvParam(std::string param)
+char* CgiHandler::setEnvParam(const std::string& param)
 {
 	char *temp = new char[param.size() + 1];
 	strcpy (temp, param.c_str());
 	return temp;
 }
 
-std::string CgiHandler::intToString(int number)
+std::string CgiHandler::intToString(const int& number)
 {
 	std::stringstream ss;
 	ss << number;
@@ -80,7 +80,7 @@ std::string CgiHandler::toUppercase(std::string str)
 	return str;
 }
 
-void CgiHandler::setCgiEnv(Request request, Config config)
+void CgiHandler::setCgiEnv(const Request& request, const Config& config)
 {
 	std::map<std::string, std::string> params = request.getCgiHeaderParams();
 	_env = new char*[15 + params.size()];
@@ -109,7 +109,7 @@ void CgiHandler::setCgiEnv(Request request, Config config)
 	_env[i] = NULL;
 }
 
-void CgiHandler::postPipe(int *fd, std::string body)
+void CgiHandler::postPipe(int *fd, const std::string& body)
 {
 	int temp = 0;
 
@@ -121,7 +121,7 @@ void CgiHandler::postPipe(int *fd, std::string body)
 	dup2(temp, STDOUT_FILENO);
 }
 
-void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
+void CgiHandler::execCgi(int *fdPost, int *fd, const Request& request)
 {
 	std::string file = request.getFile();
 	std::string path = _path + request.getFile();
@@ -138,7 +138,7 @@ void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
 	exit(127);
 }
 
-void CgiHandler::exitStatus(int pid)
+void CgiHandler::exitStatus(const int& pid)
 {
 	int status;
 	int exitCode;
@@ -154,7 +154,7 @@ void CgiHandler::exitStatus(int pid)
 	}
 }
 
-void CgiHandler::sendToCgi(Request request, Config config)//it need time for infinite loop cgi and read in poll
+void CgiHandler::sendToCgi(const Request& request, const Config& config)//it need time for infinite loop cgi and read in poll
 {
 	setCgiEnv(request, config);
 	pid_t pid;
