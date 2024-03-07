@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/01 12:48:44 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/07 11:53:23 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ Request::Request()
 {
 }
 
-Request::Request(std::string request)
+Request::Request(const std::string& request)
 {
 	_error = false;
 	parseRequest(request);
@@ -119,7 +119,7 @@ bool Request::getError() const
 	return _error;
 }
 
-void Request::parseUrl(std::string url)
+void Request::parseUrl(const std::string& url)
 {
 	size_t paramPos;
 
@@ -149,7 +149,7 @@ void Request::parseUrl(std::string url)
 	}
 }
 
-void Request::parseFirstLine(std::string line)
+void Request::parseFirstLine(const std::string& line)
 {
 	std::stringstream ssLine(line);
 	std::string url;
@@ -161,7 +161,7 @@ void Request::parseFirstLine(std::string line)
 
 }
 
-void Request::parseHost(std::string hostLine)
+void Request::parseHost(const std::string& hostLine)
 {
 	std::stringstream ssLine(hostLine);
 	std::string word;
@@ -170,7 +170,7 @@ void Request::parseHost(std::string hostLine)
 	ssLine >> _host;
 }
 
-void Request::parseHeader(std::string header)
+void Request::parseHeader(const std::string& header)
 {
 	std::stringstream ss(header);
 	std::string line;
@@ -204,7 +204,7 @@ void Request::checkRequest()
 		_error = true;
 }
 
-void Request::parseRequest(std::string request)
+void Request::parseRequest(const std::string& request)
 {
 	std::stringstream ss(request);
 	std::string line;
