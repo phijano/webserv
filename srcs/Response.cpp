@@ -19,8 +19,8 @@ Response::Response(Request& request, Config& config)
 		{
 			if (isAllowedMethod("GET"))
 			{	
-			std::cout << "GET" << std::endl;
-			getMethod(request, config);
+				std::cout << "GET" << std::endl;
+				getMethod(request, config);
 			}
 			else
 				getErrorPage(config, "405");
@@ -177,7 +177,8 @@ Location* Response::getRequestLocation(const Request& request, Config& config)
     Location* mostSpecificLocation = NULL;
     size_t longestMatchLength = 0;
 
-    for (size_t i = 0; i < locations.size(); ++i) {
+    for (size_t i = 0; i < locations.size(); ++i) 
+	{
         const std::string& route = locations[i].getRoute();
         if (request.getPath().compare(0, route.length(), route) == 0)
 		{
@@ -204,7 +205,12 @@ void Response::getErrorPage(const Config& config, const std::string error)
 		path = config.getRoot() + config.getErrorPages()[atoi(error.c_str())];
 		std::cout << "Error page path: " << path <<std::endl;
 		std::ifstream file(path);
-		if (file.is_open())
+		if (!file.is_open())
+		{
+			std::cerr << "Error: Failed to open file " << path << std::endl;
+			//handle error, return error page
+		}
+		else
 		{
 			std::cout << "error page opened" << std::endl;
 			getMime(path);
@@ -302,6 +308,11 @@ void Response::uploadFile(const std::string& path, const std::string& formField)
 		fileName = line.substr(startFileName + 10, endFileName - startFileName - 10);
 		// std::cout << "filename: " << fileName << std::endl;
 	}
+	else
+	{
+		// Handle error, return error page
+		std::cerr << "Error: Filename not found " << std::endl;
+	}
 	getline(ss, line);
 	if (line != "\r")
 		getline(ss, line);
@@ -375,8 +386,8 @@ void Response::postMethod(const Request& request, const Config& config)//Dont kn
 void Response::deleteMethod(const Request& request, const Config& config)
 {
 	std::string path = getPath(request, config);
-	if (request.getFile() == "")
-		getCode("noidea");
+	if (request.getFile().empty())
+		getCode("noidea"); // Change to error code
 	path += request.getFile();
 	std::remove(path.c_str());
 	getCode("204");
