@@ -33,7 +33,7 @@ class Response
 		void	getMime(const std::string& file);
 		void	getErrorPage(const Config& config, const std::string error);
 
-		Location *getRequestLocation(const Request& request, const Config& config);
+		Location* getRequestLocation(const Request& request, Config& config);
 		std::string getPath(const Request& request, const Config& config);
 		std::string getIndex(const Config& config);
 		bool isAllowedMethod(const std::string& method);
