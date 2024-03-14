@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/07 11:53:26 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/14 16:28:59 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ class Request
 		std::map<std::string, std::string>	getCgiHeaderParams() const;
 		std::string							getBody() const;
 		bool	 							getError() const;
+
+		friend	std::ostream& operator<<(std::ostream& os, Request& request);
 
 	private:
 

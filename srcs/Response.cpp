@@ -6,15 +6,12 @@ Response::Response()
 
 Response::Response(Request& request, Config& config)
 {
-	std::cout << "sadas" << std::endl;
 	_protocol = "HTTP/1.1";
 	if (request.getError())
 		getErrorPage(config, "400");
 	else
 	{
 		_location = getRequestLocation(request, config);
-		if (_location)
-			std::cout << "Location selected" << _location->getRoute() << std::endl;
 		if (request.getMethod() == "GET")
 		{
 			if (isAllowedMethod("GET"))
@@ -54,7 +51,7 @@ Response::Response(const Response& other)
 	*this = other;
 }
 
-Response& Response::operator=(const Response& other)
+Response& Response::operator=(const Response& other) // Doesnt work because of private attributes
 {
 	_protocol = other._protocol;
 	_code = other._code;
@@ -87,11 +84,11 @@ std::string Response::getResponse() const
 	std::stringstream response;
 
 	if (!_cgiResponse.empty())
-	{
 		return _cgiResponse;
-	}
+
 	response << _protocol << " " << _code;
-	if (_mime != "")
+	
+	if (!_mime.empty())
 		response << "\nContent-Type: " << _mime << "\nContent-Length: " << _body.size() << "\n\n" << _body;
 	return response.str();
 }
@@ -255,7 +252,7 @@ void Response::getMethod(const Request& request, const Config& config)
 	std::string path = getPath(request, config);
 	std::cout << "GET PATH: " << path << std::endl; 
 	
-	if (file == "")//autolisting ??
+	if (file.empty())//autolisting ??
 	{
 		if (_location and !_location->getAutoIndex())
 		{
