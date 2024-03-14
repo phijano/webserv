@@ -12,13 +12,18 @@ class Server
 		socklen_t	addressLen;
 		void		initServer(void);
 		void		connectServerAddress(void);
+		void		setServerAddress(Config *config);
 
 	public:
 		Server();
 		Server(Config *config);
 		Server(const Server &other);
 		~Server();
-		void	setServerAddress(Config *config);
+		int			getServerSocket();
+		sockaddr_in	getServerAddress();
+		socklen_t	getServerAddressLen();
+		
+		void setServerConfig(Config *config);
 };
 
 #endif

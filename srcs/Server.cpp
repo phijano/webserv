@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/05 11:57:39 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/05 14:28:02 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,18 @@
 
 Server::Server()
 {
-	std::cout << "Server default constructor called" << std::endl;
-	serverSocket = socket(PF_INET, SOCK_STREAM, 0);
+	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	//transform this error in try catch
 	if (serverSocket < 0)
-	{
-		//handle error
 		std::cout << "Error socket" << std::endl;
-	}
+	std::cout<<"Server initialized with socket num "<<serverSocket<<std::endl;
 }
 
 Server::Server(Config *config): config(config)
 {
-		setServerAddress(this->config);
-		serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-		//transform this error in try catch
-		if (serverSocket < 0)
-			std::cout << "Error socket" << std::endl;
-		initServer();
+	setServerAddress(this->config);
+	connectServerAddress();
+	std::cout<<"Server initialized with socket num "<<serverSocket<<std::endl;
 }
 
 Server::Server(const Server& other)
@@ -56,13 +51,7 @@ void	Server::connectServerAddress(void)
 	int reuse = 1;
 
 	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1) {
-        std::cerr << "Error establishing SO_REUSEADDR." << std::endl;
-        close(serverSocket);
-		exit (1);
-    }
-
-	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse)) == -1) {
-        std::cerr << "Error establishing SO_REUSEADDR." << std::endl;
+        std::cerr << "Error establishing SO_REUSEADDR. in server num "<< serverSocket << std::endl;
         close(serverSocket);
 		exit (1);
     }
@@ -79,6 +68,23 @@ void	Server::connectServerAddress(void)
 
 	if (fcntl(serverSocket, F_SETFL, O_NONBLOCK) < 0) 
        std::cout << "Error fcntl" << std::endl;
+
+	std::cout << "listening: address " << inet_ntoa(serverAddress.sin_addr) << " port " << ntohs(serverAddress.sin_port) << std::endl;
+}
+
+int	Server::getServerSocket(void)
+{
+	return (this->serverSocket);
+}
+
+sockaddr_in	Server::getServerAddress(void)
+{
+	return (this->serverAddress);
+}
+
+socklen_t	Server::getServerAddressLen(void)
+{
+	return (this->addressLen);
 }
 
 void	Server::initServer()
@@ -88,8 +94,6 @@ void	Server::initServer()
 	std::vector<pollfd> fds(3);
 	int activity;
 
-	connectServerAddress();
-	std::cout << "listening: address " << inet_ntoa(serverAddress.sin_addr) << " port " << ntohs(serverAddress.sin_port) << std::endl;
 	fds[0].fd = serverSocket;
 	fds[0].events = POLLIN;
 	while (1)

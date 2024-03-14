@@ -15,13 +15,12 @@
 # include <algorithm>
 # include <vector>
 // Our library
-# include "Location.hpp"
 # include "Request.hpp"
+# include "Location.hpp"
 # include "Config.hpp"
+# include "Server.hpp"
+# include "ConfigParser.hpp"
 # include "Response.hpp"
 # include "CgiHandler.hpp"
-class Request;
-class Config;
-class Location;
-class CgiHandler;
+int manageServers(std::vector <Config> config);
 #endif

@@ -2,7 +2,8 @@
 # define RESPONSE_HPP
 
 # include "Library.hpp"
-
+class Request;
+class Config;
 class Response
 {
 	public:

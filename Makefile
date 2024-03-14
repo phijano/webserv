@@ -15,7 +15,8 @@ SRCS = \
 		  CgiHandler.cpp\
 		  Location.cpp\
 		  Config.cpp\
-		  ConfigParser.cpp
+		  ConfigParser.cpp\
+		  Service.cpp
 
 #OBJECTS
 OBJSFD = objs/

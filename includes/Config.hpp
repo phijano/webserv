@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:11 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/04 20:02:59 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:43:08 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define CONFIG_H
 
 # include "Library.hpp"
-
+class Location;
 class Config
 {
 	public:
