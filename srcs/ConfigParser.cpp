@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/27 15:56:27 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/14 18:10:46 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 					if (tokens[i] == "on;" || tokens[i] == "yes;")
 						location.setAutoIndex(true);
 				}
-				else if (tokens[i] == "allow_methods")
+				else if (tokens[i] == "allow_methods" || tokens[i] == "allow_methods:")
 				{
 					while (++i < tokens.size())
 					{

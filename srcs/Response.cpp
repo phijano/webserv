@@ -4,7 +4,7 @@ Response::Response()
 {
 }
 
-Response::Response(Request request, Config config)
+Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
 	if (request.getError())
@@ -12,17 +12,17 @@ Response::Response(Request request, Config config)
 	else
 	{
 		_location = getRequestLocation(request, config);
-		if (_location)
-			std::cout << "Location selected" << _location->getRoute() << std::endl;
 		if (request.getMethod() == "GET")
 		{
 			if (isAllowedMethod("GET"))
 			{	
-			std::cout << "GET" << std::endl;
-			getMethod(request, config);
+				std::cout << "GET" << std::endl;
+				getMethod(request, config);
 			}
 			else
+			{
 				getErrorPage(config, "405");
+			}
 		}
 		else if (request.getMethod() == "POST")
 		{
@@ -53,7 +53,7 @@ Response::Response(const Response& other)
 	*this = other;
 }
 
-Response& Response::operator=(const Response& other)
+Response& Response::operator=(const Response& other) // Doesnt work because of private attributes
 {
 	_protocol = other._protocol;
 	_code = other._code;
@@ -65,41 +65,35 @@ Response& Response::operator=(const Response& other)
 
 Response::~Response()
 {
-	if (_location)
-		delete _location;
+	
 }
 
-bool Response::isAllowedMethod(std::string method)
+bool Response::isAllowedMethod(const std::string& method)
 {
-	if (_location)
+	const std::vector<std::string>& methods = _location.getAllowedMethods();
+	for (size_t i = 0; i < methods.size(); ++i)
 	{
-		std::vector<std::string> methods = _location->getAllowedMethods();
-		for (std::vector<std::string>::iterator it = methods.begin(); it != methods.end();it++)
-			if (method == *it)
-				return true;
-		return false;
+		if (method == methods[i])
+			return true;
 	}
-	return true;
+	return false;
 }
 
 std::string Response::getResponse() const
 {
 	std::stringstream response;
 
-	//std::cout << "cgiresponse :" <<_cgiResponse << std::endl;;
 	if (!_cgiResponse.empty())
-	{
-		//std::cout << "SEND" << std::endl;
-
 		return _cgiResponse;
-	}
+
 	response << _protocol << " " << _code;
-	if (_mime != "")
+	
+	if (!_mime.empty())
 		response << "\nContent-Type: " << _mime << "\nContent-Length: " << _body.size() << "\n\n" << _body;
 	return response.str();
 }
 
-void	Response::getCode(std::string code) // add more codes as we need
+void	Response::getCode(const std::string& code) // add more codes as we need
 {
 	switch(atoi(code.c_str()))
 	{
@@ -124,6 +118,9 @@ void	Response::getCode(std::string code) // add more codes as we need
 		case 409:
 			_code = "409 Conflict";
 			break;
+		case 500:
+			_code = "500 Internal Server Error";
+			break;
 		case 501:
 			_code = "501 Not Implemented";
 			break;
@@ -132,7 +129,7 @@ void	Response::getCode(std::string code) // add more codes as we need
 	}
 }
 
-std::string Response::getExtension(std::string file)
+std::string Response::getExtension(const std::string& file)
 {
 	std::string ext;
 	size_t pointPos;
@@ -143,7 +140,7 @@ std::string Response::getExtension(std::string file)
 	return ext;
 }
 
-void Response::getMime(std::string file)//no idea how many to put here
+void Response::getMime(const std::string& file)//no idea how many to put here
 {
 	std::string ext;
 
@@ -171,29 +168,30 @@ void Response::getMime(std::string file)//no idea how many to put here
 	std::cout << "EXT: " << ext << "<-" << std::endl;
 }
 
-Location *Response::getRequestLocation(Request request, Config config)
+Location Response::getRequestLocation(const Request& request, Config& config)
 {
-	std::vector<Location> locations = config.getLocations();
-	Location* loc = NULL;
+    std::vector<Location> locations = config.getLocations();
+    Location mostSpecificLocation;
+    size_t longestMatchLength = 0;
 
-	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++)
+    for (size_t i = 0; i < locations.size(); ++i) 
 	{
-		if (it->getRoute() == request.getPath().substr(0, it->getRoute().size()))
+        const std::string& route = locations[i].getRoute();
+        if (request.getPath().compare(0, route.length(), route) == 0)
 		{
-			std::cout << it->getRoute() << " == " << request.getPath().substr(0, it->getRoute().size()) << std::endl;
-			std::cout << "Location found: " << it->getRoute() << std::endl;
-			if (!loc or loc->getRoute().size() < it->getRoute().size())
+            if (route.length() > longestMatchLength)
 			{
-				std::cout << "assigned loc" << std::endl;
-				loc = &*it;
-			}
-		}
-	}
-	loc = new Location(*loc);
-	return loc;
+                mostSpecificLocation = locations[i];
+                longestMatchLength = route.length();
+            }
+        }
+    }
+    // Returns NULL if no matching location is found, or pointer to the most specific matching location
+    return mostSpecificLocation;
 }
 
-void Response::getErrorPage(Config config, std::string error)
+
+void Response::getErrorPage(const Config& config, const std::string error)
 {
 	std::stringstream resource;
 	std::string path;
@@ -204,7 +202,12 @@ void Response::getErrorPage(Config config, std::string error)
 		path = config.getRoot() + config.getErrorPages()[atoi(error.c_str())];
 		std::cout << "Error page path: " << path <<std::endl;
 		std::ifstream file(path);
-		if (file.is_open())
+		if (!file.is_open())
+		{
+			std::cerr << "Error: Failed to open file " << path << std::endl;
+			//handle error, return error page
+		}
+		else
 		{
 			std::cout << "error page opened" << std::endl;
 			getMime(path);
@@ -217,31 +220,31 @@ void Response::getErrorPage(Config config, std::string error)
 	_body = "<!DOCTYPE html><html lang=\"en\"><body><h1> " + _code + " </h1><p> Whooops! </p></body></html>";
 }
 
-std::string Response::getPath(Request request, Config config)
+std::string Response::getPath(const Request& request, const Config& config)
 {
 	std::string path;
 
-	if (_location and _location->getRoot() != "")
-		path = _location->getRoot();
+	if (_location.getRoot() != "")
+		path = _location.getRoot();
 	else
 		path = config.getRoot();
 	path += request.getPath();	
 	return path;
 }
 
-std::string Response::getIndex(Config config)
+std::string Response::getIndex(const Config& config)
 {
 	std::string index;
 
-	if (_location and _location->getIndex() != "")
-		index = _location->getIndex();
+	if (!_location.getIndex().empty())
+		index = _location.getIndex();
 	else
 		index = config.getIndex();
 	return index;
 }
 
 
-void Response::getMethod(Request request, Config config)
+void Response::getMethod(const Request& request, const Config& config)
 {
 	std::stringstream resource;
 	std::stringstream response;
@@ -249,20 +252,14 @@ void Response::getMethod(Request request, Config config)
 	std::string path = getPath(request, config);
 	std::cout << "GET PATH: " << path << std::endl; 
 	
-	if (file == "")//autolisting ??
+	if (file.empty())//autolisting ??
 	{
-		if (_location and !_location->getAutoIndex())
-		{
-			std::cout << "list directory" << std::endl;
-			return;
-		}
-		else
-			file = getIndex(config);
+		file = getIndex(config);
 	}
-	if (_location and _location->getCgiExt()!= "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
+	if (_location.getCgiExt()!= "" and getExtension(file) == _location.getCgiExt())//cgi extension config file
 	{
-		if (_location->getCgiPath() != "")
-			path = _location->getCgiPath();
+		if (_location.getCgiPath() != "")
+			path = _location.getCgiPath();
 		CgiHandler cgi(request, config, path);
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();
@@ -285,7 +282,7 @@ void Response::getMethod(Request request, Config config)
 	std::cout << "END GET" << std::endl;
 }
 
-void Response::uploadFile(std::string path, std::string formField)
+void Response::uploadFile(const std::string& path, const std::string& formField)
 {
 	std::stringstream ss(formField);
 	std::string line;
@@ -302,6 +299,11 @@ void Response::uploadFile(std::string path, std::string formField)
 		fileName = line.substr(startFileName + 10, endFileName - startFileName - 10);
 		// std::cout << "filename: " << fileName << std::endl;
 	}
+	else
+	{
+		// Handle error, return error page
+		std::cerr << "Error: Filename not found " << std::endl;
+	}
 	getline(ss, line);
 	if (line != "\r")
 		getline(ss, line);
@@ -317,11 +319,11 @@ void Response::uploadFile(std::string path, std::string formField)
 	}
 }
 
-void Response::staticPost(Request request, Config config)
+void Response::staticPost(const Request& request, const Config& config)
 {
 	std::string path;
-	if (_location->getUploadedPath() != "")
-		path = _location->getUploadedPath();
+	if (_location.getUploadedPath() != "")
+		path = _location.getUploadedPath();
 	else
 		path = getPath(request, config);
 	size_t boundaryPos = request.getContentType().find("boundary=");
@@ -343,17 +345,17 @@ void Response::staticPost(Request request, Config config)
 		getErrorPage(config, "409");
 }
 
-void Response::postMethod(Request request, Config config)//Dont know what response send if no files send only fields
+void Response::postMethod(const Request& request, const Config& config)//Dont know what response send if no files send only fields
 {
 	(void)config;
 	std::string file = request.getFile();
 
 	std::cout << "POST 2" << std::endl;
-	if (_location and _location->getCgiExt()!= "" and getExtension(file) == _location->getCgiExt())//cgi extension config file
+	if (_location.getCgiExt()!= "" and getExtension(file) == _location.getCgiExt())//cgi extension config file
 	{
 		std::string path;
-		if (_location->getCgiPath() != "")
-			path = _location->getCgiPath();
+		if (_location.getCgiPath() != "")
+			path = _location.getCgiPath();
 		else
 			path = getPath(request, config);
 		CgiHandler cgi(request, config, path);
@@ -362,7 +364,7 @@ void Response::postMethod(Request request, Config config)//Dont know what respon
 		else
 			getErrorPage(config, cgi.getError());
 	}
-	else if (_location and _location->getAllowUploads())
+	else if (_location.getAllowUploads())
 	{
 		
 		std::cout << "POST 3" << std::endl;
@@ -372,11 +374,11 @@ void Response::postMethod(Request request, Config config)//Dont know what respon
 		getErrorPage(config, "403");
 }
 
-void Response::deleteMethod(Request request, Config config)
+void Response::deleteMethod(const Request& request, const Config& config)
 {
 	std::string path = getPath(request, config);
-	if (request.getFile() == "")
-		getCode("noidea");
+	if (request.getFile().empty())
+		getCode("noidea"); // Change to error code
 	path += request.getFile();
 	std::remove(path.c_str());
 	getCode("204");

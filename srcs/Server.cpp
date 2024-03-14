@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/14 17:48:34 by pbengoec         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Server.hpp"
 
 Server::Server()
@@ -25,12 +13,12 @@ Server::Server()
 
 Server::Server(Config *config): config(config)
 {
-		setServerAddress(this->config);
-		serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-		//transform this error in try catch
-		if (serverSocket < 0)
-			std::cout << "Error socket" << std::endl;
-		initServer();
+	setServerAddress(this->config);
+	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	//transform this error in try catch
+	if (serverSocket < 0)
+		std::cout << "Error socket" << std::endl;
+	initServer();
 }
 
 Server::Server(const Server& other)
@@ -94,8 +82,8 @@ void	Server::initServer()
 	fds[0].events = POLLIN;
 	while (1)
 	{
-		activity = poll(fds.data(), fds.size(), -1);
-		if (fds[0].revents & POLLIN)
+		activity = poll(fds.data(), fds.size(), -1); // unused variable
+		if (fds[0].revents & POLLIN) // if (incoming connection request from a client)
 		{
 			acceptSocket = accept(serverSocket, (struct sockaddr *)&serverAddress, &addressLen);
 			if (fcntl(acceptSocket, F_SETFL, O_NONBLOCK) < 0)
@@ -104,7 +92,7 @@ void	Server::initServer()
 			{
 				if (fds[i].fd == 0)
 				{
-					std::cout<<"New Client connected to socket number "<< i <<std::endl;
+					//std::cout<<"New Client connected to socket number "<< i <<std::endl;
 					fds[i].fd = acceptSocket;
 					fds[i].events = POLLIN;
 					break;
@@ -118,11 +106,10 @@ void	Server::initServer()
 				if (fds[i].revents & POLLIN && fds[i].fd != 0)
 				{
 					ssize_t bytesRead = recv(fds[i].fd, buffer, sizeof(buffer), 0);
-					std::cout<<"hola"<<std::endl;
 					if (bytesRead >= 0) 
 					{
 						if (bytesRead > 0)
-							fds[i].events = POLLOUT;		
+							fds[i].events = POLLOUT;
 					}
 					else
 						std::cerr << "Error de lectura del cliente\n";
@@ -130,11 +117,15 @@ void	Server::initServer()
 				}
 				if (fds[i].revents & POLLOUT)
 				{
-					// std::string body = "<h1>Hello, world!</h1>";
-					// std::string response = "HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-Length: " + std::to_string(body.length()) + "\r\nKeep-Alive: timeout=10, max=100\r\n\r\n" + body;
-					// send(fds[i].fd, response.c_str(), response.length(), 0);
+					//std::string body = "<h1>Hello, world!</h1>";
+					//std::string response = "HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-Length: " + std::to_string(body.length()) + "\r\nKeep-Alive: timeout=10, max=100\r\n\r\n" + body;
+					//send(fds[i].fd, response.c_str(), response.length(), 0);
+					//std::cout << "buffer: " << buffer << std::endl;
 					Request request(buffer);
+					//std::cout << request << std::endl;
+					std::cout<<"HOla"<<std::endl;
 					Response response(request, config[0]);
+					std::cout<< response.getResponse().c_str()<<std::endl;
 					send(fds[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
 					fds[i].events = POLLIN;
 				}
@@ -146,13 +137,12 @@ void	Server::initServer()
 				}
 				if (fds[i].revents & POLLERR)
 				{
-					std::cout << "There have benn an error[POLLERR]\n";
+					std::cout << "There has been an error[POLLERR]\n";
 					close(fds[i].fd);
 					fds[i].fd = 0;
 				}
 			}
 		}
-		
 	}
 	close(serverSocket);
 }

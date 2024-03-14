@@ -10,18 +10,16 @@
 class Response
 {
 	public:
-
 		Response();
-		Response(Request request, Config config);
-		Response(const Response &other);
-		Response &operator=(const Response &other);
+		Response(Request& request, Config& config);
+		Response(const Response& other);
+		Response &operator=(const Response& other);
 		~Response();
 
 		std::string	getResponse() const;
 
 	private:
-
-		Location*	_location;
+		Location	_location;
 
 		std::string	_protocol;
 		std::string	_code;
@@ -29,21 +27,21 @@ class Response
 		std::string	_body;
 		std::string _cgiResponse;
 
-		std::string getExtension(std::string file);
+		std::string getExtension(const std::string& file);
 
-		void	getCode(std::string code);
-		void	getMime(std::string file);
-		void	getErrorPage(Config config, std::string error);
+		void	getCode(const std::string& code);
+		void	getMime(const std::string& file);
+		void	getErrorPage(const Config& config, const std::string error);
 
-		Location *getRequestLocation(Request request, Config config);
-		std::string getPath(Request request, Config config);
-		std::string getIndex(Config config);
-		bool isAllowedMethod(std::string method);
-		void getMethod(Request request, Config config);
-		void uploadFile(std::string path, std::string field);
-		void staticPost(Request request, Config config);
-		void postMethod(Request request, Config config);
-		void deleteMethod(Request, Config config);
+		Location getRequestLocation(const Request& request, Config& config);
+		std::string getPath(const Request& request, const Config& config);
+		std::string getIndex(const Config& config);
+		bool isAllowedMethod(const std::string& method);
+		void getMethod(const Request& request, const Config& config);
+		void uploadFile(const std::string& path, const std::string& formField);
+		void staticPost(const Request& request, const Config& config);
+		void postMethod(const Request& request, const Config& config);
+		void deleteMethod(const Request& request, const Config& config);
 };
 
 #endif

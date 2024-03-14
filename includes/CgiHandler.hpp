@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:34:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/01 10:18:42 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/07 11:42:31 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class CgiHandler
 	public:
 
 		CgiHandler();
-		CgiHandler(Request request, Config config, std::string path);
+		CgiHandler(const Request& request, const Config& config, const std::string& path);
 		CgiHandler(const CgiHandler &other);
 		CgiHandler &operator=(const CgiHandler &other);
 		~CgiHandler();
@@ -40,13 +40,14 @@ class CgiHandler
 		char**	_env;
 
 
-		void sendToCgi(Request request, Config config);
-		void postPipe(int *fd, std::string body);
-		void execCgi(int *fdPost, int *fdCgi, Request request);
-		void setCgiEnv(Request request, Config config);
-		std::string intToString(int number);
+		void sendToCgi(const Request& request, const Config& config);
+		void setCgiEnv(const Request& request, const Config& config);
+		void postPipe(int *fd, const std::string& body);
+		void execCgi(int *fdPost, int *fdCgi, const Request& request);
+		void exitStatus(const int& pid);
+		std::string intToString(const int& number);
 		std::string toUppercase(std::string str);
-		char* setEnvParam(std::string param);
+		char* setEnvParam(const std::string& param);
 		void freeEnv();
 };
 

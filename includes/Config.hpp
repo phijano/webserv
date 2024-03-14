@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:11 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/27 15:49:02 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/05 18:00:49 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +25,14 @@ class Config
 		~Config();
 
 		//Getters
-		std::string					getHost();
-		int							getPort();
-		int							getBodySize();
-		std::string					getRoot();
-		std::string					getIndex();
-		std::vector<std::string>	getServerNames();
-		std::map<int, std::string>	getErrorPages();
-		std::vector<Location>		getLocations();
+		std::string					getHost() const;
+		int							getPort() const;
+		int							getBodySize() const;
+		std::string					getRoot() const;
+		std::string					getIndex() const;
+		std::vector<std::string>	getServerNames() const;
+		std::map<int, std::string>	getErrorPages() const;
+		std::vector<Location>		getLocations() const;
 
 		//Setters
 		void	setHost(const std::string newHost);

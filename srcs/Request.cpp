@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/01 12:48:44 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/14 17:11:01 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ Request::Request()
 {
 }
 
-Request::Request(std::string request)
+Request::Request(const std::string& request)
 {
 	_error = false;
 	parseRequest(request);
@@ -29,19 +29,19 @@ Request::Request(const Request& other)
 
 Request& Request::operator=(const Request& other)
 {
-	_clientIp = other._clientIp;
-	_method = other._method;
-	_path = other._path;
-	_file = other._file;
-	_query = other._query;
-	_pathInfo = other._pathInfo;
-	_protocol = other._protocol;
-	_host = other._host;
-	_contentType = other._contentType;
-	_contentLength = other._contentLength;
-	_cgiHeaderParams = other._cgiHeaderParams;
-	_body = other._body;
-	_error = other._error;
+	_clientIp = other.getClientIp();
+	_method = other.getMethod();
+	_path = other.getPath();
+	_file = other.getFile();
+	_query = other.getQuery();
+	_pathInfo = other.getPathInfo();
+	_protocol = other.getProtocol();
+	_host = other.getHost();
+	_contentType = other.getContentType();
+	_contentLength = other.getContentLength();
+	_cgiHeaderParams = other.getCgiHeaderParams();
+	_body = other.getBody();
+	_error = other.getError();
 
 	return *this;
 }
@@ -119,7 +119,7 @@ bool Request::getError() const
 	return _error;
 }
 
-void Request::parseUrl(std::string url)
+void Request::parseUrl(const std::string& url)
 {
 	size_t paramPos;
 
@@ -149,7 +149,7 @@ void Request::parseUrl(std::string url)
 	}
 }
 
-void Request::parseFirstLine(std::string line)
+void Request::parseFirstLine(const std::string& line)
 {
 	std::stringstream ssLine(line);
 	std::string url;
@@ -161,7 +161,7 @@ void Request::parseFirstLine(std::string line)
 
 }
 
-void Request::parseHost(std::string hostLine)
+void Request::parseHost(const std::string& hostLine)
 {
 	std::stringstream ssLine(hostLine);
 	std::string word;
@@ -170,14 +170,13 @@ void Request::parseHost(std::string hostLine)
 	ssLine >> _host;
 }
 
-void Request::parseHeader(std::string header)
+void Request::parseHeader(const std::string& header)
 {
 	std::stringstream ss(header);
 	std::string line;
 	std::string word;
 	size_t paramSepPos;
 
-	std::cout << "HEADER:\n" << header << "<-" << std::endl;
 	getline(ss, line);
 	parseFirstLine(line);
 	getline(ss, line);
@@ -200,11 +199,11 @@ void Request::parseHeader(std::string header)
 
 void Request::checkRequest()
 {
-	if (_method == "" or _path == "" or _path[0] != '/' or _protocol == "")
+	if (_method.empty() || _path.empty() || _path[0] != '/' || _protocol.empty())
 		_error = true;
 }
 
-void Request::parseRequest(std::string request)
+void Request::parseRequest(const std::string& request)
 {
 	std::stringstream ss(request);
 	std::string line;
@@ -215,8 +214,32 @@ void Request::parseRequest(std::string request)
 	{
 		parseHeader(ss.str().substr(0, headerEnd + 2));
 		_body = ss.str().substr(headerEnd + 4, ss.str().size());
-		std::cout << "BODY:\n" << _body << "<-" << std::endl;
 	}
 	checkRequest();
 }
 
+std::ostream& operator<<(std::ostream& os, Request& request)
+{
+    os << "Client IP: " << request._clientIp << std::endl;
+    os << "Method: " << request._method << std::endl;
+    os << "Path: " << request._path << std::endl;
+    os << "File: " << request._file << std::endl;
+    os << "Query: " << request._query << std::endl;
+    os << "Path Info: " << request._pathInfo << std::endl;
+    os << "Protocol: " << request._protocol << std::endl;
+    os << "Host: " << request._host << std::endl;
+    os << "Content Type: " << request._contentType << std::endl;
+    os << "Content Length: " << request._contentLength << std::endl;
+    os << "Error: " << (request._error ? "true" : "false") << std::endl;
+
+    os << "CGI Header Params:" << std::endl;
+    std::map<std::string, std::string>::const_iterator it;
+    for (it = request._cgiHeaderParams.begin(); it != request._cgiHeaderParams.end(); ++it) {
+        os << it->first << ": " << it->second << std::endl;
+    }
+
+    os << "Body:" << std::endl;
+    os << request._body << std::endl;
+
+    return os;
+}
