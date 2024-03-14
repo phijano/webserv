@@ -6,7 +6,6 @@ Response::Response()
 
 Response::Response(Request request, Config config)
 {
-	std::cout << "sadas" << std::endl;
 	_protocol = "HTTP/1.1";
 	if (request.getError())
 		getErrorPage(config, "400");
