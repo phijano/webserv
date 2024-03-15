@@ -29,8 +29,8 @@ class Response
 
 		std::string getExtension(const std::string& file);
 
-		void	getCode(const std::string& code);
-		void	getMime(const std::string& file);
+		void	setCode(const std::string& code);
+		void	setMime(const std::string& file);
 		void	getErrorPage(const Config& config, const std::string error);
 
 		Location getRequestLocation(const Request& request, Config& config);

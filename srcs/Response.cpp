@@ -93,7 +93,7 @@ std::string Response::getResponse() const
 	return response.str();
 }
 
-void	Response::getCode(const std::string& code) // add more codes as we need
+void	Response::setCode(const std::string& code) // add more codes as we need
 {
 	switch(atoi(code.c_str()))
 	{
@@ -140,7 +140,7 @@ std::string Response::getExtension(const std::string& file)
 	return ext;
 }
 
-void Response::getMime(const std::string& file)//no idea how many to put here
+void Response::setMime(const std::string& file)//no idea how many to put here
 {
 	std::string ext;
 
@@ -196,7 +196,7 @@ void Response::getErrorPage(const Config& config, const std::string error)
 	std::stringstream resource;
 	std::string path;
 
-	getCode(error);
+	setCode(error);
 	if (config.getErrorPages().count(atoi(error.c_str())) > 0)
 	{
 		path = config.getRoot() + config.getErrorPages()[atoi(error.c_str())];
@@ -210,7 +210,7 @@ void Response::getErrorPage(const Config& config, const std::string error)
 		else
 		{
 			std::cout << "error page opened" << std::endl;
-			getMime(path);
+			setMime(path);
 			resource << file.rdbuf();
 			_body = resource.str();
 			return;
@@ -224,11 +224,11 @@ std::string Response::getPath(const Request& request, const Config& config)
 {
 	std::string path;
 
-	if (_location.getRoot() != "")
+	if (!_location.getRoot().empty())
 		path = _location.getRoot();
 	else
 		path = config.getRoot();
-	path += request.getPath();	
+	path += request.getPath();
 	return path;
 }
 
@@ -246,41 +246,25 @@ std::string Response::getIndex(const Config& config)
 
 void Response::getMethod(const Request& request, const Config& config)
 {
-	std::stringstream resource;
-	std::stringstream response;
-	std::string file = request.getFile();
-	std::string path = getPath(request, config);
-	std::cout << "GET PATH: " << path << std::endl; 
-	
-	if (file.empty())//autolisting ??
+    std::string file = request.getFile();
+    std::string path = getPath(request, config);
+
+    if (file.empty())
+        file = getIndex(config);
+
+    std::ifstream fileStream((path + file).c_str());
+    if (fileStream.is_open())
 	{
-		file = getIndex(config);
+        std::stringstream buffer;
+        buffer << fileStream.rdbuf();
+        _body = buffer.str();
+        setCode("200");
+        setMime(file);
 	}
-	if (_location.getCgiExt()!= "" and getExtension(file) == _location.getCgiExt())//cgi extension config file
-	{
-		if (_location.getCgiPath() != "")
-			path = _location.getCgiPath();
-		CgiHandler cgi(request, config, path);
-		if (cgi.getError().empty())
-			_cgiResponse = cgi.getResponse();
-		else
-			getErrorPage(config, cgi.getError());
-	}
-	else
-	{
-		std::ifstream fileStream(path + file);
-		if (fileStream.is_open())
-		{
-			resource << fileStream.rdbuf();
-			getCode("200");
-			getMime(file);
-			_body = resource.str();
-		}
-		else
-			getErrorPage(config, "404");
-	}
-	std::cout << "END GET" << std::endl;
+    else
+        getErrorPage(config, "404");
 }
+
 
 void Response::uploadFile(const std::string& path, const std::string& formField)
 {
@@ -315,7 +299,7 @@ void Response::uploadFile(const std::string& path, const std::string& formField)
 		std::ofstream newFile(path + fileName);
 		newFile << fileContent; //file content
 		newFile.close();
-		getCode("201");
+		setCode("201");
 	}
 }
 
@@ -378,9 +362,9 @@ void Response::deleteMethod(const Request& request, const Config& config)
 {
 	std::string path = getPath(request, config);
 	if (request.getFile().empty())
-		getCode("noidea"); // Change to error code
+		setCode("noidea"); // Change to error code
 	path += request.getFile();
 	std::remove(path.c_str());
-	getCode("204");
+	setCode("204");
 	//check for errors to send correct error page like not allowed
 }
