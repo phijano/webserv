@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/14 18:10:46 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/15 15:03:18 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ void	ConfigParser::parseFile(const std::string& fileName)
 
 void	ConfigParser::parseServer(std::string& content, Config& server)
 {
+	bool						serverAutoIndex = false;
 	std::vector<std::string>	tokens;
 	
 	tokens = splitContent(content);
@@ -108,10 +109,19 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 			int	size = std::stoi(tokens[++i]);
 			server.setBodySize(size);
 		}
+		else if (tokens[i] == "autoindex" || tokens[i] == "autoindex:")
+		{
+			i++;
+			if (tokens[i] == "on;" || tokens[i] == "yes;")
+				serverAutoIndex = true;
+				
+		}
 		else if (tokens[i] == "location")
 		{
 			Location	location;
 			
+			if (serverAutoIndex)
+				location.setAutoIndex(true);
 			location.setRoute(tokens[++i]);
 			while (tokens[++i] != "}")
 			{
