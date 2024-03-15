@@ -27,10 +27,7 @@ Response::Response(Request& request, Config& config)
 		else if (request.getMethod() == "POST")
 		{
 			if (isAllowedMethod("POST"))
-			{
-				std::cout << "POST" << std::endl;
 				postMethod(request, config);
-			}
 			else
 				getErrorPage(config, "405");
 		}
@@ -252,6 +249,16 @@ void Response::getMethod(const Request& request, const Config& config)
     if (file.empty())
         file = getIndex(config);
 
+	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file))
+	{
+		if (!_location.getCgiPath().empty())
+			path = _location.getCgiPath();
+		CgiHandler cgi(request, config, path);
+		if (cgi.getError().empty())
+			_cgiResponse = cgi.getResponse();
+		else
+			getErrorPage(config, cgi.getError());
+	}
     std::ifstream fileStream((path + file).c_str());
     if (fileStream.is_open())
 	{
@@ -301,12 +308,13 @@ void Response::uploadFile(const std::string& path, const std::string& formField)
 		newFile.close();
 		setCode("201");
 	}
+	setCode("200");
 }
 
 void Response::staticPost(const Request& request, const Config& config)
 {
 	std::string path;
-	if (_location.getUploadedPath() != "")
+	if (_location.getUploadedPath().empty())
 		path = _location.getUploadedPath();
 	else
 		path = getPath(request, config);
@@ -325,8 +333,6 @@ void Response::staticPost(const Request& request, const Config& config)
 			uploadFile(path, formField);
 		}
 	}
-	if (_code == "")
-		getErrorPage(config, "409");
 }
 
 void Response::postMethod(const Request& request, const Config& config)//Dont know what response send if no files send only fields
@@ -334,11 +340,10 @@ void Response::postMethod(const Request& request, const Config& config)//Dont kn
 	(void)config;
 	std::string file = request.getFile();
 
-	std::cout << "POST 2" << std::endl;
-	if (_location.getCgiExt()!= "" and getExtension(file) == _location.getCgiExt())//cgi extension config file
+	if (!_location.getCgiExt().empty() && getExtension(file) == _location.getCgiExt())//cgi extension config file
 	{
 		std::string path;
-		if (_location.getCgiPath() != "")
+		if (!_location.getCgiPath().empty())
 			path = _location.getCgiPath();
 		else
 			path = getPath(request, config);
@@ -349,11 +354,7 @@ void Response::postMethod(const Request& request, const Config& config)//Dont kn
 			getErrorPage(config, cgi.getError());
 	}
 	else if (_location.getAllowUploads())
-	{
-		
-		std::cout << "POST 3" << std::endl;
 		staticPost(request, config);
-	}
 	else
 		getErrorPage(config, "403");
 }
