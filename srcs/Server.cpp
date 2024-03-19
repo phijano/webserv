@@ -122,16 +122,16 @@ void	Server::initServer()
 					//send(fds[i].fd, response.c_str(), response.length(), 0);
 					//std::cout << "buffer: " << buffer << std::endl;
 					Request request(buffer);
-					//std::cout << request << std::endl;
-					std::cout<<"HOla"<<std::endl;
+					std::cout << "Buffer: " << buffer << std::endl << "END buffer" << std::endl;
+					//std::cout << "Request: " << request << std::endl << "END Request" << std::endl;
 					Response response(request, config[0]);
-					std::cout<< response.getResponse().c_str()<<std::endl;
+					//std::cout<< response.getResponse().c_str()<<std::endl;
 					send(fds[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
 					fds[i].events = POLLIN;
 				}
 				if (fds[i].revents & POLLHUP)
 				{
-					std::cout << "Client associated to socket number "<<i<<" is disconnected\n";
+					std::cout << "Client associated to socket number "<<i<<" has disconnected\n";
 					close(fds[i].fd);
 					fds[i].fd = 0;
 				}

@@ -15,14 +15,9 @@ Response::Response(Request& request, Config& config)
 		if (request.getMethod() == "GET")
 		{
 			if (isAllowedMethod("GET"))
-			{	
-				std::cout << "GET" << std::endl;
 				getMethod(request, config);
-			}
 			else
-			{
 				getErrorPage(config, "405");
-			}
 		}
 		else if (request.getMethod() == "POST")
 		{
@@ -34,10 +29,7 @@ Response::Response(Request& request, Config& config)
 		else if (request.getMethod() == "DELETE")
 		{
 			if (isAllowedMethod("DELETE"))
-			{
-				std::cout << "DELETE" << std::endl;
 				deleteMethod(request, config);
-			}
 			else
 				getErrorPage(config, "405");
 		}
@@ -162,7 +154,6 @@ void Response::setMime(const std::string& file)//no idea how many to put here
 		_mime = "image/png";
 	else
 		_mime = "application/octet-stream";
-	std::cout << "EXT: " << ext << "<-" << std::endl;
 }
 
 Location Response::getRequestLocation(const Request& request, Config& config)
@@ -273,91 +264,80 @@ void Response::getMethod(const Request& request, const Config& config)
 }
 
 
-void Response::uploadFile(const std::string& path, const std::string& formField)
+void Response::postMethod(const Request& request, const Config& config)
 {
-	std::stringstream ss(formField);
-	std::string line;
-	std::string fileName;
-	std::string fileContent;
-	size_t startFileName;
-	size_t endFileName;
+    
+    if (!request.getBody().empty())
+	{
+        std::string body = request.getBody();
+        std::stringstream ss(body);
+        std::string line;
+        std::string name;
+        std::string originalFilePath;
 
-	getline(ss, line);
-	startFileName = line.find("filename=\"");
-	if (startFileName != std::string::npos)
-	{
-		endFileName = line.find("\"", startFileName + 10);
-		fileName = line.substr(startFileName + 10, endFileName - startFileName - 10);
-		// std::cout << "filename: " << fileName << std::endl;
-	}
-	else
-	{
-		// Handle error, return error page
-		std::cerr << "Error: Filename not found " << std::endl;
-	}
-	getline(ss, line);
-	if (line != "\r")
-		getline(ss, line);
-	getline(ss, fileContent, '\r');
-	// std::cout << "Content: " << fileContent << "<-Content"<< std::endl;
-	std::ifstream file(path + fileName); // path + filename
-	if (!file.good())
-	{
-		std::ofstream newFile(path + fileName);
-		newFile << fileContent; //file content
-		newFile.close();
-		setCode("201");
-	}
-	setCode("200");
-}
-
-void Response::staticPost(const Request& request, const Config& config)
-{
-	std::string path;
-	if (_location.getUploadedPath().empty())
-		path = _location.getUploadedPath();
-	else
-		path = getPath(request, config);
-	size_t boundaryPos = request.getContentType().find("boundary=");
-	if (boundaryPos != std::string::npos)
-	{
-		std::string boundary = "--" + request.getContentType().substr(boundaryPos + 9, request.getContentType().size());
-		// std::cout << "Boundary: " << boundary << std::endl;
-		std::string body = request.getBody().substr(boundary.size() + 2, request.getBody().size());
-		std::string formField;
-		while (body.find(boundary)!=std::string::npos)
+        // Iterate through each line of the body
+        while (std::getline(ss, line, '&'))
 		{
-			formField = body.substr(0, body.find(boundary) - 1);
-			body = body.substr(body.find(boundary) + boundary.size() + 2, body.size());
-			// std::cout << "### " << formField << std::endl;
-			uploadFile(path, formField);
-		}
-	}
-}
+            // Split each line into name-value pairs
+            size_t equalsPos = line.find('=');
+            if (equalsPos != std::string::npos) 
+			{
+                std::string paramName = line.substr(0, equalsPos);
+                std::string paramValue = line.substr(equalsPos + 1);
+                if (paramName == "name")
+                    name = paramValue;
+                else if (paramName == "file") {
+                    // If the parameter is 'file', it's the name of the original file
+                    originalFilePath = "../" + paramValue; // Assuming the original file is located in the parent directory
+                }
+            }
+        }
+        if (!originalFilePath.empty()) 
+		{
+            std::ifstream originalFile(originalFilePath.c_str(), std::ios::binary);
+            if (originalFile) 
+			{
+                std::stringstream fileContents;
+                fileContents << originalFile.rdbuf();
+                originalFile.close();
 
-void Response::postMethod(const Request& request, const Config& config)//Dont know what response send if no files send only fields
-{
-	(void)config;
-	std::string file = request.getFile();
+                // Construct the path to store the file in the request's path
+                std::string filePath = request.getPath() + "/" + name;
 
-	if (!_location.getCgiExt().empty() && getExtension(file) == _location.getCgiExt())//cgi extension config file
+                // Write the contents to the new file
+                std::ofstream outputFile(filePath.c_str(), std::ios::binary);
+                if (outputFile) 
+				{
+                    outputFile << fileContents.str();
+                    outputFile.close();
+					// success, respond
+                } 
+				else 
+				{
+					getErrorPage(config, "400");
+                    // Error opening the output file, send appropriate error response
+                }
+            }
+			else
+			{
+				getErrorPage(config, "204");
+                // Error opening the original file, send appropriate error response
+			}
+             
+        }
+		else 
+		{
+			getErrorPage(config, "201");
+            // 'file' parameter not found in the request body, send appropriate error response
+        }
+    } 
+	else 
 	{
-		std::string path;
-		if (!_location.getCgiPath().empty())
-			path = _location.getCgiPath();
-		else
-			path = getPath(request, config);
-		CgiHandler cgi(request, config, path);
-		if (cgi.getError().empty())
-			_cgiResponse = cgi.getResponse();
-		else
-			getErrorPage(config, cgi.getError());
-	}
-	else if (_location.getAllowUploads())
-		staticPost(request, config);
-	else
-		getErrorPage(config, "403");
+		getErrorPage(config, "501");
+        // No body present in the request, send appropriate error response
+    }
 }
+
 
 void Response::deleteMethod(const Request& request, const Config& config)
 {
