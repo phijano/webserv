@@ -17,10 +17,11 @@
 // Our library
 # include "Request.hpp"
 # include "Location.hpp"
+# include "ConfigParser.hpp"
 # include "Config.hpp"
 # include "Server.hpp"
-# include "ConfigParser.hpp"
 # include "Response.hpp"
 # include "CgiHandler.hpp"
-int manageServers(std::vector <Config> config);
+# include "Client.hpp"
+# include "ServerManager.hpp"
 #endif

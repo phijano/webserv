@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/05 14:28:02 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/18 18:53:22 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@ Server::Server()
 
 Server::Server(Config *config): config(config)
 {
+	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (serverSocket < 0)
+		std::cout << "Error socket" << std::endl;
 	setServerAddress(this->config);
 	connectServerAddress();
 	std::cout<<"Server initialized with socket num "<<serverSocket<<std::endl;
@@ -31,6 +34,16 @@ Server::Server(Config *config): config(config)
 Server::Server(const Server& other)
 {
 	*this = other;
+}
+
+Server	&Server::operator=(const Server &copy)
+{
+	if (this != &copy)
+	{
+		serverAddress = copy.serverAddress;
+		serverSocket = copy.serverSocket;
+	}
+	return *this;
 }
 
 Server::~Server()
@@ -51,7 +64,7 @@ void	Server::connectServerAddress(void)
 	int reuse = 1;
 
 	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1) {
-        std::cerr << "Error establishing SO_REUSEADDR. in server num "<< serverSocket << std::endl;
+        std::cerr << "Error establishing SO_REUSEADDR. Server num "<< serverSocket << std::endl;
         close(serverSocket);
 		exit (1);
     }
@@ -159,4 +172,11 @@ void	Server::initServer()
 		
 	}
 	close(serverSocket);
+}
+
+std::ostream& operator<<(std::ostream& os, Server& server)
+{
+	 os << "Host: " << server.getServerAddress().sin_addr.s_addr << std::endl;
+	 os << "Port: " << server.getServerAddress().sin_port << std::endl;
+	 return os;
 }

@@ -3,7 +3,7 @@ NAME = webserv
 
 #COMPILATOR
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98
+CFLAGS = -std=c++98
 
 #SOURCES
 SRCSFD = srcs/
@@ -16,7 +16,8 @@ SRCS = \
 		  Location.cpp\
 		  Config.cpp\
 		  ConfigParser.cpp\
-		  Service.cpp
+		  Client.cpp\
+		  ServerManager.cpp
 
 #OBJECTS
 OBJSFD = objs/
@@ -25,13 +26,16 @@ OBJS = $(addprefix $(OBJSFD), $(SRCS:.cpp=.o))
 #HEADERS
 HDRSFD = includes/
 HDR = \
+	Library.hpp\
 	CgiHandler.hpp \
 	Config.hpp \
 	Location.hpp \
 	Request.hpp \
 	Response.hpp \
 	Server.hpp \
-	Library.hpp
+	Library.hpp \
+	Client.hpp \
+	ServerManager.hpp
 
 HDRS = $(addprefix $(HDRSFD), $(HDR))
 HDR_INC = -I./includes

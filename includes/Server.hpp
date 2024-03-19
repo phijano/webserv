@@ -2,7 +2,7 @@
 # define SERVER_HPP
 
 # include "Library.hpp"
-
+class Config;
 class Server
 {
 	private:
@@ -22,7 +22,7 @@ class Server
 		int			getServerSocket();
 		sockaddr_in	getServerAddress();
 		socklen_t	getServerAddressLen();
-		
+		Server 		&operator=(const Server &copy);
 		void setServerConfig(Config *config);
 };
 
