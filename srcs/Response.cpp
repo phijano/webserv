@@ -263,77 +263,91 @@ void Response::getMethod(const Request& request, const Config& config)
         getErrorPage(config, "404");
 }
 
-
-void Response::postMethod(const Request& request, const Config& config)
+// Function to write file contents to a new file
+void writeFile(const std::string& filePath, const std::string& content) 
 {
-    
-    if (!request.getBody().empty())
+    std::ofstream outputFile(filePath.c_str(), std::ios::binary);
+    if (outputFile) 
+	{
+        outputFile << content;
+        outputFile.close();
+    } 
+	else
+        std::cerr << "Error writing file." << std::endl;
+}
+
+void Response::postMethod(const Request& request, const Config& config) 
+{
+    if (!request.getBody().empty()) 
 	{
         std::string body = request.getBody();
-        std::stringstream ss(body);
-        std::string line;
         std::string name;
         std::string originalFilePath;
 
-        // Iterate through each line of the body
-        while (std::getline(ss, line, '&'))
+        size_t lastEqualsPos = body.rfind('=');
+        if (lastEqualsPos != std::string::npos) 
 		{
-            // Split each line into name-value pairs
-            size_t equalsPos = line.find('=');
-            if (equalsPos != std::string::npos) 
-			{
-                std::string paramName = line.substr(0, equalsPos);
-                std::string paramValue = line.substr(equalsPos + 1);
-                if (paramName == "name")
-                    name = paramValue;
-                else if (paramName == "file") {
-                    // If the parameter is 'file', it's the name of the original file
-                    originalFilePath = "../" + paramValue; // Assuming the original file is located in the parent directory
-                }
-            }
-        }
-        if (!originalFilePath.empty()) 
-		{
-            std::ifstream originalFile(originalFilePath.c_str(), std::ios::binary);
-            if (originalFile) 
-			{
-                std::stringstream fileContents;
-                fileContents << originalFile.rdbuf();
-                originalFile.close();
+            originalFilePath = "../" + body.substr(lastEqualsPos + 1); // hardcoded
 
-                // Construct the path to store the file in the request's path
-                std::string filePath = request.getPath() + "/" + name;
-
-                // Write the contents to the new file
-                std::ofstream outputFile(filePath.c_str(), std::ios::binary);
-                if (outputFile) 
+            size_t firstEqualsPos = body.find('=');
+            size_t ampersandPos = body.find('&');
+            if (firstEqualsPos != std::string::npos && ampersandPos != std::string::npos && !originalFilePath.empty())
+			{
+                name = body.substr(firstEqualsPos + 1, ampersandPos - firstEqualsPos - 1);
+				if (name.empty())
+					name = body.substr(lastEqualsPos + 1);
+                char cwd[1024];
+    			getcwd(cwd, sizeof(cwd));
+				std::string	dir(cwd);
+				std::string filePath;
+				if (request.getPath() == "/")
+					filePath = dir + "/" + name;
+				else
+					filePath = dir + request.getPath() + "/" + name;
+                std::ifstream originalFile(originalFilePath.c_str(), std::ios::binary);
+                if (originalFile)
 				{
-                    outputFile << fileContents.str();
-                    outputFile.close();
-					// success, respond
+					std::stringstream buffer;
+                    buffer << originalFile.rdbuf();
+                    std::string fileContent = buffer.str();
+                    writeFile(filePath, fileContent);
+					std::string path = getPath(request, config);
+					std::cout << "Path: " << path << std::endl;
+					std::string file = request.getFile();
+					std::cout << "Request: " << request.getFile() << std::endl;
+					if (file.empty())
+						file = getIndex(config);
+					std::ifstream fileStream((path + file).c_str());
+    				if (fileStream.is_open())
+					{
+       					std::stringstream buffer;
+        				buffer << fileStream.rdbuf();
+        				_body = buffer.str();
+        				setCode("200");
+        				setMime(file);
+					}
                 } 
 				else 
 				{
-					getErrorPage(config, "400");
-                    // Error opening the output file, send appropriate error response
+                    getErrorPage(config, "204"); // All error pages are random
+                    // Error opening the original file, send appropriate error response
                 }
-            }
-			else
+            } 
+			else 
 			{
-				getErrorPage(config, "204");
-                // Error opening the original file, send appropriate error response
-			}
-             
-        }
+                getErrorPage(config, "405");
+                // '=' or '&' not found in the request body, send appropriate error response
+            }
+        } 
 		else 
 		{
-			getErrorPage(config, "201");
-            // 'file' parameter not found in the request body, send appropriate error response
+            getErrorPage(config, "404");
+            // '=' not found in the request body, send appropriate error response
         }
     } 
 	else 
 	{
-		getErrorPage(config, "501");
+        getErrorPage(config, "500");
         // No body present in the request, send appropriate error response
     }
 }
