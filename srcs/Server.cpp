@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/18 18:53:22 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/19 20:57:06 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,9 @@ Server::Server(Config *config): config(config)
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (serverSocket < 0)
 		std::cout << "Error socket" << std::endl;
+	std::cout<<"Server initialized with socket num "<<serverSocket<<std::endl;
 	setServerAddress(this->config);
 	connectServerAddress();
-	std::cout<<"Server initialized with socket num "<<serverSocket<<std::endl;
 }
 
 Server::Server(const Server& other)
@@ -47,9 +47,7 @@ Server	&Server::operator=(const Server &copy)
 }
 
 Server::~Server()
-{
-	close(serverSocket);
-}
+{}
 
 void	Server::setServerAddress(Config *config)
 {
@@ -78,11 +76,12 @@ void	Server::connectServerAddress(void)
 
 	if (listen(serverSocket, 20) < 0 )
 		std::cout << "Error listen" << std::endl;
-
+		
 	if (fcntl(serverSocket, F_SETFL, O_NONBLOCK) < 0) 
        std::cout << "Error fcntl" << std::endl;
 
 	std::cout << "listening: address " << inet_ntoa(serverAddress.sin_addr) << " port " << ntohs(serverAddress.sin_port) << std::endl;
+
 }
 
 int	Server::getServerSocket(void)
@@ -98,6 +97,11 @@ sockaddr_in	Server::getServerAddress(void)
 socklen_t	Server::getServerAddressLen(void)
 {
 	return (this->addressLen);
+}
+
+Config		Server::getConfig(void)
+{
+	return (this->config);
 }
 
 void	Server::initServer()

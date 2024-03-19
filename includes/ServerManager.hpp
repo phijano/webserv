@@ -11,11 +11,15 @@ class ServerManager
 		std::vector <Server> servers;
 		std::vector <Client> clients;
 		std::vector <pollfd> conn;
-		std::vector <Config> configs;
 	public:
 		ServerManager();
 		ServerManager(std::vector<Config> configs);
 		~ServerManager();
+
+		void	addServer(Config *config);
+		void	serverEvent(Server config);
+		void	newClient();
+		void	run();
 
 };
 
