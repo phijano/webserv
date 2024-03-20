@@ -3,7 +3,7 @@ NAME = webserv
 
 #COMPILATOR
 CC = c++
-CFLAGS = -std=c++98
+CFLAGS = -Wall -Wextra -Werror -g -std=c++98
 
 #SOURCES
 SRCSFD = srcs/

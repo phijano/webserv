@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/04 20:02:52 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/20 18:19:15 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ class Request
 	public:
 
 		Request();
-		Request(std::string request);
+		Request(const std::string& request);
 		Request(const Request &other);
 		Request &operator=(const Request &other);
 		~Request();
@@ -40,6 +40,8 @@ class Request
 		std::string							getBody() const;
 		bool	 							getError() const;
 
+		friend	std::ostream& operator<<(std::ostream& os, Request& request);
+
 	private:
 
 		std::string _clientIp; //need to set this in server or constructor
@@ -56,11 +58,11 @@ class Request
 		std::string	_body;
 		bool		_error;
 	
-		void parseRequest(std::string request);
-		void parseFirstLine(std::string line);
-		void parseHost(std::string hostLine);
-		void parseHeader(std::string header);
-		void parseUrl(std::string url);
+		void parseRequest(const std::string& request);
+		void parseFirstLine(const std::string& line);
+		void parseHost(const std::string& hostLine);
+		void parseHeader(const std::string& header);
+		void parseUrl(const std::string& url);
 		void checkRequest();
 };
 

@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang=\"en\">
+<header>
+	<title>Server Name</title>
+</header>
 <body><h1> HOME </h1>
 
 <p> Hello from your Server :) </p>
 
-<form method="delete" enctype="multipart/form-data">
+<form method="post" action="/"> 
+	<label for="name">Name:</label>
+	<input type="text" id="name" name="name" maxlength="8" size="10" />
 	<label for="file">File</label>
-	<input id="file2" name="file" type="file" />
-	<button onclick="deleteApp()">Send</button>
+	<input id="file1" name="file" type="file" />
+	<button>Send</button>
 </form>
 
 <p>-----------------------------------</p>
 <h3>CGI FORM POST METHOD</h3>
- <form METHOD="DELETE" ACTION="variables.cgi?var1=coche&var2=grulla" enctype="multipart/form-data">
+ <form METHOD=POST ACTION="variables.cgi?var1=coche&var2=grulla" enctype="multipart/form-data">
   <label for="name">Name:</label>
   <input name="Name" size=20 maxlength=50>
   <P>

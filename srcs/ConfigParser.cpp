@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/27 15:56:27 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/15 15:03:18 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ void	ConfigParser::parseFile(const std::string& fileName)
 
 void	ConfigParser::parseServer(std::string& content, Config& server)
 {
+	bool						serverAutoIndex = false;
 	std::vector<std::string>	tokens;
 	
 	tokens = splitContent(content);
@@ -108,10 +109,19 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 			int	size = std::stoi(tokens[++i]);
 			server.setBodySize(size);
 		}
+		else if (tokens[i] == "autoindex" || tokens[i] == "autoindex:")
+		{
+			i++;
+			if (tokens[i] == "on;" || tokens[i] == "yes;")
+				serverAutoIndex = true;
+				
+		}
 		else if (tokens[i] == "location")
 		{
 			Location	location;
 			
+			if (serverAutoIndex)
+				location.setAutoIndex(true);
 			location.setRoute(tokens[++i]);
 			while (tokens[++i] != "}")
 			{
@@ -152,7 +162,7 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 					if (tokens[i] == "on;" || tokens[i] == "yes;")
 						location.setAutoIndex(true);
 				}
-				else if (tokens[i] == "allow_methods")
+				else if (tokens[i] == "allow_methods" || tokens[i] == "allow_methods:")
 				{
 					while (++i < tokens.size())
 					{

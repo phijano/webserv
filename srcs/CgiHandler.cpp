@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/01 12:57:51 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/03/07 11:42:33 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ CgiHandler::CgiHandler()
 {
 }
 
-CgiHandler::CgiHandler(Request request, Config config, std::string path)
+CgiHandler::CgiHandler(const Request& request, const Config& config, const std::string& path)
 {
 	_path = path;
 	sendToCgi(request, config);
@@ -59,14 +59,14 @@ void CgiHandler::freeEnv()
 	free (_env);
 }
 
-char* CgiHandler::setEnvParam(std::string param)
+char* CgiHandler::setEnvParam(const std::string& param)
 {
 	char *temp = new char[param.size() + 1];
 	strcpy (temp, param.c_str());
 	return temp;
 }
 
-std::string CgiHandler::intToString(int number)
+std::string CgiHandler::intToString(const int& number)
 {
 	std::stringstream ss;
 	ss << number;
@@ -80,7 +80,7 @@ std::string CgiHandler::toUppercase(std::string str)
 	return str;
 }
 
-void CgiHandler::setCgiEnv(Request request, Config config)
+void CgiHandler::setCgiEnv(const Request& request, const Config& config)
 {
 	std::map<std::string, std::string> params = request.getCgiHeaderParams();
 	_env = new char*[15 + params.size()];
@@ -104,13 +104,12 @@ void CgiHandler::setCgiEnv(Request request, Config config)
 	for (std::map<std::string, std::string>::iterator it = params.begin(); it != params.end(); it++)
 	{
 		_env[i] = setEnvParam(toUppercase(it->first) + "=" + it->second);
-		std::cout << "cgi param: " << _env[i] << std::endl;
 		i++;
 	}
 	_env[i] = NULL;
 }
 
-void CgiHandler::postPipe(int *fd, std::string body)
+void CgiHandler::postPipe(int *fd, const std::string& body)
 {
 	int temp = 0;
 
@@ -122,12 +121,11 @@ void CgiHandler::postPipe(int *fd, std::string body)
 	dup2(temp, STDOUT_FILENO);
 }
 
-void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
+void CgiHandler::execCgi(int *fdPost, int *fd, const Request& request)
 {
 	std::string file = request.getFile();
 	std::string path = _path + request.getFile();
 	char *command[] = {(char *)file.c_str(), NULL};
-	int error;
 	if (request.getMethod() == "POST")
 	{
 		dup2(fdPost[0], STDIN_FILENO);
@@ -136,14 +134,28 @@ void CgiHandler::execCgi(int *fdPost, int *fd, Request request)
 	dup2(fd[1], STDOUT_FILENO);
 	close(fd[1]);
 	close(fd[0]);
-	error = execve(path.c_str(), command, _env);
-	exit(1);
+	execve(path.c_str(), command, _env);
+	exit(127);
 }
 
-void CgiHandler::sendToCgi(Request request, Config config)//it need time for infinite loop cgi and read in poll
+void CgiHandler::exitStatus(const int& pid)
 {
-	std::cout << "CGI" << std::endl;
+	int status;
+	int exitCode;
 
+	waitpid(pid, &status, 0);
+	if (WIFEXITED(status))
+	{
+		exitCode = WEXITSTATUS(status);
+		if (exitCode == 127)
+			_error = "404";
+		else if (exitCode != 0)
+			_error = "500";
+	}
+}
+
+void CgiHandler::sendToCgi(const Request& request, const Config& config)//it need time for infinite loop cgi and read in poll
+{
 	setCgiEnv(request, config);
 	pid_t pid;
 	int fdPost[2];
@@ -155,7 +167,7 @@ void CgiHandler::sendToCgi(Request request, Config config)//it need time for inf
 	pipe(fdCgi);
 	pid = fork();
 	if (pid == -1)
-		_error = "505";
+		_error = "500";
 	else if (pid == 0)
 		execCgi(fdPost, fdCgi, request);
 	else
@@ -163,14 +175,10 @@ void CgiHandler::sendToCgi(Request request, Config config)//it need time for inf
 		if (request.getMethod() == "POST")
 			close(fdPost[0]);
 		close(fdCgi[1]);
-		wait(NULL);
-		if (read(fdCgi[0], buffer, 30720) > 0)//we cant wait for read and read should be do it with poll or whatever
-		{
-			std::cout << "Father read: " << buffer << std::endl;
-		}
-		_response = buffer;
-		std::cout << "CGI response:\n" << _response << "<-" << std::endl;
+		while (read(fdCgi[0], buffer, 30720) > 0)//we cant wait for read and read should be do it with poll or whatever
+			_response += buffer;
 		close(fdCgi[0]);
+		exitStatus(pid);
 	}
 	freeEnv();
 }
