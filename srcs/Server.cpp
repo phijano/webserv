@@ -123,7 +123,7 @@ void	Server::initServer()
 					//std::cout << "buffer: " << buffer << std::endl;
 					Request request(buffer);
 					std::cout << "Buffer: " << buffer << std::endl << "END buffer" << std::endl;
-					//std::cout << "Request: " << request << std::endl << "END Request" << std::endl;
+					std::cout << "Request: " << request << std::endl << "END Request" << std::endl;
 					Response response(request, config[0]);
 					//std::cout<< response.getResponse().c_str()<<std::endl;
 					send(fds[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);

@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/20 16:47:19 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/20 18:45:35 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,6 +127,7 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 			
 			if (serverAutoIndex)
 				location.setAutoIndex(true);
+			location.setIndex(server.getIndex());
 			location.setRoute(tokens[++i]);
 			while (tokens[++i] != "}")
 			{
