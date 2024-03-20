@@ -287,16 +287,15 @@ void Response::postMethod(const Request& request, const Config& config)
         size_t lastEqualsPos = body.rfind('=');
         if (lastEqualsPos != std::string::npos) 
 		{
-            originalFilePath = "../" + body.substr(lastEqualsPos + 1); // hardcoded
+            originalFilePath = config.getUploadDir() + "/" + body.substr(lastEqualsPos + 1);
 
             size_t firstEqualsPos = body.find('=');
             size_t ampersandPos = body.find('&');
             if (firstEqualsPos != std::string::npos && ampersandPos != std::string::npos && !originalFilePath.empty())
 			{
                 name = body.substr(firstEqualsPos + 1, ampersandPos - firstEqualsPos - 1);
-				if (name.empty())
-					name = body.substr(lastEqualsPos + 1);
-				std::cout << "filename: " << name << std::endl;
+				if (name.empty()) // if no name specified, use og name
+					name = body.substr(lastEqualsPos + 1); 
                 std::ifstream originalFile(originalFilePath.c_str(), std::ios::binary);
                 if (originalFile)
 				{

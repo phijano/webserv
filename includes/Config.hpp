@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:11 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/05 18:00:49 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/20 16:43:14 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Config
 		int							getBodySize() const;
 		std::string					getRoot() const;
 		std::string					getIndex() const;
+		std::string					getUploadDir() const;
 		std::vector<std::string>	getServerNames() const;
 		std::map<int, std::string>	getErrorPages() const;
 		std::vector<Location>		getLocations() const;
@@ -41,6 +42,7 @@ class Config
 		void 	setBodySize(int	newSize);
 		void 	setRoot(const std::string newRoot);
 		void 	setIndex(const std::string newIndex);
+		void 	setUploadDir(const std::string newDir);
 		void 	addErrorPage(int code, std::string path);
 		void 	addLocation(Location newLocation);
 
@@ -54,6 +56,7 @@ class Config
 		int							bodySize; // unit: M
 		std::string 				root;
 		std::string 				index;
+		std::string					uploadDir;
 		std::map<int, std::string>	errors;
     	std::vector<Location>		locations;
 };

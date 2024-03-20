@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/15 15:03:18 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/20 16:47:19 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,11 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 		{
 			i++;
 			server.setIndex(tokens[i].substr(0, tokens[i].length() - 1));
+		}
+		else if (tokens[i] == "upload_dir")
+		{
+			i++;
+			server.setUploadDir(tokens[i].substr(0, tokens[i].length() - 1));
 		}
 		else if (tokens[i] == "server_name")
 		{
