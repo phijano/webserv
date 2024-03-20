@@ -264,9 +264,9 @@ void Response::getMethod(const Request& request, const Config& config)
 }
 
 // Function to write file contents to a new file
-void writeFile(const std::string& filePath, const std::string& content) 
+void writeFile(const std::string& file, const std::string& content) 
 {
-    std::ofstream outputFile(filePath.c_str(), std::ios::binary);
+    std::ofstream outputFile(file.c_str(), std::ios::binary);
     if (outputFile) 
 	{
         outputFile << content;
@@ -296,25 +296,16 @@ void Response::postMethod(const Request& request, const Config& config)
                 name = body.substr(firstEqualsPos + 1, ampersandPos - firstEqualsPos - 1);
 				if (name.empty())
 					name = body.substr(lastEqualsPos + 1);
-                char cwd[1024];
-    			getcwd(cwd, sizeof(cwd));
-				std::string	dir(cwd);
-				std::string filePath;
-				if (request.getPath() == "/")
-					filePath = dir + "/" + name;
-				else
-					filePath = dir + request.getPath() + "/" + name;
+				std::cout << "filename: " << name << std::endl;
                 std::ifstream originalFile(originalFilePath.c_str(), std::ios::binary);
                 if (originalFile)
 				{
 					std::stringstream buffer;
                     buffer << originalFile.rdbuf();
                     std::string fileContent = buffer.str();
-                    writeFile(filePath, fileContent);
+                    writeFile(name, fileContent);
 					std::string path = getPath(request, config);
-					std::cout << "Path: " << path << std::endl;
 					std::string file = request.getFile();
-					std::cout << "Request: " << request.getFile() << std::endl;
 					if (file.empty())
 						file = getIndex(config);
 					std::ifstream fileStream((path + file).c_str());
