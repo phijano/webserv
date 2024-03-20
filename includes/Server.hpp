@@ -21,9 +21,9 @@ class Server
 		~Server();
 		int			getServerSocket();
 		sockaddr_in	getServerAddress();
-		socklen_t	getServerAddress();
+		socklen_t	getServerAddressLen();
 		Server 		&operator=(const Server &copy);
-		Config		getConfig(void);
+		Config		*getConfig(void);
 		void setServerConfig(Config *config);
 };
 

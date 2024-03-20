@@ -17,8 +17,10 @@ class ServerManager
 		~ServerManager();
 
 		void	addServer(Config *config);
-		void	serverEvent(Server config);
-		void	newClient();
+		void	serverEvent();
+		void	clientEvent();
+		void	removeClient(int fd);
+		void	newClient(Server server);
 		void	run();
 
 };

@@ -13,6 +13,8 @@ class Client
 		Client();
 		Client(Config *config, int newClient);
 		~Client();
+		int	getId();
+		Config getConfig();
 
 };
 

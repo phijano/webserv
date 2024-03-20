@@ -4,20 +4,15 @@
 
 <p> Hello from your Server :) </p>
 
-<form method="post" enctype="multipart/form-data">
-	<label for="name">Name:</label>
-	<input type="text" id="name" name="name" maxlength="8" size="10" />
-	<label for="file">File</label>
-	<input id="file1" name="file" type="file" />
-	<label for="name">Name:</label>
+<form method="delete" enctype="multipart/form-data">
 	<label for="file">File</label>
 	<input id="file2" name="file" type="file" />
-	<button>Send</button>
+	<button onclick="deleteApp()">Send</button>
 </form>
 
 <p>-----------------------------------</p>
 <h3>CGI FORM POST METHOD</h3>
- <form METHOD=POST ACTION="variables.cgi?var1=coche&var2=grulla" enctype="multipart/form-data">
+ <form METHOD="DELETE" ACTION="variables.cgi?var1=coche&var2=grulla" enctype="multipart/form-data">
   <label for="name">Name:</label>
   <input name="Name" size=20 maxlength=50>
   <P>

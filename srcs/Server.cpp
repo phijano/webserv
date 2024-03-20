@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/12 10:10:40 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/19 20:57:06 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/20 16:24:43 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ socklen_t	Server::getServerAddressLen(void)
 	return (this->addressLen);
 }
 
-Config		Server::getConfig(void)
+Config		*Server::getConfig(void)
 {
 	return (this->config);
 }

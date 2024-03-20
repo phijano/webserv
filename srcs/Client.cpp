@@ -11,3 +11,13 @@ Client::Client(Config *config, int newClient):
 {}
 
 Client::~Client(){}
+
+int	Client::getId()
+{
+	return (this->id);
+}
+
+Config	Client::getConfig()
+{
+	return (*this->config);
+}
