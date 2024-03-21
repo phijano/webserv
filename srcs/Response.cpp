@@ -271,16 +271,20 @@ void Response::getMethod(const Request& request, const Config& config)
 }
 
 // Function to write file contents to a new file
-void writeFile(const std::string& file, const std::string& content) 
+int	Response::createFile(const std::string& file, const std::string& content, const Config& config) 
 {
     std::ofstream outputFile(file.c_str(), std::ios::binary);
     if (outputFile) 
 	{
         outputFile << content;
         outputFile.close();
+		return (0);
     } 
 	else
-        std::cerr << "Error writing file." << std::endl;
+	{
+        getErrorPage(config, "409");
+		return (1);
+	}
 }
 
 void Response::postMethod(const Request& request, const Config& config) 
@@ -299,16 +303,21 @@ void Response::postMethod(const Request& request, const Config& config)
             size_t firstEqualsPos = body.find('=');
             size_t ampersandPos = body.find('&');
             if (firstEqualsPos != std::string::npos && ampersandPos != std::string::npos && !originalFilePath.empty())
-			{ // ONLY WORKS IN /
+			{
 
                 name = body.substr(firstEqualsPos + 1, ampersandPos - firstEqualsPos - 1);
 				if (name.empty()) // if no name specified, use og name
 					name = body.substr(lastEqualsPos + 1);
 				std::string newfilePath;
-				if (_location.getPath() == "/")
-					newfilePath = getPath(request, config) + name;
-				else 
-					newfilePath = getPath(request, config) + "/" + name;
+				if (!_location.getUploadPath().empty())
+					newfilePath = getPath(request, config) + _location.getUploadPath() + "/" + name;
+				else
+				{
+					if (_location.getPath() == "/")
+						newfilePath = getPath(request, config) + name;
+					else 
+						newfilePath = getPath(request, config) + "/" + name;
+				}
 				std::cout << "newFile: " << newfilePath << std::endl;
                 std::ifstream originalFile(originalFilePath.c_str(), std::ios::binary);
                 if (originalFile)
@@ -316,7 +325,8 @@ void Response::postMethod(const Request& request, const Config& config)
 					std::stringstream buffer;
                     buffer << originalFile.rdbuf();
                     std::string fileContent = buffer.str();
-                    writeFile(newfilePath, fileContent);
+                    if (createFile(newfilePath, fileContent, config) == 1)
+						return ;
 					std::string path = getPath(request, config);
 					std::string file = request.getFile();
 					if (file.empty())
@@ -335,29 +345,33 @@ void Response::postMethod(const Request& request, const Config& config)
         				setCode("200");
         				setMime(file);
 					}
+					else
+					{
+                    	getErrorPage(config, "404");
+						// newFile was not created
+                	}
                 } 
 				else
 				{
-					std::cout << "HERE\n";
-                    getErrorPage(config, "404"); // All error pages are random
+                    getErrorPage(config, "404");
                     // File can not be opened (probably not in upload_dir), send appropriate error response
                 }
             } 
 			else 
 			{
-                getErrorPage(config, "405");
+                getErrorPage(config, "400");
                 // '=' or '&' not found in the request body, send appropriate error response
             }
         } 
 		else 
 		{
-            getErrorPage(config, "404");
+            getErrorPage(config, "400");
             // '=' not found in the request body, send appropriate error response
         }
     } 
 	else 
 	{
-        getErrorPage(config, "500");
+        getErrorPage(config, "400");
         // No body present in the request, send appropriate error response
     }
 }
