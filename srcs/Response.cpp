@@ -304,7 +304,11 @@ void Response::postMethod(const Request& request, const Config& config)
                 name = body.substr(firstEqualsPos + 1, ampersandPos - firstEqualsPos - 1);
 				if (name.empty()) // if no name specified, use og name
 					name = body.substr(lastEqualsPos + 1);
-				std::string newfilePath = getPath(request, config) + name;
+				std::string newfilePath;
+				if (_location.getRoute() == "/")
+					newfilePath = getPath(request, config) + name;
+				else 
+					newfilePath = getPath(request, config) + "/" + name;
 				std::cout << "newFile: " << newfilePath << std::endl;
                 std::ifstream originalFile(originalFilePath.c_str(), std::ios::binary);
                 if (originalFile)
@@ -366,8 +370,11 @@ void Response::deleteMethod(const Request& request, const Config& config)
 	else
 		filePath = location.substr(1, location.length()) + deleteFile;
 	std::cout << "filePath: " << filePath << std::endl;
-	std::remove(filePath.c_str());
-
+	if (std::remove(filePath.c_str()) != 0)
+	{
+		getErrorPage(config, "404");
+		return ;
+	}
 	std::string path = _location.getRoot() + "/";
 	std::string	file = _location.getIndex();
 	std::cout << "filestream: " << path << file << std::endl;
