@@ -3,21 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 13:42:17 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/02/22 18:30:43 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/20 19:02:58 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIGPARSER_HPP
 # define CONFIGPARSER_HPP
-
-# include <iostream>
-# include <fstream>
-# include <sstream>
+# include "Library.hpp"
 # include "Config.hpp"
-
 class ConfigParser
 {
 	public:

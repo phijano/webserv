@@ -6,12 +6,13 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 09:49:39 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/14 18:11:04 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/20 19:39:36 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
-#include "ConfigParser.hpp"
+#include "Library.hpp"
+# include "ConfigParser.hpp"
+# include "ServerManager.hpp"
 
 int main(int argc, char **argv)
 {
@@ -24,9 +25,8 @@ int main(int argc, char **argv)
 	{
 		ConfigParser	parser;
 		parser.parseFile(argv[1]);
-		std::vector<Config>	servers = parser.getServers();
-		Server test2 = Server(&servers[0]);
-		(void)test2;
+		ServerManager   manager(parser.getServers());
+		manager.run();
 	}
 	catch (const ConfigParser::ConfigFileException& e) 
 		{std::cerr << e.what() << std::endl;}

@@ -3,19 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:11 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/05 18:00:49 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/20 19:01:17 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIG_H
 # define CONFIG_H
 
-# include <string>
-# include <vector>
-# include <map>
+# include "Library.hpp"
 # include "Location.hpp"
 
 class Config

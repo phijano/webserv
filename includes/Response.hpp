@@ -1,12 +1,11 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include <unistd.h>
-# include <fstream>
+# include "Library.hpp"
+# include "Location.hpp"
 # include "Request.hpp"
 # include "Config.hpp"
 # include "CgiHandler.hpp"
-
 class Response
 {
 	public:

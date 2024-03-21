@@ -1,14 +1,7 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <iostream>
-# include <sys/socket.h>
-#include <fcntl.h>
-# include <sys/poll.h>
-# include "Request.hpp"
-# include "Response.hpp"
+# include "Library.hpp"
 # include "Config.hpp"
 
 class Server
@@ -18,15 +11,20 @@ class Server
 		int			serverSocket;
 		sockaddr_in serverAddress;
 		socklen_t	addressLen;
-		void		initServer(void);
 		void		connectServerAddress(void);
+		void		setServerAddress();
 
 	public:
 		Server();
 		Server(Config *config);
 		Server(const Server &other);
 		~Server();
-		void	setServerAddress(Config *config);
+		int			getServerSocket();
+		sockaddr_in	getServerAddress();
+		socklen_t	getServerAddressLen();
+		Server 		&operator=(const Server &copy);
+		Config		*getConfig(void);
+		void setServerConfig();
 };
 
 #endif
