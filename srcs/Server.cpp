@@ -109,7 +109,10 @@ void	Server::initServer()
 					if (bytesRead >= 0) 
 					{
 						if (bytesRead > 0)
+						{
+							buffer[bytesRead] = '\0';
 							fds[i].events = POLLOUT;
+						}
 					}
 					else
 						std::cerr << "Error de lectura del cliente\n";

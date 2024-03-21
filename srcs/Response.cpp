@@ -11,8 +11,8 @@ Response::Response(Request& request, Config& config)
 		getErrorPage(config, "400");
 	else
 	{
-		_location = getRequestLocation(request, config); // Only seems to work with GET
-		std::cout << "Location found: " << _location.getRoute() << std::endl;
+		_location = getRequestLocation(request, config);
+		std::cout << "Location found: " << _location.getPath() << std::endl;
 		if (request.getMethod() == "GET")
 		{
 			if (isAllowedMethod("GET"))
@@ -165,13 +165,13 @@ Location Response::getRequestLocation(const Request& request, Config& config)
 
     for (size_t i = 0; i < locations.size(); ++i) 
 	{
-        const std::string& route = locations[i].getRoute();
-        if (request.getPath().compare(0, route.length(), route) == 0)
+        const std::string& path = locations[i].getPath();
+        if (request.getPath().compare(0, path.length(), path) == 0)
 		{
-            if (route.length() > longestMatchLength)
+            if (path.length() > longestMatchLength)
 			{
                 mostSpecificLocation = locations[i];
-                longestMatchLength = route.length();
+                longestMatchLength = path.length();
             }
         }
     }
@@ -305,7 +305,7 @@ void Response::postMethod(const Request& request, const Config& config)
 				if (name.empty()) // if no name specified, use og name
 					name = body.substr(lastEqualsPos + 1);
 				std::string newfilePath;
-				if (_location.getRoute() == "/")
+				if (_location.getPath() == "/")
 					newfilePath = getPath(request, config) + name;
 				else 
 					newfilePath = getPath(request, config) + "/" + name;
@@ -321,7 +321,12 @@ void Response::postMethod(const Request& request, const Config& config)
 					std::string file = request.getFile();
 					if (file.empty())
 						file = getIndex(config);
-					std::ifstream fileStream((path + file).c_str());
+					std::string	newIndex;
+					if (_location.getPath() == "/")
+						newIndex = path + file;
+					else
+						newIndex = path + "/" + file;
+					std::ifstream fileStream((newIndex).c_str());
     				if (fileStream.is_open())
 					{
        					std::stringstream buffer;
@@ -360,7 +365,7 @@ void Response::postMethod(const Request& request, const Config& config)
 void Response::deleteMethod(const Request& request, const Config& config)
 {
 	(void)config;
-	std::string location = request.getPath(); // _location.getRoute() or _location.getRoot() can be used
+	std::string location = request.getPath(); // _location.getPath should do the same
 	std::string deleteFile = request.getFile();
 	std::string filePath;
 	if (deleteFile.empty())
