@@ -365,15 +365,11 @@ void Response::postMethod(const Request& request, const Config& config)
 void Response::deleteMethod(const Request& request, const Config& config)
 {
 	(void)config;
-	std::string location = request.getPath(); // _location.getPath should do the same
-	std::string deleteFile = request.getFile();
-	std::string filePath;
-	if (deleteFile.empty())
-		filePath = request.getPath().substr(1, request.getPath().length());
-	else if (location == "/")
-		filePath = deleteFile;
-	else
-		filePath = location.substr(1, location.length()) + deleteFile;
+	std::string delPath = getPath(request, config);
+	std::cout << "delPath: " << delPath << std::endl;
+	std::string delFile = request.getFile();
+	std::cout << "delFile: " << delFile << std::endl;
+	std::string filePath = delPath + delFile;
 	std::cout << "filePath: " << filePath << std::endl;
 	if (std::remove(filePath.c_str()) != 0)
 	{
