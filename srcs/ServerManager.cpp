@@ -76,6 +76,7 @@ void	ServerManager::clientEvent(size_t initialSize)
 			{
 				if (bytesRead > 0)
 				{
+					buffer[bytesRead] = '\0';
 					clients[i - servers.size()].setRequest(Request(buffer));
 					conn[i].events = POLLOUT;
 				}
