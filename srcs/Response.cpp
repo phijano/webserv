@@ -12,6 +12,7 @@ Response::Response(Request& request, Config& config)
 	else
 	{
 		_location = getRequestLocation(request, config);
+		std::cout << "Location found: " << _location.getPath() << std::endl;
 		if (request.getMethod() == "GET")
 		{
 			if (isAllowedMethod("GET"))
@@ -164,13 +165,13 @@ Location Response::getRequestLocation(const Request& request, Config& config)
 
     for (size_t i = 0; i < locations.size(); ++i) 
 	{
-        const std::string& route = locations[i].getRoute();
-        if (request.getPath().compare(0, route.length(), route) == 0)
+        const std::string& path = locations[i].getPath();
+        if (request.getPath().compare(0, path.length(), path) == 0)
 		{
-            if (route.length() > longestMatchLength)
+            if (path.length() > longestMatchLength)
 			{
                 mostSpecificLocation = locations[i];
-                longestMatchLength = route.length();
+                longestMatchLength = path.length();
             }
         }
     }
@@ -208,7 +209,7 @@ void Response::getErrorPage(const Config& config, const std::string error)
 	_body = "<!DOCTYPE html><html lang=\"en\"><body><h1> " + _code + " </h1><p> Whooops! </p></body></html>";
 }
 
-std::string Response::getPath(const Request& request, const Config& config)
+std::string Response::getPath(const Request& request, const Config& config) // Doesnt work for Delete
 {
 	std::string path;
 
@@ -234,8 +235,13 @@ std::string Response::getIndex(const Config& config)
 
 void Response::getMethod(const Request& request, const Config& config)
 {
+	std::string path;
+
+	if (request.getPath() == "/") // Check when to use request.getPath()
+		path = getPath(request, config);
+	else 
+		path = getPath(request, config) + "/";
     std::string file = request.getFile();
-    std::string path = getPath(request, config);
 
     if (file.empty())
         file = getIndex(config);
@@ -250,6 +256,7 @@ void Response::getMethod(const Request& request, const Config& config)
 		else
 			getErrorPage(config, cgi.getError());
 	}
+	std::cout << "Form Get: Path: " << path << file << std::endl;
     std::ifstream fileStream((path + file).c_str());
     if (fileStream.is_open())
 	{
@@ -264,9 +271,9 @@ void Response::getMethod(const Request& request, const Config& config)
 }
 
 // Function to write file contents to a new file
-void writeFile(const std::string& filePath, const std::string& content) 
+void writeFile(const std::string& file, const std::string& content) 
 {
-    std::ofstream outputFile(filePath.c_str(), std::ios::binary);
+    std::ofstream outputFile(file.c_str(), std::ios::binary);
     if (outputFile) 
 	{
         outputFile << content;
@@ -287,37 +294,39 @@ void Response::postMethod(const Request& request, const Config& config)
         size_t lastEqualsPos = body.rfind('=');
         if (lastEqualsPos != std::string::npos) 
 		{
-            originalFilePath = "../" + body.substr(lastEqualsPos + 1); // hardcoded
+            originalFilePath = config.getUploadDir() + "/" + body.substr(lastEqualsPos + 1);
 
             size_t firstEqualsPos = body.find('=');
             size_t ampersandPos = body.find('&');
             if (firstEqualsPos != std::string::npos && ampersandPos != std::string::npos && !originalFilePath.empty())
-			{
+			{ // ONLY WORKS IN /
+
                 name = body.substr(firstEqualsPos + 1, ampersandPos - firstEqualsPos - 1);
-				if (name.empty())
+				if (name.empty()) // if no name specified, use og name
 					name = body.substr(lastEqualsPos + 1);
-                char cwd[1024];
-    			getcwd(cwd, sizeof(cwd));
-				std::string	dir(cwd);
-				std::string filePath;
-				if (request.getPath() == "/")
-					filePath = dir + "/" + name;
-				else
-					filePath = dir + request.getPath() + "/" + name;
+				std::string newfilePath;
+				if (_location.getPath() == "/")
+					newfilePath = getPath(request, config) + name;
+				else 
+					newfilePath = getPath(request, config) + "/" + name;
+				std::cout << "newFile: " << newfilePath << std::endl;
                 std::ifstream originalFile(originalFilePath.c_str(), std::ios::binary);
                 if (originalFile)
 				{
 					std::stringstream buffer;
                     buffer << originalFile.rdbuf();
                     std::string fileContent = buffer.str();
-                    writeFile(filePath, fileContent);
+                    writeFile(newfilePath, fileContent);
 					std::string path = getPath(request, config);
-					std::cout << "Path: " << path << std::endl;
 					std::string file = request.getFile();
-					std::cout << "Request: " << request.getFile() << std::endl;
 					if (file.empty())
 						file = getIndex(config);
-					std::ifstream fileStream((path + file).c_str());
+					std::string	newIndex;
+					if (_location.getPath() == "/")
+						newIndex = path + file;
+					else
+						newIndex = path + "/" + file;
+					std::ifstream fileStream((newIndex).c_str());
     				if (fileStream.is_open())
 					{
        					std::stringstream buffer;
@@ -327,10 +336,11 @@ void Response::postMethod(const Request& request, const Config& config)
         				setMime(file);
 					}
                 } 
-				else 
+				else
 				{
-                    getErrorPage(config, "204"); // All error pages are random
-                    // Error opening the original file, send appropriate error response
+					std::cout << "HERE\n";
+                    getErrorPage(config, "404"); // All error pages are random
+                    // File can not be opened (probably not in upload_dir), send appropriate error response
                 }
             } 
 			else 
@@ -352,14 +362,35 @@ void Response::postMethod(const Request& request, const Config& config)
     }
 }
 
-
 void Response::deleteMethod(const Request& request, const Config& config)
 {
-	std::string path = getPath(request, config);
-	if (request.getFile().empty())
-		setCode("noidea"); // Change to error code
-	path += request.getFile();
-	std::remove(path.c_str());
-	setCode("204");
+	(void)config;
+	std::string location = request.getPath(); // _location.getPath should do the same
+	std::string deleteFile = request.getFile();
+	std::string filePath;
+	if (deleteFile.empty())
+		filePath = request.getPath().substr(1, request.getPath().length());
+	else if (location == "/")
+		filePath = deleteFile;
+	else
+		filePath = location.substr(1, location.length()) + deleteFile;
+	std::cout << "filePath: " << filePath << std::endl;
+	if (std::remove(filePath.c_str()) != 0)
+	{
+		getErrorPage(config, "404");
+		return ;
+	}
+	std::string path = _location.getRoot() + "/";
+	std::string	file = _location.getIndex();
+	std::cout << "filestream: " << path << file << std::endl;
+	std::ifstream fileStream((path + file).c_str());
+    if (fileStream.is_open())
+	{
+       	std::stringstream buffer;
+        buffer << fileStream.rdbuf();
+        _body = buffer.str();
+        setCode("200");
+        setMime(file);
+	}
 	//check for errors to send correct error page like not allowed
 }

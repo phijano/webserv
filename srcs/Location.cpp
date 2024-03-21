@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:38 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/14 18:05:32 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/21 17:03:07 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
 Location::Location():
-    route(""),
+    path(""),
     root(""),
     index(""),
     cgiExt(""),
@@ -25,8 +25,8 @@ Location::Location():
 Location::~Location(){}
 
 // Getter Methods
-std::string Location::getRoute() {
-    return this->route;
+std::string Location::getPath() {
+    return this->path;
 }
 
 std::string Location::getRoot() {
@@ -62,8 +62,8 @@ bool Location::getAllowUploads() {
 }
 
 // Setter Methods
-void Location::setRoute(const std::string newRoute) {
-    route = newRoute;
+void Location::setPath(const std::string newPath) {
+    path = newPath;
 }
 
 void Location::setRoot(const std::string newRoot) {
@@ -100,7 +100,7 @@ void Location::setAllowUploads(bool newAllowUploads) {
 
 std::ostream& operator<<(std::ostream& os, Location& location) 
 {
-    os << "Route: " << location.getRoute() << std::endl
+    os << "Location Path: " << location.getPath() << std::endl
        << "Root: " << location.getRoot() << std::endl
        << "Index: " << location.getIndex() << std::endl
        << "CGI Extension: " << location.getCgiExt() << std::endl

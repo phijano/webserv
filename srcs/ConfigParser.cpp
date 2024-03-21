@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/15 15:03:18 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/21 16:58:33 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,11 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 			i++;
 			server.setIndex(tokens[i].substr(0, tokens[i].length() - 1));
 		}
+		else if (tokens[i] == "upload_dir")
+		{
+			i++;
+			server.setUploadDir(tokens[i].substr(0, tokens[i].length() - 1));
+		}
 		else if (tokens[i] == "server_name")
 		{
 			while (++i < tokens.size())
@@ -122,7 +127,7 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 			
 			if (serverAutoIndex)
 				location.setAutoIndex(true);
-			location.setRoute(tokens[++i]);
+			location.setPath(tokens[++i]);
 			while (tokens[++i] != "}")
 			{
 				if (tokens[i] == "root")

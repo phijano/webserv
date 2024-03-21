@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:01:56 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/04 20:02:54 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/21 17:22:56 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ class Location
 		~Location();
 
 		//Getters
-		std::string					getRoute();
+		std::string					getPath();
 		std::string 				getRoot();
 		std::string 				getIndex();
 		std::string 				getCgiExt();
@@ -31,7 +31,7 @@ class Location
 		bool						getAllowUploads();
 		
 		//Setters
-		void	setRoute(const std::string newRoute);
+		void	setPath(const std::string newPath);
 		void	setRoot(const std::string newRoot);
 		void	setIndex(const std::string newIndex);
 		void	setCgiExt(const std::string newCgiExt);
@@ -44,7 +44,7 @@ class Location
 		friend std::ostream& operator<<(std::ostream& os, Location& location);
 
 	private:
-		std::string 				route;
+		std::string 				path;
 		std::string 				root;
 		std::string 				index;
 		std::string 				cgiExt;

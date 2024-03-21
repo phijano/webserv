@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:29 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/15 13:49:38 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/20 16:46:05 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,13 @@ Config::Config():
     port(80),
     bodySize(1),
     root("web"),
-    index("index.html")
+    index("index.html"),
+	uploadDir("../")
 {}
 
 Config::~Config(){}
 
 // Getter Methods
-
 
 std::string Config::getHost() const
 {
@@ -48,6 +48,11 @@ std::string Config::getRoot() const
 std::string Config::getIndex() const
 {
     return this->index;
+}
+
+std::string Config::getUploadDir() const
+{
+    return this->uploadDir;
 }
 
 std::vector<std::string> Config::getServerNames() const
@@ -96,6 +101,11 @@ void Config::setIndex(const std::string newIndex)
     index = newIndex;
 }
 
+void Config::setUploadDir(const std::string newDir)
+{
+    uploadDir = newDir;
+}
+
 void Config::addErrorPage(int code, std::string path)
 {
     errors[code] = path;
@@ -110,6 +120,7 @@ std::ostream& operator<<(std::ostream& os, Config& config)
 {
     os << "Host: " << config.getHost() << "\nPort: " << config.getPort()
        << "\nRoot: " << config.getRoot() << "\nIndex: " << config.getIndex()
+	   << "\nUpload dir: " << config.getUploadDir()
        << "\nBody size: " << config.getBodySize() << "\nServer Names: ";
     std::vector<std::string> serverNames = config.getServerNames();
     for (size_t i = 0; i < serverNames.size(); ++i) {
