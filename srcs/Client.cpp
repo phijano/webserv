@@ -17,7 +17,17 @@ int	Client::getId()
 	return (this->id);
 }
 
-Config	Client::getConfig()
+Config	&Client::getConfig()
 {
 	return (*this->config);
+}
+
+void	Client::setRequest(Request request)
+{
+	this->request = request;
+}
+
+Request &Client::getRequest()
+{
+	return (this->request);
 }

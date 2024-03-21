@@ -2,9 +2,10 @@
 # define SERVERMANAGER_HPP
 
 # include "Library.hpp"
-class Server;
-class Client;
-class Config;
+# include "Server.hpp"
+# include "Client.hpp"
+# include "Response.hpp"
+# include "Request.hpp"
 class ServerManager
 {
 	private:
@@ -18,7 +19,7 @@ class ServerManager
 
 		void	addServer(Config *config);
 		void	serverEvent();
-		void	clientEvent();
+		void	clientEvent(size_t initialSize);
 		void	removeClient(int fd);
 		void	newClient(Server server);
 		void	run();

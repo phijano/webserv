@@ -3,7 +3,6 @@
 Server::Server()
 {
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	//transform this error in try catch
 	if (serverSocket < 0)
 		std::cout << "Error socket" << std::endl;
 	std::cout<<"Server initialized with socket num "<<serverSocket<<std::endl;
@@ -11,15 +10,15 @@ Server::Server()
 
 Server::Server(Config *config): config(config)
 {
-	setServerAddress(this->config);
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	//transform this error in try catch
 	if (serverSocket < 0)
 		std::cout << "Error socket" << std::endl;
-	initServer();
+	std::cout<<"Server initialized with socket num "<<serverSocket<<std::endl;
+	setServerAddress();
+	connectServerAddress();
 }
 
-Server::Server(const Server& other)
+Server::Server(const Server& other):config(new Config(*(other.config)))
 {
 	*this = other;
 }
@@ -37,7 +36,7 @@ Server	&Server::operator=(const Server &copy)
 Server::~Server()
 {}
 
-void	Server::setServerAddress(Config *config)
+void	Server::setServerAddress()
 {
 	this->serverAddress.sin_family = AF_INET;
 	this->serverAddress.sin_port = htons(config->getPort());
@@ -90,83 +89,6 @@ socklen_t	Server::getServerAddressLen(void)
 Config		*Server::getConfig(void)
 {
 	return (this->config);
-}
-
-void	Server::initServer()
-{
-	char buffer[1024] = {0};
-	int acceptSocket;
-	std::vector<pollfd> fds(10);
-	int activity;
-
-	fds[0].fd = serverSocket;
-	fds[0].events = POLLIN;
-	while (1)
-	{
-		activity = poll(fds.data(), fds.size(), -1); // unused variable
-		if (fds[0].revents & POLLIN) // if (incoming connection request from a client)
-		{
-			acceptSocket = accept(serverSocket, (struct sockaddr *)&serverAddress, &addressLen);
-			if (fcntl(acceptSocket, F_SETFL, O_NONBLOCK) < 0)
-				std::cout<<"Error"<<std::endl;
-			for (size_t i = 1; i < fds.size(); i++)
-			{
-				if (fds[i].fd == 0)
-				{
-					//std::cout<<"New Client connected to socket number "<< i <<std::endl;
-					fds[i].fd = acceptSocket;
-					fds[i].events = POLLIN;
-					break;
-				}
-			}
-		}
-		else
-		{
-			for (size_t i = 1; i < fds.size(); i++)
-			{
-				if (fds[i].revents & POLLIN && fds[i].fd != 0)
-				{
-					ssize_t bytesRead = recv(fds[i].fd, buffer, sizeof(buffer), 0);
-					std::cout<<"hola"<<std::endl;
-					if (bytesRead >= 0) 
-					{
-						if (bytesRead > 0)
-							fds[i].events = POLLOUT;
-					}
-					else
-						std::cerr << "Error de lectura del cliente\n";
-					
-				}
-				if (fds[i].revents & POLLOUT)
-				{
-					//std::string body = "<h1>Hello, world!</h1>";
-					//std::string response = "HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-Length: " + std::to_string(body.length()) + "\r\nKeep-Alive: timeout=10, max=100\r\n\r\n" + body;
-					//send(fds[i].fd, response.c_str(), response.length(), 0);
-					//std::cout << "buffer: " << buffer << std::endl;
-					Request request(buffer);
-					std::cout << "Buffer: " << buffer << std::endl << "END buffer" << std::endl;
-					//std::cout << "Request: " << request << std::endl << "END Request" << std::endl;
-					Response response(request, config[0]);
-					//std::cout<< response.getResponse().c_str()<<std::endl;
-					send(fds[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
-					fds[i].events = POLLIN;
-				}
-				if (fds[i].revents & POLLHUP)
-				{
-					std::cout << "Client associated to socket number "<<i<<" has disconnected\n";
-					close(fds[i].fd);
-					fds[i].fd = 0;
-				}
-				if (fds[i].revents & POLLERR)
-				{
-					std::cout << "There has been an error[POLLERR]\n";
-					close(fds[i].fd);
-					fds[i].fd = 0;
-				}
-			}
-		}
-	}
-	close(serverSocket);
 }
 
 std::ostream& operator<<(std::ostream& os, Server& server)

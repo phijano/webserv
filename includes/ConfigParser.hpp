@@ -6,14 +6,14 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 13:42:17 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/18 17:31:13 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/20 19:02:58 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIGPARSER_HPP
 # define CONFIGPARSER_HPP
 # include "Library.hpp"
-class Config;
+# include "Config.hpp"
 class ConfigParser
 {
 	public:

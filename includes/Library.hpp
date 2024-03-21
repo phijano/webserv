@@ -14,14 +14,4 @@
 # include <sstream>
 # include <algorithm>
 # include <vector>
-// Our library
-# include "Request.hpp"
-# include "Location.hpp"
-# include "ConfigParser.hpp"
-# include "Config.hpp"
-# include "Server.hpp"
-# include "Response.hpp"
-# include "CgiHandler.hpp"
-# include "Client.hpp"
-# include "ServerManager.hpp"
 #endif

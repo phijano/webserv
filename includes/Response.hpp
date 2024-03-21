@@ -2,8 +2,10 @@
 # define RESPONSE_HPP
 
 # include "Library.hpp"
-class Request;
-class Config;
+# include "Location.hpp"
+# include "Request.hpp"
+# include "Config.hpp"
+# include "CgiHandler.hpp"
 class Response
 {
 	public:

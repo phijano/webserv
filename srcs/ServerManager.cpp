@@ -9,7 +9,6 @@ ServerManager::ServerManager(std::vector<Config> configs)
 	{
 		addServer(&configs[i]);
 	}
-	run();
 }
 
 ServerManager::~ServerManager(){}
@@ -62,14 +61,13 @@ void	ServerManager::removeClient(int position)
 	clients.erase(clients.begin() + (position - servers.size()));
 }
 
-void	ServerManager::clientEvent()
+void	ServerManager::clientEvent(size_t initialSize)
 {
 	char buffer[1024];
-	Request request;
 	Response response;
 	ssize_t bytesRead;
 
-	for (size_t i = servers.size(); i < conn.size(); i++)
+	for (size_t i = servers.size(); i < initialSize; i++)
 	{
 		if (conn[i].revents & POLLIN)
 		{
@@ -78,7 +76,7 @@ void	ServerManager::clientEvent()
 			{
 				if (bytesRead > 0)
 				{
-					request = Request(buffer);
+					clients[i - servers.size()].setRequest(Request(buffer));
 					conn[i].events = POLLOUT;
 				}
 			}
@@ -87,7 +85,7 @@ void	ServerManager::clientEvent()
 		}
 		if (conn[i].revents & POLLOUT)
 		{
-			response = Response(request, clients[i - servers.size()].getConfig());
+			response = Response(clients[i - servers.size()].getRequest(), clients[i - servers.size()].getConfig());
 			send(conn[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
 			conn[i].events = POLLIN;
 		}
@@ -107,13 +105,13 @@ void	ServerManager::clientEvent()
 void	ServerManager::run()
 {
 	int	activity;
-	int initialSize;
+	size_t initialSize;
 
 	while (1)
 	{
 		initialSize = this->conn.size();
 		activity = poll(this->conn.data(), this->conn.size(), -1);
 		serverEvent();
-		clientEvent();
+		clientEvent(initialSize);
 	}
 }

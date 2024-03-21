@@ -10,10 +10,10 @@ SRCSFD = srcs/
 SRCS = \
 		  main.cpp \
 		  Server.cpp \
+		  Location.cpp\
 		  Request.cpp \
 		  Response.cpp \
 		  CgiHandler.cpp\
-		  Location.cpp\
 		  Config.cpp\
 		  ConfigParser.cpp\
 		  Client.cpp\

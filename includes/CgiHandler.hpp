@@ -6,13 +6,15 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:34:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/20 18:18:53 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/03/20 19:02:37 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CGIHANDLER_HPP
 # define CGIHANDLER_HPP
 # include "Library.hpp"
+# include "Request.hpp"
+# include "Config.hpp"
 class CgiHandler
 {
 	public:
