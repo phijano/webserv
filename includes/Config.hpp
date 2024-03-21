@@ -6,16 +6,14 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:11 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/20 16:43:14 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/21 17:22:48 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIG_H
 # define CONFIG_H
 
-# include <string>
-# include <vector>
-# include <map>
+# include "Library.hpp"
 # include "Location.hpp"
 
 class Config

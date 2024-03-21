@@ -6,16 +6,13 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:01:56 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/21 16:57:23 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/21 17:22:56 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATION_H
 # define LOCATION_H
-
-# include <vector>
-# include <iostream>
-
+# include "Library.hpp"
 class Location
 {
 	public:
