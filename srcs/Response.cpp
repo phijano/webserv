@@ -12,6 +12,8 @@ Response::Response(Request& request, Config& config)
 	else
 	{
 		_location = getRequestLocation(request, config);
+		//Tenemos que añadir esto :)
+		// createIndex(_location.getPath(), config);
 		std::cout << "Location found: " << _location.getPath() << std::endl;
 		if (request.getMethod() == "GET")
 		{
@@ -56,6 +58,30 @@ Response& Response::operator=(const Response& other) // Doesnt work because of p
 Response::~Response()
 {
 	
+}
+
+void	Response::createIndex(std::string path, Config config)
+{
+	DIR *dir;
+	struct dirent *entry;
+	std::string dirPath;
+	std::string html;
+	std::string title;
+	std::string body;
+
+	dirPath = config.getRoot() + path;
+	dir = opendir(dirPath.c_str());
+	html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title></head>";
+	body = "<body><h1>Index of name of " + dirPath + "</h1><hr>";
+	while ((entry = readdir(dir)) != NULL) 
+	{ // Leer todas las entradas del directorio
+		body += "<a href='"  +path + "/" + entry->d_name +"'>"+entry->d_name+"</a><br>";
+    }
+	body += "</body></html>";
+	html += body;
+	std::cout<< html<<std::endl;
+	closedir(dir);
+
 }
 
 bool Response::isAllowedMethod(const std::string& method)

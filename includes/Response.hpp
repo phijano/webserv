@@ -41,6 +41,7 @@ class Response
 		void staticPost(const Request& request, const Config& config);
 		void postMethod(const Request& request, const Config& config);
 		void deleteMethod(const Request& request, const Config& config);
+		void createIndex(std::string path, Config config);
 };
 
 #endif

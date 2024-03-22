@@ -8,6 +8,7 @@
 # include <fcntl.h>
 # include <sys/poll.h>
 # include <unistd.h>
+# include <dirent.h>
 # include <fstream>
 # include <string>
 # include <map>
