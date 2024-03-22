@@ -105,13 +105,12 @@ void	ServerManager::clientEvent(size_t initialSize)
 
 void	ServerManager::run()
 {
-	int	activity;
 	size_t initialSize;
 
 	while (1)
 	{
 		initialSize = this->conn.size();
-		activity = poll(this->conn.data(), this->conn.size(), -1);
+		poll(this->conn.data(), this->conn.size(), -1);
 		serverEvent();
 		clientEvent(initialSize);
 	}
