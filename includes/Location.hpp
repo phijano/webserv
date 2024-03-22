@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:01:56 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/21 17:22:56 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/21 19:18:30 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class Location
 		std::string 				getCgiExt();
 		std::string 				getCgiPath();
 		std::vector<std::string>	getAllowedMethods();
-		std::string					getUploadedPath();
+		std::string					getUploadPath();
 		bool						getAutoIndex();
 		bool						getAllowUploads();
 		
@@ -37,7 +37,7 @@ class Location
 		void	setCgiExt(const std::string newCgiExt);
 		void	setCgiPath(const std::string newCgiPath);
 		void	addAllowedMethod(std::string newMethod);
-		void	setUploadedPath(const std::string newUploadedPath);
+		void	setUploadPath(const std::string newUploadedPath);
 		void	setAutoIndex(bool newAutoIndex);
 		void	setAllowUploads(bool newAllowUploads);
 	
@@ -50,7 +50,7 @@ class Location
 		std::string 				cgiExt;
 		std::string 				cgiPath;
 		std::vector<std::string>	allowedMethods;
-		std::string					uploadedPath;
+		std::string					uploadPath;
 		bool						autoIndex;
 		bool						allowUploads;
 };

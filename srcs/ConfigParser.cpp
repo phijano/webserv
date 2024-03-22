@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 14:27:05 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/21 16:58:33 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/21 19:34:15 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,7 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 			if (serverAutoIndex)
 				location.setAutoIndex(true);
 			location.setPath(tokens[++i]);
+			location.setRoot(server.getRoot());
 			while (tokens[++i] != "}")
 			{
 				if (tokens[i] == "root")
@@ -140,10 +141,10 @@ void	ConfigParser::parseServer(std::string& content, Config& server)
 					i++;
 					location.setIndex(tokens[i].substr(0, tokens[i].length() - 1));
 				}
-				else if (tokens[i] == "uploaded_path")
+				else if (tokens[i] == "upload_path")
 				{
 					i++;
-					location.setUploadedPath(tokens[i].substr(0, tokens[i].length() - 1));
+					location.setUploadPath(tokens[i].substr(0, tokens[i].length() - 1));
 				}
 				else if (tokens[i] == "cgi_ext")
 				{

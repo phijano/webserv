@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:38 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/03/21 17:03:07 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/03/21 19:38:20 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ Location::Location():
     root(""),
     index(""),
     cgiExt(""),
-    uploadedPath(""),
+    uploadPath(""),
     autoIndex(false),
     allowUploads(false)
 {}
@@ -49,8 +49,8 @@ std::vector<std::string>	Location::getAllowedMethods() {
     return this->allowedMethods;
 }
 
-std::string Location::getUploadedPath() {
-    return this->uploadedPath;
+std::string Location::getUploadPath() {
+    return this->uploadPath;
 }
 
 bool Location::getAutoIndex() {
@@ -86,8 +86,8 @@ void Location::addAllowedMethod(std::string newMethod) {
     allowedMethods.push_back(newMethod);
 }
 
-void Location::setUploadedPath(const std::string newUploadedPath) {
-    uploadedPath = newUploadedPath;
+void Location::setUploadPath(const std::string newUploadPath) {
+    uploadPath = newUploadPath;
 }
 
 void Location::setAutoIndex(bool newAutoIndex) {
@@ -105,7 +105,7 @@ std::ostream& operator<<(std::ostream& os, Location& location)
        << "Index: " << location.getIndex() << std::endl
        << "CGI Extension: " << location.getCgiExt() << std::endl
        << "CGI Path: " << location.getCgiPath() << std::endl
-       << "Uploaded Path: " << location.getUploadedPath() << std::endl
+       << "Upload Path: " << location.getUploadPath() << std::endl
        << "Auto Index: " << (location.getAutoIndex() ? "yes" : "no") << std::endl
        << "Allow Uploads: " << (location.getAllowUploads() ? "yes" : "no") << std::endl
        << "Allowed Methods: ";

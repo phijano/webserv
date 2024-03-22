@@ -37,8 +37,7 @@ class Response
 		std::string getIndex(const Config& config);
 		bool isAllowedMethod(const std::string& method);
 		void getMethod(const Request& request, const Config& config);
-		void uploadFile(const std::string& path, const std::string& formField);
-		void staticPost(const Request& request, const Config& config);
+		int	 createFile(const std::string& file, const std::string& content, const Config& config);
 		void postMethod(const Request& request, const Config& config);
 		void deleteMethod(const Request& request, const Config& config);
 		void createIndex(std::string path, Config config);
