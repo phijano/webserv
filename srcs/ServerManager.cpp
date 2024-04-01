@@ -63,7 +63,7 @@ void	ServerManager::removeClient(int position)
 
 void	ServerManager::clientEvent(size_t initialSize)
 {
-	char buffer[1024];
+	char buffer[2048];
 	Response response;
 	ssize_t bytesRead;
 

@@ -40,7 +40,7 @@ class Response
 		int	 createFile(const std::string& file, const std::string& content, const Config& config);
 		void postMethod(const Request& request, const Config& config);
 		void deleteMethod(const Request& request, const Config& config);
-		void createIndex(std::string path, Config config);
+		void createIndex(std::string path, Config config, Request request);
 };
 
 #endif
