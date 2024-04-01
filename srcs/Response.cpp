@@ -9,6 +9,8 @@ Response::Response(Request& request, Config& config)
 	_protocol = "HTTP/1.1";
 	if (request.getError())
 		getErrorPage(config, "400");
+	else if (config.getBodySize()!= 0 and !request.getContentLength().empty() and atoi (request.getContentLength().c_str()) > config.getBodySize())
+		getErrorPage(config, "413");
 	else if (request.getMethod() == "GET" or request.getMethod() == "POST" or request.getMethod() == "DELETE")
 	{
 		_location = getRequestLocation(request, config);
@@ -54,9 +56,7 @@ void	Response::createIndex(std::string path, Config config, Request request)
 	struct dirent *entry;
 	std::string dirPath;
 
-	std::cout << "listing start" << std::endl;
 	dirPath = path;
-	std::cout << "dirPath " << dirPath << std::endl;
 	dir = opendir(dirPath.c_str());
 	if (dir == NULL)
 		return (getErrorPage(config, "404"));
@@ -64,18 +64,14 @@ void	Response::createIndex(std::string path, Config config, Request request)
 	_mime = "text/html";
 	_body = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title></head>";
 	_body += "<body><h1>Index of name of " + dirPath + "</h1><hr>";
-	std::cout << "before while " << std::endl;
 	entry = readdir(dir);
 	while (entry) 
 	{ // Leer todas las entradas del directorio
 		_body += "<a href='"  + request.getPath() + entry->d_name +"'>"+entry->d_name+"</a><br>";
 		entry = readdir(dir);
     }
-	std::cout << "after while" << std::endl;
 	_body += "</body></html>";
 	closedir(dir);
-	std::cout << "listing end" << std::endl;
-
 }
 
 bool Response::isAllowedMethod(const std::string& method)
@@ -125,6 +121,9 @@ void	Response::setCode(const std::string& code) // add more codes as we need
 			break;
 		case 409:
 			_code = "409 Conflict";
+			break;
+		case 413:
+			_code = "413 Payload Too Large";
 			break;
 		case 500:
 			_code = "500 Internal Server Error";
@@ -268,7 +267,6 @@ void Response::getMethod(const Request& request, const Config& config)
         file = getIndex(config);
 		if (access((path + file).c_str(), F_OK) == -1 and _location.getAutoIndex())
 		{
-			std::cout << "listing" << std::endl; 
 			createIndex(path, config, request);
 			return;
 		}
