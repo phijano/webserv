@@ -9,36 +9,23 @@ Response::Response(Request& request, Config& config)
 	_protocol = "HTTP/1.1";
 	if (request.getError())
 		getErrorPage(config, "400");
-	else
+	else if (request.getMethod() == "GET" or request.getMethod() == "POST" or request.getMethod() == "DELETE")
 	{
 		_location = getRequestLocation(request, config);
-		//Tenemos que añadir esto :)
-		// createIndex(_location.getPath(), config);
-		std::cout << "Location found: " << _location.getPath() << std::endl;
-		if (request.getMethod() == "GET")
+		if (isAllowedMethod(request.getMethod()))
 		{
-			if (isAllowedMethod("GET"))
+			if (request.getMethod() == "GET")
 				getMethod(request, config);
-			else
-				getErrorPage(config, "405");
-		}
-		else if (request.getMethod() == "POST")
-		{
-			if (isAllowedMethod("POST"))
+			else if (request.getMethod() == "POST")
 				postMethod(request, config);
 			else
-				getErrorPage(config, "405");
-		}
-		else if (request.getMethod() == "DELETE")
-		{
-			if (isAllowedMethod("DELETE"))
 				deleteMethod(request, config);
-			else
-				getErrorPage(config, "405");
 		}
 		else
-			getErrorPage(config, "501");
+			getErrorPage(config, "405");
 	}
+	else
+		getErrorPage(config, "501");
 }
 Response::Response(const Response& other)
 {
@@ -51,6 +38,7 @@ Response& Response::operator=(const Response& other) // Doesnt work because of p
 	_code = other._code;
 	_mime = other._mime;
 	_body = other._body;
+	_cgiResponse = other._cgiResponse;
 
 	return *this;
 }
@@ -60,27 +48,33 @@ Response::~Response()
 	
 }
 
-void	Response::createIndex(std::string path, Config config)
+void	Response::createIndex(std::string path, Config config, Request request)
 {
 	DIR *dir;
 	struct dirent *entry;
 	std::string dirPath;
-	std::string html;
-	std::string title;
-	std::string body;
 
-	dirPath = config.getRoot() + path;
+	std::cout << "listing start" << std::endl;
+	dirPath = path;
+	std::cout << "dirPath " << dirPath << std::endl;
 	dir = opendir(dirPath.c_str());
-	html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title></head>";
-	body = "<body><h1>Index of name of " + dirPath + "</h1><hr>";
-	while ((entry = readdir(dir)) != NULL) 
+	if (dir == NULL)
+		return (getErrorPage(config, "404"));
+	setCode("200");
+	_mime = "text/html";
+	_body = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title></head>";
+	_body += "<body><h1>Index of name of " + dirPath + "</h1><hr>";
+	std::cout << "before while " << std::endl;
+	entry = readdir(dir);
+	while (entry) 
 	{ // Leer todas las entradas del directorio
-		body += "<a href='"  +path + "/" + entry->d_name +"'>"+entry->d_name+"</a><br>";
+		_body += "<a href='"  + request.getPath() + entry->d_name +"'>"+entry->d_name+"</a><br>";
+		entry = readdir(dir);
     }
-	body += "</body></html>";
-	html += body;
-	std::cout<< html<<std::endl;
+	std::cout << "after while" << std::endl;
+	_body += "</body></html>";
 	closedir(dir);
+	std::cout << "listing end" << std::endl;
 
 }
 
@@ -103,9 +97,7 @@ std::string Response::getResponse() const
 		return _cgiResponse;
 
 	response << _protocol << " " << _code;
-	
-	if (!_mime.empty())
-		response << "\nContent-Type: " << _mime << "\nContent-Length: " << _body.size() << "\n\n" << _body;
+	response << "\nContent-Type: " << _mime << "\nContent-Length: " << _body.size() << "\n\n" << _body;
 	return response.str();
 }
 
@@ -262,16 +254,25 @@ std::string Response::getIndex(const Config& config)
 void Response::getMethod(const Request& request, const Config& config)
 {
 	std::string path;
-
+/*	
 	if (request.getPath() == "/") // Check when to use request.getPath()
 		path = getPath(request, config);
 	else 
 		path = getPath(request, config) + "/";
-    std::string file = request.getFile();
+*/	
+	path = getPath(request, config); //
+    std::string file = request.getFile();	
 
     if (file.empty())
+	{
         file = getIndex(config);
-
+		if (access((path + file).c_str(), F_OK) == -1 and _location.getAutoIndex())
+		{
+			std::cout << "listing" << std::endl; 
+			createIndex(path, config, request);
+			return;
+		}
+	}
 	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file))
 	{
 		if (!_location.getCgiPath().empty())
@@ -281,6 +282,7 @@ void Response::getMethod(const Request& request, const Config& config)
 			_cgiResponse = cgi.getResponse();
 		else
 			getErrorPage(config, cgi.getError());
+		return ;
 	}
 	std::cout << "Form Get: Path: " << path << file << std::endl;
     std::ifstream fileStream((path + file).c_str());
