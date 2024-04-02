@@ -9,7 +9,7 @@ Response::Response(Request& request, Config& config)
 	_protocol = "HTTP/1.1";
 	if (request.getError())
 		getErrorPage(config, "400");
-	else if (config.getBodySize()!= 0 and !request.getContentLength().empty() and atoi (request.getContentLength().c_str()) > config.getBodySize())
+	else if (!request.getContentLength().empty() and atoi (request.getContentLength().c_str()) > config.getBodySize())
 		getErrorPage(config, "413");
 	else if (request.getMethod() == "GET" or request.getMethod() == "POST" or request.getMethod() == "DELETE")
 	{
