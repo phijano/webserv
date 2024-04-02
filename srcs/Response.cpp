@@ -123,7 +123,7 @@ void	Response::setCode(const std::string& code) // add more codes as we need
 			_code = "409 Conflict";
 			break;
 		case 413:
-			_code = "413 Payload Too Large";
+			_code = "413 Content Too Large";
 			break;
 		case 500:
 			_code = "500 Internal Server Error";
