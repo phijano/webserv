@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:12 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/20 18:19:15 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/04/04 11:30:52 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class Request
 		Request &operator=(const Request &other);
 		~Request();
 
-		void								setClientIp(std::string clientIp);
+		void								setClientIp(unsigned long clientIp);
 		std::string							getClientIp() const;
 		std::string 						getMethod() const;
 		std::string 						getPath() const;
@@ -44,7 +44,7 @@ class Request
 
 	private:
 
-		std::string _clientIp; //need to set this in server or constructor
+		std::string _clientIp;
 		std::string _method;
 		std::string _path;
 		std::string	_file;

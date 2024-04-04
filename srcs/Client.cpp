@@ -5,9 +5,10 @@ Client::Client():
 	config()
 {}
 
-Client::Client(Config *config, int newClient):
+Client::Client(Config *config, int newClient, unsigned long clientIp):
 	id(newClient),
-    config(config)
+    config(config),
+	ip(clientIp)
 {}
 
 Client::~Client(){}
@@ -24,6 +25,7 @@ Config	&Client::getConfig()
 
 void	Client::setRequest(Request request)
 {
+	request.setClientIp(ip);
 	this->request = request;
 }
 

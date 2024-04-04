@@ -11,10 +11,11 @@ class Client
 		int	id;
 		Request request;
 		Config *config;
+		unsigned long ip;
 
 	public:
 		Client();
-		Client(Config *config, int newClient);
+		Client(Config *config, int newClient, unsigned long ip);
 		~Client();
 		Request &getRequest();
 		void	setRequest(Request request);
