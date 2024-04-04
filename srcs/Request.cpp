@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/04 11:36:27 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/04 12:30:40 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,12 +145,12 @@ void Request::parseUrl(const std::string& url)
 			_pathInfo = _path.substr(paramPos, _path.size() - paramPos);
 			_path = _path.substr(0, paramPos);
 		}
-		paramPos = _path.find_last_of("/");
-		if (paramPos != std::string::npos)
-		{
-			_file = _path.substr(paramPos + 1, _path.size() - paramPos - 1);
-			_path = _path.substr(0, paramPos + 1);
-		}
+	}
+	paramPos = _path.find_last_of("/");
+	if (paramPos != std::string::npos)
+	{
+		_file = _path.substr(paramPos + 1, _path.size() - paramPos - 1);
+		_path = _path.substr(0, paramPos + 1);
 	}
 }
 

@@ -231,10 +231,14 @@ std::string Response::getPath(const Request& request, const Config& config) // D
 	std::string path;
 
 	if (!_location.getRoot().empty())
-		path = _location.getRoot();
+	{
+		std::string sep = "";
+		if (_location.getPath()== "/")
+			sep = "/" ;
+		path = _location.getRoot() + sep + request.getPath().substr(_location.getPath().size(), request.getPath().size() - _location.getPath().size());
+	}
 	else
-		path = config.getRoot();
-	path += request.getPath();
+		path = config.getRoot() + request.getPath();
 	return path;
 }
 
