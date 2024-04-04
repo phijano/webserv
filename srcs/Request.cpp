@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/04 12:45:48 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/04 13:07:56 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,7 +206,7 @@ void Request::checkRequest()
 {
 	if (_method.empty() || _path.empty() || _path[0] != '/' || _protocol.empty())
 		_error = true;
-	else if (_method != "GET" and _method != "HEAD" and _method != "POST" and _method != "PUT" and _method != "DELETE" and _method != "CONNECT" and _method != "OPTIONS" and _method != "TRACE" and _method != "PATH")
+	else if (_method != "GET" and _method != "HEAD" and _method != "POST" and _method != "PUT" and _method != "DELETE" and _method != "CONNECT" and _method != "OPTIONS" and _method != "TRACE")
 		_error = true;
 }
 
