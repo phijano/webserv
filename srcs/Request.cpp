@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/14 17:11:01 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/04 11:36:27 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,14 @@ Request::~Request()
 {
 }
 
-void Request::setClientIp(std::string clientIp)
+void Request::setClientIp(unsigned long clientIp)
 {
-	_clientIp = clientIp;
+	char *p;
+	std::stringstream ss;
+
+	p = (char *) &clientIp;
+	ss	<<  int(p[0]) << "." << int(p[1]) << "." << int(p[2]) << "." <<  int(p[3]) << std::endl;
+	_clientIp = ss.str();
 }
 
 std::string Request::getClientIp() const

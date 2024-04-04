@@ -48,7 +48,7 @@ void	ServerManager::newClient(Server server)
 		std::cout<<"Error"<<std::endl;
 	connection.fd = acceptClient;
 	connection.events = POLLIN;
-	client = Client(server.getConfig(), acceptClient);
+	client = Client(server.getConfig(), acceptClient, clientAddress.sin_addr.s_addr);
 	std::cout<<"Cliente conectado en socket "<<client.getId()<<std::endl;
 	this->conn.push_back(connection);
 	this->clients.push_back(client);
