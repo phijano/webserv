@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/07 11:42:33 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/05 11:08:15 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,18 @@ std::string CgiHandler::toUppercase(std::string str)
 void CgiHandler::setCgiEnv(const Request& request, const Config& config)
 {
 	std::map<std::string, std::string> params = request.getCgiHeaderParams();
-	_env = new char*[15 + params.size()];
+	int varsNumber = 10;
+	
+	if (!request.getPathInfo().empty())
+		varsNumber++;
+	if (!request.getQuery().empty())
+		varsNumber++;
+	if (!request.getContentType().empty())
+		varsNumber++;
+	if (!request.getContentLength().empty())
+		varsNumber++;
+
+	_env = new char*[varsNumber + params.size()];
 
 	_env[0] = setEnvParam("SERVER_SOFTWARE=webserver");
 	_env[1] = setEnvParam("SERVER_NAME=" + request.getHost());
@@ -91,22 +102,25 @@ void CgiHandler::setCgiEnv(const Request& request, const Config& config)
 	_env[3] = setEnvParam("SERVER_PROTOCOL=HTTP/1.1");
 	_env[4] = setEnvParam("SERVER_PORT=" + intToString(config.getPort()));
 	_env[5] = setEnvParam("REQUEST_METHOD=" + request.getMethod());
-	_env[6] = setEnvParam("PATH_INFO=" +request.getPathInfo());
-	_env[7] = setEnvParam("PATH_TRANSLATED=" + _path + request.getFile());
-	_env[8] = setEnvParam("SCRIPT_NAME=" + _path + request. getFile());
-	_env[9] = setEnvParam("QUERY_STRING=" + request.getQuery());
-	_env[10] = setEnvParam("REMOTE_HOST=");
-	_env[11] = setEnvParam("REMOTE_ADDR=" + request.getClientIp());
-	_env[12] = setEnvParam("CONTENT_TYPE=" + request.getContentType());
-	_env[13] = setEnvParam("CONTENT_LENGTH=" + request.getContentLength());
+	_env[6] = setEnvParam("PATH_TRANSLATED=" + _path + request.getFile());
+	_env[7] = setEnvParam("SCRIPT_NAME=" + _path + request. getFile());
+	_env[8] = setEnvParam("REMOTE_ADDR=" + request.getClientIp());
 
-	int i = 14;
+	varsNumber = 9;
+	if (!request.getPathInfo().empty())
+		_env[varsNumber++] = setEnvParam("PATH_INFO=" +request.getPathInfo());
+	if (!request.getQuery().empty())
+		_env[varsNumber++] = setEnvParam("QUERY_STRING=" + request.getQuery());
+	if (!request.getContentType().empty())
+		_env[varsNumber++] = setEnvParam("CONTENT_TYPE=" + request.getContentType());
+	if (!request.getContentLength().empty())
+		_env[varsNumber++] = setEnvParam("CONTENT_LENGTH=" + request.getContentLength());
+	std::cout << "Number" << varsNumber << std::endl;
 	for (std::map<std::string, std::string>::iterator it = params.begin(); it != params.end(); it++)
-	{
-		_env[i] = setEnvParam(toUppercase(it->first) + "=" + it->second);
-		i++;
-	}
-	_env[i] = NULL;
+		_env[varsNumber++] = setEnvParam(toUppercase(it->first) + "=" + it->second);
+	std::cout << "Number" << varsNumber << std::endl;
+
+	_env[varsNumber] = NULL;
 }
 
 void CgiHandler::postPipe(int *fd, const std::string& body)
