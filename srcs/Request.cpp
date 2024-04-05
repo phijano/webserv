@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/05 12:12:46 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/05 12:41:26 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void Request::setClientIp(unsigned long clientIp)
 	std::stringstream ss;
 
 	p = reinterpret_cast<char *>(&clientIp);
-	ss	<<  static_cast<int>(p[0]) << "." << static_cast<int>(p[1]) << "." << static_cast<int>(p[2]) << "." <<  static_cast<int>(p[3]) << std::endl;
+	ss	<<  static_cast<int>(p[0]) << "." << static_cast<int>(p[1]) << "." << static_cast<int>(p[2]) << "." <<  static_cast<int>(p[3]); 
 	_clientIp = ss.str();
 }
 

@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/05 11:08:15 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/05 12:42:40 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,10 +115,9 @@ void CgiHandler::setCgiEnv(const Request& request, const Config& config)
 		_env[varsNumber++] = setEnvParam("CONTENT_TYPE=" + request.getContentType());
 	if (!request.getContentLength().empty())
 		_env[varsNumber++] = setEnvParam("CONTENT_LENGTH=" + request.getContentLength());
-	std::cout << "Number" << varsNumber << std::endl;
+
 	for (std::map<std::string, std::string>::iterator it = params.begin(); it != params.end(); it++)
 		_env[varsNumber++] = setEnvParam(toUppercase(it->first) + "=" + it->second);
-	std::cout << "Number" << varsNumber << std::endl;
 
 	_env[varsNumber] = NULL;
 }
