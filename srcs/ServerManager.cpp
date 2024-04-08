@@ -67,7 +67,10 @@ void	ServerManager::serverEvent()
 
 void	ServerManager::removeClient(int position)
 {
+	std::cout<<conn[position].fd<<std::endl;
 	close(conn[position].fd);
+	std::cout<<conn[position].fd<<std::endl;
+	std::cout<<position<<std::endl;
 	conn.erase(conn.begin() + position);
 	clients.erase(clients.begin() + (position - servers.size()));
 }
@@ -77,8 +80,7 @@ void	ServerManager::clientEvent(size_t initialSize)
 	char buffer[2048];
 	Response response;
 	ssize_t bytesRead;
-
-	for (size_t i = servers.size(); i < initialSize; i++)
+	for (size_t i = servers.size(); i < conn.size(); i++)
 	{
 		if (conn[i].revents & POLLIN)
 		{
@@ -93,7 +95,10 @@ void	ServerManager::clientEvent(size_t initialSize)
 				}
 			}
 			else
+			{
 				std::cerr << "Error de lectura del cliente\n";
+				removeClient(i);
+			}
 		}
 		if (conn[i].revents & POLLOUT)
 		{
@@ -101,14 +106,9 @@ void	ServerManager::clientEvent(size_t initialSize)
 			send(conn[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
 			conn[i].events = POLLIN;
 		}
-		if (conn[i].revents & POLLHUP)
+		if (conn[i].revents & POLLHUP || conn[i].revents & POLLERR)
 		{
 			std::cout << "Client associated to socket number "<<conn[i].fd<<" is disconnected\n";
-			removeClient(i);
-		}
-		if (conn[i].revents & POLLERR)
-		{
-			std::cout << "There have benn an error[POLLERR]\n";
 			removeClient(i);
 		}
 	}
