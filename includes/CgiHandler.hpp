@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:34:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/03/20 19:02:37 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/04/08 14:25:59 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class CgiHandler
 
 		std::string	getResponse() const;
 		std::string	getError() const;
+		void setError(const std::string& error);
 
 	private:
 
@@ -34,7 +35,6 @@ class CgiHandler
 		std::string _response;
 		std::string _error;	
 		char**	_env;
-
 
 		void sendToCgi(const Request& request, const Config& config);
 		void setCgiEnv(const Request& request, const Config& config);
@@ -44,7 +44,6 @@ class CgiHandler
 		std::string intToString(const int& number);
 		std::string toUppercase(std::string str);
 		char* setEnvParam(const std::string& param);
-		void freeEnv();
 };
 
 #endif
