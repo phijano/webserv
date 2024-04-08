@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/08 19:29:23 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/08 20:08:48 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,9 @@ void	Response::setCode(const std::string& code) // add more codes as we need
 			break;
 		case 400:
 			_code = "400 Bad Request";
+			break;
+		case 403:
+			_code = "403 Forbidden";
 			break;
 		case 404:
 			_code = "404 Not Found";
@@ -323,6 +326,11 @@ void Response::getMethod(const Request& request, const Config& config)
         setMime(".html");
 		return ;
 	}
+	else if (!_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
+	{
+		std::cout << "HERE" <<std::endl;
+		getErrorPage(config, "403");
+	}
 	else
         getErrorPage(config, "404");
 }
@@ -388,6 +396,18 @@ void Response::postMethod(const Request& request, const Config& config)
 					std::string file = request.getFile();
 					if (file.empty())
 						file = getIndex(config);
+					if (file.empty() && _location.getAutoIndex())
+					{
+						_body = createIndex(path, request.getPath());
+        				setCode("200");
+        				setMime(".html");
+						return ;
+					}
+					else if (file.empty())
+					{
+						getErrorPage(config, "403");
+						return ;
+					}
 					std::string	newIndex;
 					if (_location.getPath() == "/")
 						newIndex = path + file;
