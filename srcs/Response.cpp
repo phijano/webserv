@@ -59,7 +59,7 @@ Response::~Response()
 	
 }
 
-std::string	Response::createIndex(std::string path, Config config)
+std::string	Response::createIndex(std::string path)
 {
 	DIR *dir;
 	struct dirent *entry;
@@ -81,8 +81,6 @@ std::string	Response::createIndex(std::string path, Config config)
 	body += "</body></html>";
 	html += body;
 	closedir(dir);
-	(void)config;
-	std::cout << "HTML: " << html << std::endl;
 	return (html);
 }
 
@@ -269,6 +267,8 @@ std::string Response::getIndex(const Config& config)
 void Response::getMethod(const Request& request, const Config& config)
 {
 	std::string path = getPath(request, config);
+	if (_location.getRoot() != "/")
+		path += "/";
 
     std::string file = request.getFile();
     if (file.empty())
@@ -284,7 +284,6 @@ void Response::getMethod(const Request& request, const Config& config)
 		else
 			getErrorPage(config, cgi.getError());
 	}
-	std::cout << "Form Get: Path: " << path << file << std::endl;
 	std::string fullPath = path + file;
 	if (!_listDir)
 	{
@@ -298,20 +297,18 @@ void Response::getMethod(const Request& request, const Config& config)
         	setMime(file);
 			return ;
 		}
+		else
+			getErrorPage(config, "404");
 	}
     else if (_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
 	{
-		std::cout << "Dir Path: " << fullPath << ", access:" << access(fullPath.c_str(), F_OK) << std::endl;
-        _body = createIndex(_location.getPath(), config);
+        _body = createIndex(_location.getPath());
         setCode("200");
         setMime(".html");
 		return ;
 	}
 	else
-	{
-		std::cout << "ERROR Dir Path: " << fullPath << ", access:" << access(fullPath.c_str(), F_OK) << std::endl;
         getErrorPage(config, "404");
-	}
 }
 
 // Function to write file contents to a new file

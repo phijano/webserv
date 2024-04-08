@@ -41,7 +41,7 @@ class Response
 		int	 createFile(const std::string& file, const std::string& content, const Config& config);
 		void postMethod(const Request& request, const Config& config);
 		void deleteMethod(const Request& request, const Config& config);
-		std::string createIndex(std::string path, Config config);
+		std::string createIndex(std::string path);
 };
 
 #endif
