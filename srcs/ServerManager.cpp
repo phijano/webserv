@@ -88,6 +88,7 @@ void	ServerManager::clientEvent(size_t initialSize)
 		{
 			response = Response(clients[i - servers.size()].getRequest(), clients[i - servers.size()].getConfig());
 			send(conn[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
+			std::cout << "Final response: " << response.getResponse() << std::endl;
 			conn[i].events = POLLIN;
 		}
 		if (conn[i].revents & POLLHUP)

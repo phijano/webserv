@@ -7,13 +7,12 @@ Response::Response()
 Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
+	_listDir = false;
 	if (request.getError())
 		getErrorPage(config, "400");
 	else
 	{
 		_location = getRequestLocation(request, config);
-		//Tenemos que añadir esto :)
-		// createIndex(_location.getPath(), config);
 		std::cout << "Location found: " << _location.getPath() << std::endl;
 		if (request.getMethod() == "GET")
 		{
@@ -60,7 +59,7 @@ Response::~Response()
 	
 }
 
-void	Response::createIndex(std::string path, Config config)
+std::string	Response::createIndex(std::string path, Config config)
 {
 	DIR *dir;
 	struct dirent *entry;
@@ -69,8 +68,10 @@ void	Response::createIndex(std::string path, Config config)
 	std::string title;
 	std::string body;
 
-	dirPath = config.getRoot() + path;
+	dirPath = _location.getRoot() + path;
+	std::cout << "PATH: " << dirPath << std::endl;
 	dir = opendir(dirPath.c_str());
+	std::cout << "Dir: " << dir << std::endl;
 	html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title></head>";
 	body = "<body><h1>Index of name of " + dirPath + "</h1><hr>";
 	while ((entry = readdir(dir)) != NULL) 
@@ -79,9 +80,10 @@ void	Response::createIndex(std::string path, Config config)
     }
 	body += "</body></html>";
 	html += body;
-	std::cout<< html<<std::endl;
 	closedir(dir);
-
+	(void)config;
+	std::cout << "HTML: " << html << std::endl;
+	return (html);
 }
 
 bool Response::isAllowedMethod(const std::string& method)
@@ -253,26 +255,26 @@ std::string Response::getIndex(const Config& config)
 
 	if (!_location.getIndex().empty())
 		index = _location.getIndex();
-	else
+	else if (!config.getIndex().empty())
 		index = config.getIndex();
+	else
+	{
+		_listDir = true;
+		index = "";
+	}
 	return index;
 }
 
 
 void Response::getMethod(const Request& request, const Config& config)
 {
-	std::string path;
+	std::string path = getPath(request, config);
 
-	if (request.getPath() == "/") // Check when to use request.getPath()
-		path = getPath(request, config);
-	else 
-		path = getPath(request, config) + "/";
     std::string file = request.getFile();
-
     if (file.empty())
         file = getIndex(config);
 
-	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file))
+	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_listDir)
 	{
 		if (!_location.getCgiPath().empty())
 			path = _location.getCgiPath();
@@ -283,17 +285,33 @@ void Response::getMethod(const Request& request, const Config& config)
 			getErrorPage(config, cgi.getError());
 	}
 	std::cout << "Form Get: Path: " << path << file << std::endl;
-    std::ifstream fileStream((path + file).c_str());
-    if (fileStream.is_open())
+	std::string fullPath = path + file;
+	if (!_listDir)
 	{
-        std::stringstream buffer;
-        buffer << fileStream.rdbuf();
-        _body = buffer.str();
-        setCode("200");
-        setMime(file);
+    	std::ifstream fileStream((fullPath).c_str());
+    	if (fileStream.is_open())
+		{
+        	std::stringstream buffer;
+        	buffer << fileStream.rdbuf();
+        	_body = buffer.str();
+        	setCode("200");
+        	setMime(file);
+			return ;
+		}
 	}
-    else
+    else if (_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
+	{
+		std::cout << "Dir Path: " << fullPath << ", access:" << access(fullPath.c_str(), F_OK) << std::endl;
+        _body = createIndex(_location.getPath(), config);
+        setCode("200");
+        setMime(".html");
+		return ;
+	}
+	else
+	{
+		std::cout << "ERROR Dir Path: " << fullPath << ", access:" << access(fullPath.c_str(), F_OK) << std::endl;
         getErrorPage(config, "404");
+	}
 }
 
 // Function to write file contents to a new file
