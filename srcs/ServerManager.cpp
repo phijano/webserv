@@ -77,24 +77,29 @@ void	ServerManager::clientEvent()
 	char buffer[2048];
 	Response response;
 	ssize_t bytesRead;
-	for (size_t i = servers.size(); i < conn.size(); i++)
+	for (size_t i = 0; i < conn.size(); i++)
 	{
 		if (conn[i].revents & POLLIN)
 		{
-			bytesRead = recv(conn[i].fd, buffer, sizeof(buffer), 0);
-			if (bytesRead >= 0) 
-			{
-				if (bytesRead > 0)
-				{
-					buffer[bytesRead] = '\0';
-					clients[i - servers.size()].setRequest(Request(buffer));
-					conn[i].events = POLLOUT;
-				}
-			}
+			if (i < servers.size())
+				newClient(servers[i]);
 			else
 			{
-				std::cerr << "Error de lectura del cliente\n";
-				removeClient(i);
+				bytesRead = recv(conn[i].fd, buffer, sizeof(buffer), 0);
+				if (bytesRead >= 0) 
+				{
+					if (bytesRead > 0)
+					{
+						buffer[bytesRead] = '\0';
+						clients[i - servers.size()].setRequest(Request(buffer));
+						conn[i].events = POLLOUT;
+					}
+				}
+				else
+				{
+					std::cerr << "Error de lectura del cliente\n";
+					removeClient(i);
+				}
 			}
 		}
 		if (conn[i].revents & POLLOUT)
@@ -118,6 +123,7 @@ void	ServerManager::run()
 	while (1)
 	{
 		activity = poll(this->conn.data(), this->conn.size(), -1);
+		std::cout<<"AHORA"<<std::endl;
 		serverEvent();
 		clientEvent();
 	}
