@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/05 12:42:40 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/08 13:18:51 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,6 +190,8 @@ void CgiHandler::sendToCgi(const Request& request, const Config& config)//it nee
 		close(fdCgi[1]);
 		while (read(fdCgi[0], buffer, 30720) > 0)//we cant wait for read and read should be do it with poll or whatever
 			_response += buffer;
+		if (_response.empty())
+			_error = "500";
 		close(fdCgi[0]);
 		exitStatus(pid);
 	}
