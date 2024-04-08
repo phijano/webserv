@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Response.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
+/*   Updated: 2024/04/08 19:29:23 by vnaslund         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Response.hpp"
 
 Response::Response()
@@ -7,27 +19,38 @@ Response::Response()
 Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
+	std::cout<<"REQUEST: "<<request<<std::endl;
+	_listDir = false;
 	if (request.getError())
 		getErrorPage(config, "400");
-	else if (!request.getContentLength().empty() and atoi (request.getContentLength().c_str()) > config.getBodySize())
-		getErrorPage(config, "413");
-	else if (request.getMethod() == "GET" or request.getMethod() == "POST" or request.getMethod() == "DELETE")
+	else
 	{
 		_location = getRequestLocation(request, config);
-		if (isAllowedMethod(request.getMethod()))
+		std::cout << "Location found: " << _location.getPath() << std::endl;
+		if (request.getMethod() == "GET")
 		{
-			if (request.getMethod() == "GET")
+			if (isAllowedMethod("GET"))
 				getMethod(request, config);
-			else if (request.getMethod() == "POST")
+			else
+				getErrorPage(config, "405");
+		}
+		else if (request.getMethod() == "POST")
+		{
+			if (isAllowedMethod("POST"))
 				postMethod(request, config);
 			else
+				getErrorPage(config, "405");
+		}
+		else if (request.getMethod() == "DELETE")
+		{
+			if (isAllowedMethod("DELETE"))
 				deleteMethod(request, config);
+			else
+				getErrorPage(config, "405");
 		}
 		else
-			getErrorPage(config, "405");
+			getErrorPage(config, "501");
 	}
-	else
-		getErrorPage(config, "501");
 }
 Response::Response(const Response& other)
 {
@@ -40,7 +63,6 @@ Response& Response::operator=(const Response& other) // Doesnt work because of p
 	_code = other._code;
 	_mime = other._mime;
 	_body = other._body;
-	_cgiResponse = other._cgiResponse;
 
 	return *this;
 }
@@ -50,28 +72,31 @@ Response::~Response()
 	
 }
 
-void	Response::createIndex(std::string path, Config config, Request request)
+std::string	Response::createIndex(std::string fullPath, std::string path)
 {
 	DIR *dir;
 	struct dirent *entry;
 	std::string dirPath;
+	std::string html;
+	std::string title;
+	std::string body;
 
-	dirPath = path;
-	dir = opendir(dirPath.c_str());
-	if (dir == NULL)
-		return (getErrorPage(config, "404"));
-	setCode("200");
-	_mime = "text/html";
-	_body = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title></head>";
-	_body += "<body><h1>Index of name of " + dirPath + "</h1><hr>";
-	entry = readdir(dir);
-	while (entry) 
+	dir = opendir(fullPath.c_str());
+	std::cout << "Dir: " << dir << std::endl;
+	html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title></head>";
+	body = "<body><h1>Index of name of " + path + "</h1><hr>";
+	while ((entry = readdir(dir)) != NULL) 
 	{ // Leer todas las entradas del directorio
-		_body += "<a href='"  + request.getPath() + entry->d_name +"'>"+entry->d_name+"</a><br>";
-		entry = readdir(dir);
+		if (path[path.length() - 1] == '/')
+			body += "<a href='"  + path + entry->d_name +"'>"+entry->d_name+"</a><br>";
+		else
+			body += "<a href='"  +path + "/" + entry->d_name +"'>"+entry->d_name+"</a><br>";
     }
-	_body += "</body></html>";
+	body += "</body></html>";
+	html += body;
+	std::cout<<"HTML = "<<html<<std::endl;
 	closedir(dir);
+	return (html);
 }
 
 bool Response::isAllowedMethod(const std::string& method)
@@ -93,7 +118,9 @@ std::string Response::getResponse() const
 		return _cgiResponse;
 
 	response << _protocol << " " << _code;
-	response << "\nContent-Type: " << _mime << "\nContent-Length: " << _body.size() << "\n\n" << _body;
+	
+	if (!_mime.empty())
+		response << "\nContent-Type: " << _mime << "\nContent-Length: " << _body.size() << "\n\n" << _body;
 	return response.str();
 }
 
@@ -121,9 +148,6 @@ void	Response::setCode(const std::string& code) // add more codes as we need
 			break;
 		case 409:
 			_code = "409 Conflict";
-			break;
-		case 413:
-			_code = "413 Content Too Large";
 			break;
 		case 500:
 			_code = "500 Internal Server Error";
@@ -231,14 +255,10 @@ std::string Response::getPath(const Request& request, const Config& config) // D
 	std::string path;
 
 	if (!_location.getRoot().empty())
-	{
-		std::string sep = "";
-		if (_location.getPath()== "/")
-			sep = "/" ;
-		path = _location.getRoot() + sep + request.getPath().substr(_location.getPath().size(), request.getPath().size() - _location.getPath().size());
-	}
+		path = _location.getRoot();
 	else
-		path = config.getRoot() + request.getPath();
+		path = config.getRoot();
+	path += request.getPath();
 	return path;
 }
 
@@ -248,34 +268,28 @@ std::string Response::getIndex(const Config& config)
 
 	if (!_location.getIndex().empty())
 		index = _location.getIndex();
-	else
+	else if (!config.getIndex().empty())
 		index = config.getIndex();
+	else
+	{
+		_listDir = true;
+		index = "";
+	}
 	return index;
 }
 
 
 void Response::getMethod(const Request& request, const Config& config)
 {
-	std::string path;
-/*	
-	if (request.getPath() == "/") // Check when to use request.getPath()
-		path = getPath(request, config);
-	else 
-		path = getPath(request, config) + "/";
-*/	
-	path = getPath(request, config); //
-    std::string file = request.getFile();	
+	std::string path = getPath(request, config);
+	if (_location.getRoot() != "/")
+		path += "/";
 
+    std::string file = request.getFile();
     if (file.empty())
-	{
         file = getIndex(config);
-		if (access((path + file).c_str(), F_OK) == -1 and _location.getAutoIndex())
-		{
-			createIndex(path, config, request);
-			return;
-		}
-	}
-	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file))
+
+	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_listDir)
 	{
 		if (!_location.getCgiPath().empty())
 			path = _location.getCgiPath();
@@ -284,19 +298,32 @@ void Response::getMethod(const Request& request, const Config& config)
 			_cgiResponse = cgi.getResponse();
 		else
 			getErrorPage(config, cgi.getError());
+	}
+	std::string fullPath = path + file;
+	if (!_listDir)
+	{
+    	std::ifstream fileStream((fullPath).c_str());
+    	if (fileStream.is_open())
+		{
+        	std::stringstream buffer;
+        	buffer << fileStream.rdbuf();
+        	_body = buffer.str();
+        	setCode("200");
+        	setMime(file);
+			return ;
+		}
+		else
+			getErrorPage(config, "404");
+	}
+    else if (_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
+	{
+		std::cout<<"GET PATH = "<<request.getPath()<<std::endl;
+        _body = createIndex(fullPath, request.getPath());
+        setCode("200");
+        setMime(".html");
 		return ;
 	}
-	std::cout << "Form Get: Path: " << path << file << std::endl;
-    std::ifstream fileStream((path + file).c_str());
-    if (fileStream.is_open())
-	{
-        std::stringstream buffer;
-        buffer << fileStream.rdbuf();
-        _body = buffer.str();
-        setCode("200");
-        setMime(file);
-	}
-    else
+	else
         getErrorPage(config, "404");
 }
 

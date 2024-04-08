@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 17:02:29 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/02 10:59:12 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/08 18:48:49 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 Config::Config():
 	host("localhost"),
     port(80),
-    bodySize(8192),
+    bodySize(1),
     root("web"),
-    index("index.html"),
+    index(""),
 	uploadDir("../")
 {}
 
