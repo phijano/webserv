@@ -67,15 +67,12 @@ void	ServerManager::serverEvent()
 
 void	ServerManager::removeClient(int position)
 {
-	std::cout<<conn[position].fd<<std::endl;
 	close(conn[position].fd);
-	std::cout<<conn[position].fd<<std::endl;
-	std::cout<<position<<std::endl;
 	conn.erase(conn.begin() + position);
 	clients.erase(clients.begin() + (position - servers.size()));
 }
 
-void	ServerManager::clientEvent(size_t initialSize)
+void	ServerManager::clientEvent()
 {
 	char buffer[2048];
 	Response response;
@@ -117,13 +114,11 @@ void	ServerManager::clientEvent(size_t initialSize)
 void	ServerManager::run()
 {
 	int	activity;
-	size_t initialSize;
 
 	while (1)
 	{
-		initialSize = this->conn.size();
 		activity = poll(this->conn.data(), this->conn.size(), -1);
 		serverEvent();
-		clientEvent(initialSize);
+		clientEvent();
 	}
 }

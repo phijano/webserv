@@ -19,7 +19,7 @@ class ServerManager
 
 		void	addServer(Config *config);
 		void	serverEvent();
-		void	clientEvent(size_t initialSize);
+		void	clientEvent();
 		void	removeClient(int fd);
 		void	newClient(Server server);
 		void	run();
