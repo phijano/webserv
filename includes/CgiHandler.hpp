@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:34:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/08 14:25:59 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/09 13:02:51 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ class CgiHandler
 		std::string intToString(const int& number);
 		std::string toUppercase(std::string str);
 		char* setEnvParam(const std::string& param);
+		void closePipeError(int *fdPipe, const std::string &error);
+		void closeFdError(int fdPipe, const std::string &error);
 };
 
 #endif
