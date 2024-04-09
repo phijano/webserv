@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/09 13:12:55 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/09 14:22:12 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,7 +188,6 @@ void CgiHandler::exitStatus(const int& pid)
 		}
 		time++;
 	}
-	std::cout << time << std::endl;
 	if (WIFEXITED(status))
 	{
 		exitCode = WEXITSTATUS(status);
