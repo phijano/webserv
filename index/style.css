@@ -1,0 +1,64 @@
+body
+{
+    background-color: #166866;
+    color: #1bf4ca;
+    font-family: "Roboto", sans-serif;
+}
+h1
+{
+    text-align: center;
+}
+
+ul 
+{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #092a29;
+}
+
+li 
+{
+    float: left;
+}
+
+li a 
+{
+    display: block;
+    color: #1bf4ca;
+    text-align: center;
+    font-weight: bold;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover:not(.active) 
+{
+background-color: #111;
+}
+
+.active 
+{
+background-color: #04AA6D;
+}
+
+#profiles
+{
+    display: flex;
+    width: 100%;
+}
+
+#profiles div
+{
+    margin: 1%;
+    margin-left: 5%;
+    margin-right: 5%;
+    text-align: center;
+    width: 100%;
+}
+
+#profiles img
+{
+    width: 100%;
+}
