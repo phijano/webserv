@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/08 14:53:35 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/09 13:12:55 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,20 @@ std::string CgiHandler::toUppercase(std::string str)
 	return str;
 }
 
+void CgiHandler::closePipeError(int *fdPipe, const std::string &error)
+{
+	close(fdPipe[0]);
+	close(fdPipe[1]);
+	_error = error;
+}
+
+void CgiHandler::closeFdError(int fd, const std::string &error)
+{
+	close(fd);
+	_error = error;
+}
+
+
 void CgiHandler::setCgiEnv(const Request& request, const Config& config)
 {
 	std::map<std::string, std::string> params = request.getCgiHeaderParams();
@@ -128,13 +142,12 @@ void CgiHandler::postPipe(int *fd, const std::string& body)
 	if(pipe(fd) == -1)
 		return setError("500");
 	if(dup2(fd[1], STDOUT_FILENO) == -1)
-		return setError("500");
+		return closePipeError(fd, "500");
 	if(close(fd[1]) == -1)
-		return setError("500");
+		return closeFdError(fd[0], "500");
 	std::cout << body;
 	if(dup2(temp, STDOUT_FILENO) == -1)
-		return setError("500");
-
+		return closeFdError(fd[0], "500");
 }
 
 void CgiHandler::execCgi(int *fdPost, int *fd, const Request& request)
@@ -162,8 +175,20 @@ void CgiHandler::exitStatus(const int& pid)
 {
 	int status;
 	int exitCode;
+	int time;
 
-	waitpid(pid, &status, 0);
+	time = 0;
+	while(waitpid(pid, &status, WNOHANG) != -1)
+	{
+		if (time == 2000000)
+		{
+			kill(pid, SIGKILL);
+			_error = "500";
+			return;
+		}
+		time++;
+	}
+	std::cout << time << std::endl;
 	if (WIFEXITED(status))
 	{
 		exitCode = WEXITSTATUS(status);
@@ -180,7 +205,6 @@ void CgiHandler::sendToCgi(const Request& request, const Config& config)
 	char buffer[30720];
 
 	setCgiEnv(request, config);
-	std::cout << _path << std::endl;
 	if (access((_path + request.getFile()).c_str(), F_OK) == -1)
 		return setError("404");
 	if (request.getMethod() == "POST")
@@ -191,16 +215,26 @@ void CgiHandler::sendToCgi(const Request& request, const Config& config)
 		return setError("500");
 	pid = fork();
 	if (pid == -1)
-		_error = "500";
+	{
+		if (request.getMethod() == "POST")
+			close(fdPost[0]);
+		closePipeError(fdCgi, "500");
+	}
 	else if (pid == 0)
 		execCgi(fdPost, fdCgi, request);
 	else
 	{
 		if (request.getMethod() == "POST")
 			if (close(fdPost[0]) == -1)
-				return setError("500");
+				return closePipeError(fdCgi, "500");
 		if (close(fdCgi[1]) == -1)
-			return setError("500");
+			return closeFdError(fdCgi[0], "500");
+		exitStatus(pid);
+		if (!_error.empty())
+		{
+			close(fdCgi[0]);
+			return;
+		}
 		int bytes = 1;
 		while (bytes)
 		{
@@ -208,12 +242,11 @@ void CgiHandler::sendToCgi(const Request& request, const Config& config)
 			if (bytes > 0)
 				_response += buffer;
 			else if (bytes < 0)
-				return setError("500");
+				return closeFdError(fdCgi[0], "500");
 		}
 		if (_response.empty())
 			_error = "500";
 		if (close(fdCgi[0]) == -1)
 			return setError("500");
-		exitStatus(pid);
 	}
 }
