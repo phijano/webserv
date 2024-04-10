@@ -18,13 +18,13 @@ ServerManager::ServerManager(std::vector<Config> configs)
 			if (host == configs[j].getHost() and port == configs[j].getPort())
 				dup = 1;
 		if (!dup)
-			addServer(&configs[i]);
+			addServer(configs[i]);
 	}
 }
 
 ServerManager::~ServerManager(){}
 
-void	ServerManager::addServer(Config *config)
+void	ServerManager::addServer(Config config)
 {
 	Server	server(config);
 	struct pollfd connection;
