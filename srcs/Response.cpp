@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/10 17:47:48 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/04/10 17:57:08 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,12 @@ std::string	Response::createIndex(std::string fullPath, std::string path)
 	std::cout << "Dir: " << dir << std::endl;
 	html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title><link rel='stylesheet' href='../assets/styles/style.css'></head>";
 	body = "<body><h1>Index of name of " + path + "</h1><hr>";
+	if (!dir)
+	{
+		body += "</body></html>";
+		html += body;
+		return html;
+	}
 	while ((entry = readdir(dir)) != NULL) 
 	{ // Leer todas las entradas del directorio
 		if (path[path.length() - 1] == '/')
@@ -320,17 +326,13 @@ void Response::getMethod(const Request& request, const Config& config)
 	}
     else if (_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
 	{
-		std::cout<<"GET PATH = "<<request.getPath()<<std::endl;
         _body = createIndex(fullPath, request.getPath());
         setCode("200");
         setMime(".html");
 		return ;
 	}
 	else if (!_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
-	{
-		std::cout << "HERE" <<std::endl;
 		getErrorPage(config, "403");
-	}
 	else
         getErrorPage(config, "404");
 }
@@ -457,11 +459,8 @@ void Response::deleteMethod(const Request& request, const Config& config)
 {
 	(void)config;
 	std::string delPath = getPath(request, config);
-	std::cout << "delPath: " << delPath << std::endl;
 	std::string delFile = request.getFile();
-	std::cout << "delFile: " << delFile << std::endl;
 	std::string filePath = delPath + delFile;
-	std::cout << "filePath: " << filePath << std::endl;
 	if (std::remove(filePath.c_str()) != 0)
 	{
 		getErrorPage(config, "404");
@@ -469,6 +468,18 @@ void Response::deleteMethod(const Request& request, const Config& config)
 	}
 	std::string path = _location.getRoot() + "/";
 	std::string	file = _location.getIndex();
+	if (file.empty() && _location.getAutoIndex())
+	{
+		_body = createIndex(path, request.getPath());
+        setCode("200");
+        setMime(".html");
+		return ;
+	}
+	else if (file.empty())
+	{
+		getErrorPage(config, "403");
+		return ;
+	}
 	std::cout << "filestream: " << path << file << std::endl;
 	std::ifstream fileStream((path + file).c_str());
     if (fileStream.is_open())
