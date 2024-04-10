@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/10 17:57:08 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/04/10 19:40:31 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,13 @@ Response::Response()
 Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
-	std::cout<<"REQUEST: "<<request<<std::endl;
 	_listDir = false;
+	std::cout << "RECEIVED" << std::endl;
 	if (request.getError())
 		getErrorPage(config, "400");
 	else
 	{
 		_location = getRequestLocation(request, config);
-		std::cout << "Location found: " << _location.getPath() << std::endl;
 		if (request.getMethod() == "GET")
 		{
 			if (isAllowedMethod("GET"))
@@ -82,7 +81,6 @@ std::string	Response::createIndex(std::string fullPath, std::string path)
 	std::string body;
 
 	dir = opendir(fullPath.c_str());
-	std::cout << "Dir: " << dir << std::endl;
 	html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title><link rel='stylesheet' href='../assets/styles/style.css'></head>";
 	body = "<body><h1>Index of name of " + path + "</h1><hr>";
 	if (!dir)
@@ -100,7 +98,6 @@ std::string	Response::createIndex(std::string fullPath, std::string path)
     }
 	body += "</body></html>";
 	html += body;
-	std::cout<<"HTML = "<<html<<std::endl;
 	closedir(dir);
 	return (html);
 }
@@ -239,7 +236,7 @@ void Response::getErrorPage(const Config& config, const std::string error)
 	if (config.getErrorPages().count(atoi(error.c_str())) > 0)
 	{
 		path = config.getRoot() + config.getErrorPages()[atoi(error.c_str())];
-		std::cout << "Error page path: " << path <<std::endl;
+		std::cout << "Error page path: " << path << std::endl;
 		std::ifstream file(path);
 		if (!file.is_open())
 		{
@@ -322,7 +319,10 @@ void Response::getMethod(const Request& request, const Config& config)
 			return ;
 		}
 		else
+		{
 			getErrorPage(config, "404");
+			std::cout << "ERROR HERE" << std::endl;
+		}
 	}
     else if (_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
 	{
@@ -385,7 +385,6 @@ void Response::postMethod(const Request& request, const Config& config)
 					else 
 						newfilePath = getPath(request, config) + "/" + name;
 				}
-				std::cout << "newFile: " << newfilePath << std::endl;
                 std::ifstream originalFile(originalFilePath.c_str(), std::ios::binary);
                 if (originalFile)
 				{
@@ -457,7 +456,6 @@ void Response::postMethod(const Request& request, const Config& config)
 
 void Response::deleteMethod(const Request& request, const Config& config)
 {
-	(void)config;
 	std::string delPath = getPath(request, config);
 	std::string delFile = request.getFile();
 	std::string filePath = delPath + delFile;
@@ -480,7 +478,6 @@ void Response::deleteMethod(const Request& request, const Config& config)
 		getErrorPage(config, "403");
 		return ;
 	}
-	std::cout << "filestream: " << path << file << std::endl;
 	std::ifstream fileStream((path + file).c_str());
     if (fileStream.is_open())
 	{
@@ -490,5 +487,6 @@ void Response::deleteMethod(const Request& request, const Config& config)
         setCode("200");
         setMime(file);
 	}
-	//check for errors to send correct error page like not allowed
+	else
+		getErrorPage(config, "409");
 }
