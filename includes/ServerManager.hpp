@@ -17,7 +17,7 @@ class ServerManager
 		ServerManager(std::vector<Config> configs);
 		~ServerManager();
 
-		void	addServer(Config *config);
+		void	addServer(Config config);
 		void	serverEvent();
 		void	clientEvent();
 		void	removeClient(int fd);

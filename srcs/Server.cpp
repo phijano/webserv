@@ -8,7 +8,7 @@ Server::Server()
 	std::cout<<"Server initialized with socket num "<<serverSocket<<std::endl;
 }
 
-Server::Server(Config *config): config(config)
+Server::Server(Config config): config(config)
 {
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (serverSocket < 0)
@@ -18,7 +18,7 @@ Server::Server(Config *config): config(config)
 	connectServerAddress();
 }
 
-Server::Server(const Server& other):config(new Config(*(other.config)))
+Server::Server(const Server& other):config(Config(other.config))
 {
 	*this = other;
 }
@@ -39,8 +39,8 @@ Server::~Server()
 void	Server::setServerAddress()
 {
 	this->serverAddress.sin_family = AF_INET;
-	this->serverAddress.sin_port = htons(config->getPort());
-	this->serverAddress.sin_addr.s_addr = inet_addr(config->getHost().c_str());
+	this->serverAddress.sin_port = htons(config.getPort());
+	this->serverAddress.sin_addr.s_addr = inet_addr(config.getHost().c_str());
 	this->addressLen = sizeof(serverAddress);
 }
 
@@ -86,7 +86,7 @@ socklen_t	Server::getServerAddressLen(void)
 	return (this->addressLen);
 }
 
-Config		*Server::getConfig(void)
+Config		Server::getConfig(void)
 {
 	return (this->config);
 }
