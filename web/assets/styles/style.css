@@ -125,6 +125,7 @@ background-color: #04AA6D;
 #upload label
 {
     width: 50%;
+    margin-top: 5%;
 }
 
 #upload input[type=file]::file-selector-button 
