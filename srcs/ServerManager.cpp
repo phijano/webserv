@@ -106,7 +106,6 @@ void	ServerManager::clientEvent()
 		{
 			response = Response(clients[i - servers.size()].getRequest(), clients[i - servers.size()].getConfig());
 			send(conn[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
-			std::cout<<"Response: "<<response.getResponse().c_str()<<std::endl;
 			conn[i].events = POLLIN;
 		}
 		if (conn[i].revents & POLLHUP || conn[i].revents & POLLERR)

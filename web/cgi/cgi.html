@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webserver</title>
+    <link rel="stylesheet" href="../assets/styles/style.css">
+</head>
+<body>
+    <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../upload/upload.html">Upload File</a></li>
+        <li><a href="cgi.html">Test CGI</a></li>
+    </ul>
+    <h1>CGI Test</h1>
+    <div id="upload">
+        <div>
+            <form method=POST action="calc.py" enctype="multipart/form-data">
+            <label for="name">Name:</label>
+            <input name="Name" size=20 maxlength=50>
+            <input type=submit class="button" value="Submit">
+        </div>
+    </div>
+</body>
+</html>

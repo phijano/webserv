@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/08 20:08:48 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/10 17:47:48 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ std::string	Response::createIndex(std::string fullPath, std::string path)
 
 	dir = opendir(fullPath.c_str());
 	std::cout << "Dir: " << dir << std::endl;
-	html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title></head>";
+	html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title><link rel='stylesheet' href='../assets/styles/style.css'></head>";
 	body = "<body><h1>Index of name of " + path + "</h1><hr>";
 	while ((entry = readdir(dir)) != NULL) 
 	{ // Leer todas las entradas del directorio
@@ -250,7 +250,7 @@ void Response::getErrorPage(const Config& config, const std::string error)
 		}
 	}
 	_mime = "text/html";
-	_body = "<!DOCTYPE html><html lang=\"en\"><body><h1> " + _code + " </h1><p> Whooops! </p></body></html>";
+	_body = "<!DOCTYPE html><html lang=\"en\"><head><title>Error</title><link rel='stylesheet' href='../assets/styles/style.css'><head><body><h1> " + _code + " </h1><p style='text-align: center;'> Whooops! </p></body></html>";
 }
 
 std::string Response::getPath(const Request& request, const Config& config) // Doesnt work for Delete

@@ -1,0 +1,163 @@
+
+body
+{
+    background-color: #166866;
+    color: #1bf4ca;
+    font-family: "Roboto", sans-serif;
+    font-size: 18px;
+}
+h1,h3
+{
+    text-align: center;
+}
+
+hr
+{
+    border-color: #092a29;
+    background-color: #092a29;
+    height: 2px;
+}
+
+ul 
+{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #092a29;
+}
+
+li 
+{
+    float: left;
+}
+
+a
+{
+    color: #1bf4ca;
+    font-weight: bold;
+    font-size: 25px;
+}
+
+li a 
+{
+    display: block;
+    color: #1bf4ca;
+    text-align: center;
+    font-weight: bold;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: larger;
+}
+
+li a:hover:not(.active) 
+{
+background-color: #111;
+}
+
+.active 
+{
+background-color: #04AA6D;
+}
+
+#profiles
+{
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    margin-top: 3%;
+    margin-bottom: 3%;
+}
+
+#profiles div
+{
+    /* margin: 1%;
+    margin-left: 5%;
+    margin-right: 5%; */
+    text-align: center;
+    width: 15%;
+}
+
+#profiles img
+{
+    width: 50%;
+    height: 83%;
+}
+
+#upload
+{
+    display: flex;
+    justify-content: center;
+    margin-top: 5%;
+}
+
+#upload div
+{
+    width: 35%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+#upload form
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60%;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    font-weight: bold;
+    background-color: #0e4140;
+    border: 2px solid #0b3433;
+    border-radius: 2%;
+    font-size: larger;
+}
+
+#upload input
+{
+    width: 50%;
+    margin-top: 3%;
+    font-size: medium;
+}
+
+#upload label
+{
+    width: 50%;
+}
+
+#upload input[type=file]::file-selector-button 
+{
+    padding: .2em .4em;
+    border-radius: .2em;
+    color: #1bf4ca;
+    background-color: #0e2941;
+}
+
+.button
+{
+    background-color: #681618;
+    border: 2px solid #0b3433;
+    color: #1bf4ca;
+    width: 35%;
+    padding: 1.5%;
+    border-radius: 2%;
+    font-weight: bold;
+}
+
+#upload input[type=file]::before
+{
+    background-color: #681618;
+    border: 2px solid #0b3433;
+    color: #1bf4ca;
+    padding: 2.5%;
+    border-radius: 2%;
+    font-weight: bold;
+}
+
+.button:hover
+{
+    background-color: #1bf4ca;
+    color: #681618;
+}

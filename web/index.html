@@ -1,65 +1,45 @@
 <!DOCTYPE html>
-<html lang=\"en\">
-<header>
-	<title>Server Name</title>
-</header>
-<body><h1> HOME </h1>
-
-<p> Hello from your Server :) </p>
-
-<h3>UPLOAD FILE METHOD</h3>
-<form method="post" action="/index.html"> 
-	<label for="name">Name:</label>
-	<input type="text" id="name" name="name" maxlength="8" size="10" />
-	<label for="file">File</label>
-	<input id="file1" name="file" type="file" />
-	<button>Send</button>
-</form>
-
-<p>-----------------------------------</p>
-<h3>CGI FORM POST METHOD</h3>
- <form METHOD=POST ACTION="variables.cgi?var1=coche&var2=grulla" enctype="multipart/form-data">
-  <label for="name">Name:</label>
-  <input name="Name" size=20 maxlength=50>
-  <P>
-  <INPUT TYPE=submit value="Submit">
-  </form>
-
-  <h3>DELETE FILE METHOD</h3>
-
-<input id="file1" name="delete" type="file" />
-<button onclick="deleteApp()">Delete</button>
-<script>
-function deleteApp() {
-    // Get the file object
-    var fileInput = document.getElementById('file1');
-    var file = fileInput.files[0];
-
-    // If no file is selected, return
-    if (!file) {
-        console.log("No file selected");
-        return;
-    }
-
-    // Replace '<your_access_token>' with an actual access token if needed
-    fetch('/deleteFile', {
-        method: 'DELETE',
-        headers: {
-            'Authorization': 'Bearer <your_access_token>'
-        },
-        // You may need to pass additional data like the file name or ID here
-        // body: JSON.stringify({ fileName: file.name })
-    })
-    .then(response => {
-        // Handle response
-        console.log(response);
-    })
-    .catch(error => {
-        // Handle error
-        console.error('Error:', error);
-    });
-}
-</script>
-
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webserver</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+</head>
+<body>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="upload/upload.html">Upload File</a></li>
+        <li><a href="cgi/cgi.html">Test CGI</a></li>
+      </ul>
+    <h1>Welcome to our webserver</h1>
+    <div id="profiles">
+        <div>
+            <img src="assets/imgs/pbengoec.jpg" alt="perfil">
+            <h3>Pablo Bengoechea</h3>
+        </div>
+        <div>
+            <img src="assets/imgs/phijano-.jpg" alt="perfil">
+            <h3>Pablo Hijano</h3>
+        </div>
+        <div>
+            <img src="assets/imgs/vnaslund.jpg" alt="perfil">
+            <h3>Victor Näslund</h3>
+        </div>
+    </div>
+    <hr>
+    <div id="upload">
+        <div>
+            <form method="post" action="/index.html"> 
+                <label for="name">Name of file:</label>
+                <input type="text" id="name" name="name" maxlength="8" size="10" placeholder="Example"/>
+                <br>
+                <label for="file">File:</label>
+                <input id="file1" name="file" type="file" />
+                <br>
+                <INPUT TYPE=submit class="button" value="Submit">
+            </form>
+        </div>
+    </div>
 </body>
 </html>

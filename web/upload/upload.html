@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webserver</title>
+    <link rel="stylesheet" href="../assets/styles/style.css">
+</head>
+<body>
+    <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="upload.html">Upload File</a></li>
+        <li><a href="../cgi/cgi.html">Test CGI</a></li>
+    </ul>
+    <h1>Upload File</h1>
+    <div id="upload">
+        <div>
+            <form method="post" action="upload.html"> 
+                <label for="name">Name of file:</label>
+                <input type="text" id="name" name="name" maxlength="8" size="10" placeholder="Example"/>
+                <br>
+                <label for="file">File:</label>
+                <input id="file1" name="file" type="file" />
+                <br>
+                <INPUT TYPE=submit class="button" value="Submit">
+            </form>
+        </div>
+    </div>
+</body>
+</html>
