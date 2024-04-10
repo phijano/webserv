@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/08 20:08:48 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/10 16:58:35 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,17 +320,13 @@ void Response::getMethod(const Request& request, const Config& config)
 	}
     else if (_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
 	{
-		std::cout<<"GET PATH = "<<request.getPath()<<std::endl;
         _body = createIndex(fullPath, request.getPath());
         setCode("200");
         setMime(".html");
 		return ;
 	}
 	else if (!_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
-	{
-		std::cout << "HERE" <<std::endl;
 		getErrorPage(config, "403");
-	}
 	else
         getErrorPage(config, "404");
 }
@@ -457,11 +453,8 @@ void Response::deleteMethod(const Request& request, const Config& config)
 {
 	(void)config;
 	std::string delPath = getPath(request, config);
-	std::cout << "delPath: " << delPath << std::endl;
 	std::string delFile = request.getFile();
-	std::cout << "delFile: " << delFile << std::endl;
 	std::string filePath = delPath + delFile;
-	std::cout << "filePath: " << filePath << std::endl;
 	if (std::remove(filePath.c_str()) != 0)
 	{
 		getErrorPage(config, "404");
@@ -469,6 +462,18 @@ void Response::deleteMethod(const Request& request, const Config& config)
 	}
 	std::string path = _location.getRoot() + "/";
 	std::string	file = _location.getIndex();
+	if (file.empty() && _location.getAutoIndex())
+	{
+		_body = createIndex(path, request.getPath());
+        setCode("200");
+        setMime(".html");
+		return ;
+	}
+	else if (file.empty())
+	{
+		getErrorPage(config, "403");
+		return ;
+	}
 	std::cout << "filestream: " << path << file << std::endl;
 	std::ifstream fileStream((path + file).c_str());
     if (fileStream.is_open())
