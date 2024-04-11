@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/09 14:22:12 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/11 12:05:12 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ CgiHandler::CgiHandler()
 CgiHandler::CgiHandler(const Request& request, const Config& config, const std::string& path)
 {
 	_path = path;
+	if (_path[_path.size() - 1] != '/')
+		_path += "/";
 	sendToCgi(request, config);
 }
 
