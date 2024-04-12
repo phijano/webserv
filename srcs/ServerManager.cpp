@@ -20,6 +20,7 @@ ServerManager::ServerManager(std::vector<Config> configs)
 		if (!dup)
 			addServer(configs[i]);
 	}
+	initialSize = 0;
 }
 
 ServerManager::~ServerManager(){}
@@ -44,8 +45,15 @@ void	ServerManager::newClient(Server server)
 	int acceptClient;
 
 	acceptClient = accept(server.getServerSocket(), (struct sockaddr*)&clientAddress, &clientAddressLen);
+	if (acceptClient == -1) {
+        std::cerr << "Error accepting new client: " << strerror(errno) << std::endl;
+        return;
+    }
 	if (fcntl(acceptClient, F_SETFL, O_NONBLOCK) < 0)
-		std::cout<<"Error"<<std::endl;
+	{
+		std::cout<<"Error fcntl client"<<std::endl;
+		exit(1);
+	}
 	connection.fd = acceptClient;
 	connection.events = POLLIN;
 	client = Client(server.getConfig(), acceptClient, clientAddress.sin_addr.s_addr);
@@ -60,6 +68,7 @@ void	ServerManager::serverEvent()
 	{
 		if (this->conn[i].revents & POLLIN)
 		{
+			std::cout<<"Server conectado en el socket "<< this->conn[i].fd<<std::endl;
 			newClient(servers[i]);
 		}
 	}
@@ -77,35 +86,34 @@ void	ServerManager::clientEvent()
 	char buffer[2048];
 	Response response;
 	ssize_t bytesRead;
-	for (size_t i = 0; i < conn.size(); i++)
+	for (size_t i = initialSize; i >= servers.size(); i--)
 	{
 		if (conn[i].revents & POLLIN)
 		{
-			if (i < servers.size())
-				newClient(servers[i]);
+			bytesRead = recv(conn[i].fd, buffer, sizeof(buffer), 0);
+			if (bytesRead >= 0) 
+			{
+				if (bytesRead > 0)
+				{
+					buffer[bytesRead] = '\0';
+					clients[i - servers.size()].setRequest(Request(buffer));
+					conn[i].events = POLLOUT;
+				}
+			}
 			else
 			{
-				bytesRead = recv(conn[i].fd, buffer, sizeof(buffer), 0);
-				if (bytesRead >= 0) 
-				{
-					if (bytesRead > 0)
-					{
-						buffer[bytesRead] = '\0';
-						clients[i - servers.size()].setRequest(Request(buffer));
-						conn[i].events = POLLOUT;
-					}
-				}
-				else
-				{
-					std::cerr << "Error de lectura del cliente\n";
-					removeClient(i);
-				}
+				std::cerr << "Error reading client num "<<conn[i].fd<<std::endl;
+				removeClient(i);
 			}
 		}
 		if (conn[i].revents & POLLOUT)
 		{
 			response = Response(clients[i - servers.size()].getRequest(), clients[i - servers.size()].getConfig());
 			send(conn[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
+			// std::cout<<"Respuesta = "<<response.getResponse()<<std::endl;
+			// std::string body = "<h1>Hello, world!</h1>";
+			// std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(body.length()) + "\r\nConnection: close\r\n\r\n" + body;
+			// send(conn[i].fd, response.c_str(), response.length(), 0);
 			conn[i].events = POLLIN;
 		}
 		if (conn[i].revents & POLLHUP || conn[i].revents & POLLERR)
@@ -122,8 +130,15 @@ void	ServerManager::run()
 
 	while (1)
 	{
+		initialSize = this->conn.size() - 1;
 		activity = poll(this->conn.data(), this->conn.size(), -1);
+		if (activity == -1)
+		{
+			std::cout<<"Error with poll"<<std::endl;
+			exit(1);
+		}
 		serverEvent();
 		clientEvent();
+		
 	}
 }

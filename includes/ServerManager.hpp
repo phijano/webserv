@@ -12,6 +12,7 @@ class ServerManager
 		std::vector <Server> servers;
 		std::vector <Client> clients;
 		std::vector <pollfd> conn;
+		int	initialSize;
 	public:
 		ServerManager();
 		ServerManager(std::vector<Config> configs);

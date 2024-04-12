@@ -20,7 +20,7 @@ Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
 	_listDir = false;
-	std::cout << "RECEIVED" << std::endl;
+	// std::cout << "RECEIVED" << std::endl;
 	if (request.getError())
 		getErrorPage(config, "400");
 	else
@@ -82,7 +82,7 @@ std::string	Response::createIndex(std::string fullPath, std::string path)
 
 	dir = opendir(fullPath.c_str());
 	html = "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Index</title><link rel='stylesheet' href='../assets/styles/style.css'></head>";
-	body = "<body><h1>Index of name of " + path + "</h1><hr>";
+	body = "<body><h1>Index of " + path + "</h1><hr>";
 	if (!dir)
 	{
 		body += "</body></html>";
@@ -121,9 +121,8 @@ std::string Response::getResponse() const
 		return _cgiResponse;
 
 	response << _protocol << " " << _code;
-	
 	if (!_mime.empty())
-		response << "\nContent-Type: " << _mime << "\nContent-Length: " << _body.size() << "\n\n" << _body;
+		response << "\nContent-Type: " << _mime <<"\nConnection: keep-alive "<<"\nContent-Length: "<< _body.size() << "\n\n" << _body;
 	return response.str();
 }
 
