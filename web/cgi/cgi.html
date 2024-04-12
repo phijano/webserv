@@ -8,14 +8,14 @@
 </head>
 <body>
     <ul>
-        <li><a href="../index.html">Home</a></li>
-        <li><a href="../upload/upload.html">Upload File</a></li>
-        <li><a href="cgi.html">Test CGI</a></li>
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/upload/upload.html">Upload File</a></li>
+        <li><a href="/cgi/cgi.html">Test CGI</a></li>
     </ul>
     <h1>CGI Test</h1>
     <div id="upload">
         <div>
-            <form method=POST action="calc.py" enctype="multipart/form-data">
+            <form method=POST action="variables.cgi" enctype="multipart/form-data">
             <label for="name">Name:</label>
             <input name="Name" size=20 maxlength=50>
             <input type=submit class="button" value="Submit">
