@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/10 19:40:31 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/12 10:27:32 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ Response::Response(Request& request, Config& config)
 	// std::cout << "RECEIVED" << std::endl;
 	if (request.getError())
 		getErrorPage(config, "400");
+	else if (!request.getContentLength().empty() and atoi (request.getContentLength().c_str()) > config.getBodySize())
+		getErrorPage(config, "413");
 	else
 	{
 		_location = getRequestLocation(request, config);
@@ -62,7 +64,7 @@ Response& Response::operator=(const Response& other) // Doesnt work because of p
 	_code = other._code;
 	_mime = other._mime;
 	_body = other._body;
-
+	_cgiResponse = other._cgiResponse;
 	return *this;
 }
 
@@ -303,6 +305,7 @@ void Response::getMethod(const Request& request, const Config& config)
 			_cgiResponse = cgi.getResponse();
 		else
 			getErrorPage(config, cgi.getError());
+		return;
 	}
 	std::string fullPath = path + file;
 	if (!_listDir)
@@ -353,7 +356,7 @@ int	Response::createFile(const std::string& file, const std::string& content, co
 	}
 }
 
-void Response::postMethod(const Request& request, const Config& config) 
+void Response::upload(const Request& request, const Config& config) 
 {
     if (!request.getBody().empty()) 
 	{
@@ -452,6 +455,27 @@ void Response::postMethod(const Request& request, const Config& config)
         // No body present in the request, send appropriate error response
     }
 }
+
+void Response::postMethod(const Request& request,const Config& config)//Dont know what response send if no files send only fields
+{
+	std::string file = request.getFile();
+	std::string path;
+
+	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_listDir)
+	{
+		if (!_location.getCgiPath().empty())
+			path = _location.getCgiPath();
+		CgiHandler cgi(request, config, path);
+		if (cgi.getError().empty())
+			_cgiResponse = cgi.getResponse();
+		else
+			getErrorPage(config, cgi.getError());
+		return;
+	}
+	upload(request, config);
+}
+
+
 
 void Response::deleteMethod(const Request& request, const Config& config)
 {
