@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:51:14 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/08 19:20:52 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/12 10:25:17 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Response
 		bool isAllowedMethod(const std::string& method);
 		void getMethod(const Request& request, const Config& config);
 		int	 createFile(const std::string& file, const std::string& content, const Config& config);
+		void upload(const Request& request, const Config& config);
 		void postMethod(const Request& request, const Config& config);
 		void deleteMethod(const Request& request, const Config& config);
 		std::string createIndex(std::string fullPath, std::string path);
