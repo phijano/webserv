@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/12 10:27:32 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/15 15:21:52 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,9 @@ void	Response::setCode(const std::string& code) // add more codes as we need
 		case 409:
 			_code = "409 Conflict";
 			break;
+		case 413:
+			_code = "413 Content Too Large";
+			break;
 		case 500:
 			_code = "500 Internal Server Error";
 			break;
@@ -279,7 +282,7 @@ std::string Response::getIndex(const Config& config)
 		index = config.getIndex();
 	else
 	{
-		_listDir = true;
+		_listDir = _location.getAutoIndex();
 		index = "";
 	}
 	return index;
