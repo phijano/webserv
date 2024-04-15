@@ -24,10 +24,10 @@ body += "<input name=\"Name\" size=20 maxlength=50>"
 body += "<input type=submit class=\"button\" value=\"Submit\">"
 
 if 'REQUEST_METHOD' in os.environ.keys():
-    number1 = ""
-    number2 = ""
     method = os.environ['REQUEST_METHOD']
-    if method == "POST":      
+    if method == "POST":  
+        number1 = ""
+        number2 = ""
         for index, line in enumerate(sys.stdin):
             if index == 3:
                 number1 = line
