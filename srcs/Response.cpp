@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/15 15:21:52 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/15 15:36:36 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,6 +313,13 @@ void Response::getMethod(const Request& request, const Config& config)
 	std::string fullPath = path + file;
 	if (!_listDir)
 	{
+		DIR* dir = opendir(fullPath.c_str());
+		if (dir)
+		{
+			closedir(dir);
+			getErrorPage(config, "404");
+			return;
+		}
     	std::ifstream fileStream((fullPath).c_str());
     	if (fileStream.is_open())
 		{
