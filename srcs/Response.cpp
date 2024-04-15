@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/15 15:36:36 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/15 16:42:24 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Response::Response()
 Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
-	_listDir = false;
+	_indexNotFound = false;
 	// std::cout << "RECEIVED" << std::endl;
 	if (request.getError())
 		getErrorPage(config, "400");
@@ -282,7 +282,7 @@ std::string Response::getIndex(const Config& config)
 		index = config.getIndex();
 	else
 	{
-		_listDir = _location.getAutoIndex();
+		_indexNotFound = true;
 		index = "";
 	}
 	return index;
@@ -299,7 +299,7 @@ void Response::getMethod(const Request& request, const Config& config)
     if (file.empty())
         file = getIndex(config);
 
-	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_listDir)
+	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_indexNotFound)
 	{
 		if (!_location.getCgiPath().empty())
 			path = _location.getCgiPath();
@@ -311,15 +311,8 @@ void Response::getMethod(const Request& request, const Config& config)
 		return;
 	}
 	std::string fullPath = path + file;
-	if (!_listDir)
+	if (!_indexNotFound)
 	{
-		DIR* dir = opendir(fullPath.c_str());
-		if (dir)
-		{
-			closedir(dir);
-			getErrorPage(config, "404");
-			return;
-		}
     	std::ifstream fileStream((fullPath).c_str());
     	if (fileStream.is_open())
 		{
@@ -471,7 +464,7 @@ void Response::postMethod(const Request& request,const Config& config)//Dont kno
 	std::string file = request.getFile();
 	std::string path;
 
-	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_listDir)
+	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_indexNotFound)
 	{
 		if (!_location.getCgiPath().empty())
 			path = _location.getCgiPath();

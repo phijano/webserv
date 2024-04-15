@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:51:14 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/12 10:25:17 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/15 16:41:57 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ class Response
 		std::string	_mime;
 		std::string	_body;
 		std::string _cgiResponse;
-		bool		_listDir;
+		bool		_indexNotFound;
 
 		std::string getExtension(const std::string& file);
 
