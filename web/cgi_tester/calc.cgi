@@ -34,7 +34,7 @@ if 'REQUEST_METHOD' in os.environ.keys():
             if index == 7:
                 number2 = line
         if number1 == "\r\n" or number2 == "\r\n":
-            body += "Introduce two numbers!!!"
+            body += "Introduce two numbers!!"
         else:
             number1 = number1[:-2]
             number2 = number2[:-2]
