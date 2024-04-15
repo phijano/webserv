@@ -61,7 +61,7 @@ void	Server::connectServerAddress(void)
 		exit(1);
 	}
 
-	if (listen(serverSocket, 512) < 0 )
+	if (listen(serverSocket, 420) < 0 )
 		std::cout << "Error listen" << std::endl;
 		
 	if (fcntl(serverSocket, F_SETFL, O_NONBLOCK) < 0) 

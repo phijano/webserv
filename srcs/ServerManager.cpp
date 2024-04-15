@@ -44,6 +44,7 @@ void	ServerManager::newClient(Server server)
 	Client client;
 	int acceptClient;
 
+	client.setTime(clock() - initialTime);
 	acceptClient = accept(server.getServerSocket(), (struct sockaddr*)&clientAddress, &clientAddressLen);
 	if (acceptClient == -1) {
         std::cerr << "Error accepting new client: " << strerror(errno) << std::endl;
@@ -77,6 +78,7 @@ void	ServerManager::serverEvent()
 void	ServerManager::removeClient(int position)
 {
 	close(conn[position].fd);
+	conn[position].fd = 0;
 	conn.erase(conn.begin() + position);
 	clients.erase(clients.begin() + (position - servers.size()));
 }
@@ -86,10 +88,12 @@ void	ServerManager::clientEvent()
 	char buffer[2048];
 	Response response;
 	ssize_t bytesRead;
+
 	for (size_t i = initialSize; i >= servers.size(); i--)
 	{
 		if (conn[i].revents & POLLIN)
 		{
+			std::cout<<"IM READING"<<std::endl;
 			bytesRead = recv(conn[i].fd, buffer, sizeof(buffer), 0);
 			if (bytesRead >= 0) 
 			{
@@ -104,10 +108,12 @@ void	ServerManager::clientEvent()
 			{
 				std::cerr << "Error reading client num "<<conn[i].fd<<std::endl;
 				removeClient(i);
+				continue;
 			}
 		}
 		if (conn[i].revents & POLLOUT)
 		{
+			std::cout<<"IM WRITTING"<<std::endl;
 			response = Response(clients[i - servers.size()].getRequest(), clients[i - servers.size()].getConfig());
 			send(conn[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
 			// std::cout<<"Respuesta = "<<response.getResponse()<<std::endl;
@@ -124,21 +130,51 @@ void	ServerManager::clientEvent()
 	}
 }
 
+void	ServerManager::checkTimeOut()
+{
+	for (size_t i = initialSize; i >= servers.size(); i--)
+	{
+		if (isTimeOut(clients[i - servers.size()]))
+		{
+			// std::cout<<"Client Time "<<clients[i].getTime()<<std::endl;
+			// std::cout<<"Initial Time "<<initialTime<<std::endl;
+			std::cout<<"Cliente desconectado desde timeout"<<std::endl;
+			removeClient(i);
+		}
+	}
+}
+
+bool	ServerManager::isTimeOut(Client client)
+{
+	if (static_cast<double>(client.getTime()/CLOCKS_PER_SEC) > 0.1)
+		return true;
+	return false;
+}
+
 void	ServerManager::run()
 {
 	int	activity;
 
+	initialTime = clock();
 	while (1)
 	{
 		initialSize = this->conn.size() - 1;
-		activity = poll(this->conn.data(), this->conn.size(), -1);
+		activity = poll(this->conn.data(), this->conn.size(), 1000);
+		std::cout<<"------NEW LAP--------"<<std::endl;
+		std::cout<<"Activity = "<<activity<<std::endl;
 		if (activity == -1)
 		{
 			std::cout<<"Error with poll"<<std::endl;
 			exit(1);
 		}
-		serverEvent();
-		clientEvent();
-		
+		else if (activity == 0)
+		{
+			checkTimeOut();
+		}
+		else
+		{
+			serverEvent();
+			clientEvent();
+		}
 	}
 }

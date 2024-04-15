@@ -33,3 +33,13 @@ Request &Client::getRequest()
 {
 	return (this->request);
 }
+
+void	Client::setTime(clock_t time)
+{
+	this->time = time;
+}
+
+clock_t &Client::getTime()
+{
+	return (this->time);
+}

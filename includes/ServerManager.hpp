@@ -13,6 +13,7 @@ class ServerManager
 		std::vector <Client> clients;
 		std::vector <pollfd> conn;
 		int	initialSize;
+		clock_t initialTime;
 	public:
 		ServerManager();
 		ServerManager(std::vector<Config> configs);
@@ -23,6 +24,8 @@ class ServerManager
 		void	clientEvent();
 		void	removeClient(int fd);
 		void	newClient(Server server);
+		void	checkTimeOut();
+		bool	isTimeOut(Client client);
 		void	run();
 
 };

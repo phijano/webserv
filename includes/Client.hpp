@@ -12,6 +12,7 @@ class Client
 		Request request;
 		Config config;
 		unsigned long ip;
+		clock_t time;
 
 	public:
 		Client();
@@ -20,6 +21,8 @@ class Client
 		Request &getRequest();
 		void	setRequest(Request request);
 		int	getId();
+		void	setTime(clock_t);
+		clock_t &getTime();
 		Config &getConfig();
 
 };
