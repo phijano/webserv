@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:19:26 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/08 19:09:10 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/16 19:32:32 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,11 @@ void Request::parseHost(const std::string& hostLine)
 
 	ssLine >> word;
 	ssLine >> _host;
+	
+	size_t colonPos = _host.find(':');
+
+    if (colonPos != std::string::npos)
+        _host = _host.substr(0, colonPos);
 }
 
 void Request::parseHeader(const std::string& header)

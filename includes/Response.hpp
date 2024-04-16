@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:51:14 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/15 16:41:57 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/16 19:22:30 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include "Request.hpp"
 # include "Config.hpp"
 # include "CgiHandler.hpp"
+
 class Response
 {
 	public:
@@ -45,6 +46,7 @@ class Response
 		void	setMime(const std::string& file);
 		void	getErrorPage(const Config& config, const std::string error);
 
+		bool	wrongHost(std::string host, std::vector<std::string> validHosts);
 		Location getRequestLocation(const Request& request, Config& config);
 		std::string getPath(const Request& request, const Config& config);
 		std::string getIndex(const Config& config);

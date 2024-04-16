@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/16 18:42:15 by pbengoec         ###   ########.fr       */
+/*   Updated: 2024/04/16 19:23:42 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,26 @@ Response::Response()
 {
 }
 
+bool	Response::wrongHost(std::string host, std::vector<std::string> validHosts)
+{
+	std::vector<std::string>::iterator it;
+
+	std::cout << "Host: " << host << std::endl;
+	if (host == "localhost")
+		return false;
+    for (it = validHosts.begin(); it != validHosts.end(); ++it)
+    {
+        if (host == *it)
+            return false;
+    }
+    return true;
+}
+
 Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
 	_indexNotFound = false;
-	if (request.getError())
+	if (request.getError() || wrongHost(request.getHost(), config.getServerNames()))
 		getErrorPage(config, "400");
 	else if (!request.getContentLength().empty() and atoi (request.getContentLength().c_str()) > config.getBodySize())
 		getErrorPage(config, "413");
@@ -303,7 +318,6 @@ void Response::getMethod(const Request& request, const Config& config)
 	{
 		if (!_location.getCgiPath().empty())
 			path += _location.getCgiPath();
-		std::cout << "CGI PATH: " << path << std::endl;
 		CgiHandler cgi(request, config, path);
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();
