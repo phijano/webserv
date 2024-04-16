@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/16 19:23:42 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/16 20:25:51 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,11 @@ Response::Response()
 {
 }
 
-bool	Response::wrongHost(std::string host, std::vector<std::string> validHosts)
+bool	Response::wrongHost(std::string host, std::vector<std::string> validHosts, Config config)
 {
 	std::vector<std::string>::iterator it;
 
-	std::cout << "Host: " << host << std::endl;
-	if (host == "localhost")
+	if (host == "localhost" || host == config.getHost())
 		return false;
     for (it = validHosts.begin(); it != validHosts.end(); ++it)
     {
@@ -35,7 +34,7 @@ Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
 	_indexNotFound = false;
-	if (request.getError() || wrongHost(request.getHost(), config.getServerNames()))
+	if (request.getError() || wrongHost(request.getHost(), config.getServerNames(), config))
 		getErrorPage(config, "400");
 	else if (!request.getContentLength().empty() and atoi (request.getContentLength().c_str()) > config.getBodySize())
 		getErrorPage(config, "413");
@@ -326,7 +325,6 @@ void Response::getMethod(const Request& request, const Config& config)
 		return;
 	}
 	std::string fullPath = path + file;
-	std::cout << "fullPath: " << fullPath << std::endl;
 	if (!_indexNotFound)
 	{
     	std::ifstream fileStream((fullPath).c_str());
