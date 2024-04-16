@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/16 16:44:21 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/16 17:27:49 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ CgiHandler& CgiHandler::operator=(const CgiHandler& other)
 
 CgiHandler::~CgiHandler()
 {
-	if (_env != nullptr) 
+	if (_env != NULL)
 	{
         for (int i = 0; _env[i] != NULL; ++i) 
             delete[] _env[i];
@@ -139,7 +139,6 @@ void CgiHandler::setCgiEnv(const Request& request, const Config& config)
 		_env[varsNumber++] = setEnvParam(toUppercase(it->first) + "=" + it->second);
 
 	_env[varsNumber] = NULL;
-	_env[varsNumber + 1] = NULL;
 }
 
 void CgiHandler::postPipe(int *fd, const std::string& body)
