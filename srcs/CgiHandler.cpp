@@ -3,20 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/16 11:45:05 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/16 16:44:21 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CgiHandler.hpp"
 
-CgiHandler::CgiHandler()
+CgiHandler::CgiHandler() : _env(NULL) 
 {
+	
 }
 
-CgiHandler::CgiHandler(const Request& request, const Config& config, const std::string& path)
+CgiHandler::CgiHandler(const Request& request, const Config& config, const std::string& path) : _env(NULL)
 {
 	_path = path;
 	if (_path[_path.size() - 1] != '/')
@@ -40,7 +41,12 @@ CgiHandler& CgiHandler::operator=(const CgiHandler& other)
 
 CgiHandler::~CgiHandler()
 {
-	delete _env;
+	if (_env != nullptr) 
+	{
+        for (int i = 0; _env[i] != NULL; ++i) 
+            delete[] _env[i];
+        delete[] _env;
+    }
 }
 
 std::string CgiHandler::getResponse() const
@@ -133,6 +139,7 @@ void CgiHandler::setCgiEnv(const Request& request, const Config& config)
 		_env[varsNumber++] = setEnvParam(toUppercase(it->first) + "=" + it->second);
 
 	_env[varsNumber] = NULL;
+	_env[varsNumber + 1] = NULL;
 }
 
 void CgiHandler::postPipe(int *fd, const std::string& body)
