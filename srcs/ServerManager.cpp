@@ -99,6 +99,7 @@ void	ServerManager::clientEvent()
 				if (bytesRead > 0)
 				{
 					buffer[bytesRead] = '\0';
+					std::cout<<buffer<<std::endl;
 					clients[i - servers.size()].setRequest(Request(buffer));
 					conn[i].events = POLLOUT;
 				}
@@ -160,7 +161,7 @@ void	ServerManager::run()
 	while (1)
 	{
 		initialSize = this->conn.size() - 1;
-		activity = poll(this->conn.data(), this->conn.size(), 1000);
+		activity = poll(this->conn.data(), this->conn.size(), 5000);
 		std::cout<<"------NEW LAP--------"<<std::endl;
 		std::cout<<"Activity = "<<activity<<std::endl;
 		if (activity == -1)
@@ -170,6 +171,7 @@ void	ServerManager::run()
 		}
 		else if (activity == 0)
 		{
+			continue;
 			checkTimeOut();
 		}
 		else

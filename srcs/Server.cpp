@@ -39,7 +39,7 @@ Server::~Server()
 void	Server::setServerAddress()
 {
 	this->serverAddress.sin_family = AF_INET;
-	if (config.getPort() < 1024 || config.getPort() > 65535)
+	if ((config.getPort() < 1024 || config.getPort() > 65535) && config.getPort() != 80)
 	{
 		std::cerr<<"Error port must be major than 1024 and minor than 65535"<<std::endl;
 		exit(1);

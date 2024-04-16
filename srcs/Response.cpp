@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/16 16:54:16 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/16 18:42:15 by pbengoec         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ std::string Response::getResponse() const
 
 	response << _protocol << " " << _code;
 	if (!_mime.empty())
-		response << "\nContent-Type: " << _mime <<"\nConnection: keep-alive "<<"\nContent-Length: "<< _body.size() << "\n\n" << _body;
+		response << "\nContent-Type: " << _mime <<"\nContent-Length: "<< _body.size() << "\n\n" << _body;
 	return response.str();
 }
 
