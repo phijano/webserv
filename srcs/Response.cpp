@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/15 15:36:36 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/15 18:01:27 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Response::Response()
 Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
-	_listDir = false;
+	_indexNotFound = false;
 	// std::cout << "RECEIVED" << std::endl;
 	if (request.getError())
 		getErrorPage(config, "400");
@@ -260,7 +260,7 @@ void Response::getErrorPage(const Config& config, const std::string error)
 	_body = "<!DOCTYPE html><html lang=\"en\"><head><title>Error</title><link rel='stylesheet' href='../assets/styles/style.css'><head><body><h1> " + _code + " </h1><p style='text-align: center;'> Whooops! </p></body></html>";
 }
 
-std::string Response::getPath(const Request& request, const Config& config) // Doesnt work for Delete
+std::string Response::getPath(const Request& request, const Config& config)
 {
 	std::string path;
 
@@ -282,7 +282,7 @@ std::string Response::getIndex(const Config& config)
 		index = config.getIndex();
 	else
 	{
-		_listDir = _location.getAutoIndex();
+		_indexNotFound = true;
 		index = "";
 	}
 	return index;
@@ -292,17 +292,16 @@ std::string Response::getIndex(const Config& config)
 void Response::getMethod(const Request& request, const Config& config)
 {
 	std::string path = getPath(request, config);
-	if (_location.getRoot() != "/")
-		path += "/";
 
     std::string file = request.getFile();
     if (file.empty())
         file = getIndex(config);
 
-	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_listDir)
+	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_indexNotFound)
 	{
 		if (!_location.getCgiPath().empty())
-			path = _location.getCgiPath();
+			path += _location.getCgiPath();
+		std::cout << "CGI PATH: " << path << std::endl;
 		CgiHandler cgi(request, config, path);
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();
@@ -311,15 +310,9 @@ void Response::getMethod(const Request& request, const Config& config)
 		return;
 	}
 	std::string fullPath = path + file;
-	if (!_listDir)
+	std::cout << "fullPath: " << fullPath << std::endl;
+	if (!_indexNotFound)
 	{
-		DIR* dir = opendir(fullPath.c_str());
-		if (dir)
-		{
-			closedir(dir);
-			getErrorPage(config, "404");
-			return;
-		}
     	std::ifstream fileStream((fullPath).c_str());
     	if (fileStream.is_open())
 		{
@@ -331,10 +324,7 @@ void Response::getMethod(const Request& request, const Config& config)
 			return ;
 		}
 		else
-		{
 			getErrorPage(config, "404");
-			std::cout << "ERROR HERE" << std::endl;
-		}
 	}
     else if (_location.getAutoIndex() && access(fullPath.c_str() , F_OK) == 0)
 	{
@@ -469,12 +459,13 @@ void Response::upload(const Request& request, const Config& config)
 void Response::postMethod(const Request& request,const Config& config)//Dont know what response send if no files send only fields
 {
 	std::string file = request.getFile();
-	std::string path;
+	std::string path = getPath(request, config);
 
-	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_listDir)
+	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_indexNotFound)
 	{
 		if (!_location.getCgiPath().empty())
-			path = _location.getCgiPath();
+			path += _location.getCgiPath();
+		std::cout << "CGI PATH: " << path << std::endl;
 		CgiHandler cgi(request, config, path);
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();

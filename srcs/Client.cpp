@@ -1,21 +1,20 @@
 #include "Client.hpp"
 
 Client::Client():
-	id(0),    
+	fd(0),    
 	config()
 {}
 
-Client::Client(Config config, int newClient, unsigned long clientIp):
-	id(newClient),
-    config(config),
-	ip(clientIp)
+Client::Client(Config config, int newClient):
+	fd(newClient),
+    config(config)
 {}
 
 Client::~Client(){}
 
 int	Client::getId()
 {
-	return (this->id);
+	return (this->fd);
 }
 
 Config	&Client::getConfig()
@@ -25,7 +24,6 @@ Config	&Client::getConfig()
 
 void	Client::setRequest(Request request)
 {
-	request.setClientIp(ip);
 	this->request = request;
 }
 
@@ -42,4 +40,9 @@ void	Client::setTime(clock_t time)
 clock_t &Client::getTime()
 {
 	return (this->time);
+}
+
+void	Client::remove()
+{
+	close(this->fd);
 }

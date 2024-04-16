@@ -39,6 +39,11 @@ Server::~Server()
 void	Server::setServerAddress()
 {
 	this->serverAddress.sin_family = AF_INET;
+	if (config.getPort() < 1024 || config.getPort() > 65535)
+	{
+		std::cerr<<"Error port must be major than 1024 and minor than 65535"<<std::endl;
+		exit(1);
+	}
 	this->serverAddress.sin_port = htons(config.getPort());
 	this->serverAddress.sin_addr.s_addr = inet_addr(config.getHost().c_str());
 	this->addressLen = sizeof(serverAddress);

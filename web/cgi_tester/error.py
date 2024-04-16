@@ -12,7 +12,7 @@ body += "</head>"
 body += "<body>"
 body += "<ul><li><a href=\"/index.html\">Home</a></li>"
 body += "<li><a href=\"/upload/upload.html\">Upload File</a></li>"
-body += "<li><a href=\"/cgi/calc.py\">Test CGI</a></li></ul>"
+body += "<li><a href=\"/calc.py\">Test CGI</a></li></ul>"
 body += "</body></html>"
 
 number = int(body)

@@ -46,6 +46,7 @@ void	ServerManager::newClient(Server server)
 
 	client.setTime(clock() - initialTime);
 	acceptClient = accept(server.getServerSocket(), (struct sockaddr*)&clientAddress, &clientAddressLen);
+	std::cout<<"Aceptando a = "<<acceptClient<<std::endl;
 	if (acceptClient == -1) {
         std::cerr << "Error accepting new client: " << strerror(errno) << std::endl;
         return;
@@ -57,7 +58,7 @@ void	ServerManager::newClient(Server server)
 	}
 	connection.fd = acceptClient;
 	connection.events = POLLIN;
-	client = Client(server.getConfig(), acceptClient, clientAddress.sin_addr.s_addr);
+	client = Client(server.getConfig(), acceptClient);
 	std::cout<<"Cliente conectado en socket "<<client.getId()<<std::endl;
 	this->conn.push_back(connection);
 	this->clients.push_back(client);
@@ -77,8 +78,7 @@ void	ServerManager::serverEvent()
 
 void	ServerManager::removeClient(int position)
 {
-	close(conn[position].fd);
-	conn[position].fd = 0;
+	clients[position - servers.size()].remove();
 	conn.erase(conn.begin() + position);
 	clients.erase(clients.begin() + (position - servers.size()));
 }
@@ -93,7 +93,6 @@ void	ServerManager::clientEvent()
 	{
 		if (conn[i].revents & POLLIN)
 		{
-			std::cout<<"IM READING"<<std::endl;
 			bytesRead = recv(conn[i].fd, buffer, sizeof(buffer), 0);
 			if (bytesRead >= 0) 
 			{
@@ -113,13 +112,8 @@ void	ServerManager::clientEvent()
 		}
 		if (conn[i].revents & POLLOUT)
 		{
-			std::cout<<"IM WRITTING"<<std::endl;
 			response = Response(clients[i - servers.size()].getRequest(), clients[i - servers.size()].getConfig());
 			send(conn[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
-			// std::cout<<"Respuesta = "<<response.getResponse()<<std::endl;
-			// std::string body = "<h1>Hello, world!</h1>";
-			// std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(body.length()) + "\r\nConnection: close\r\n\r\n" + body;
-			// send(conn[i].fd, response.c_str(), response.length(), 0);
 			conn[i].events = POLLIN;
 		}
 		if (conn[i].revents & POLLHUP || conn[i].revents & POLLERR)
@@ -151,6 +145,13 @@ bool	ServerManager::isTimeOut(Client client)
 	return false;
 }
 
+void sleep_ms(uint32_t milliseconds) {
+    timespec ts;
+    ts.tv_sec = milliseconds / 1000;
+    ts.tv_nsec = (milliseconds % 1000) * 1000000;
+    nanosleep(&ts, nullptr);
+}
+
 void	ServerManager::run()
 {
 	int	activity;
@@ -176,5 +177,6 @@ void	ServerManager::run()
 			serverEvent();
 			clientEvent();
 		}
+		sleep_ms(5);
 	}
 }

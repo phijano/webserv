@@ -8,20 +8,20 @@
 class Client
 {
 	private:
-		int	id;
+		int	fd;
 		Request request;
 		Config config;
-		unsigned long ip;
 		clock_t time;
 
 	public:
 		Client();
-		Client(Config config, int newClient, unsigned long ip);
+		Client(Config config, int newClient);
 		~Client();
 		Request &getRequest();
 		void	setRequest(Request request);
 		int	getId();
 		void	setTime(clock_t);
+		void	remove();
 		clock_t &getTime();
 		Config &getConfig();
 
