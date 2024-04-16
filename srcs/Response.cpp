@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/15 18:01:27 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/16 16:54:16 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ Response::Response(Request& request, Config& config)
 {
 	_protocol = "HTTP/1.1";
 	_indexNotFound = false;
-	// std::cout << "RECEIVED" << std::endl;
 	if (request.getError())
 		getErrorPage(config, "400");
 	else if (!request.getContentLength().empty() and atoi (request.getContentLength().c_str()) > config.getBodySize())
@@ -164,6 +163,9 @@ void	Response::setCode(const std::string& code) // add more codes as we need
 			break;
 		case 501:
 			_code = "501 Not Implemented";
+			break;
+		case 508:
+			_code = "508 Loop Detected";
 			break;
 		default:
 			break;
@@ -461,11 +463,10 @@ void Response::postMethod(const Request& request,const Config& config)//Dont kno
 	std::string file = request.getFile();
 	std::string path = getPath(request, config);
 
-	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file) && !_indexNotFound)
+	if (!_location.getCgiExt().empty() && _location.getCgiExt() == getExtension(file))
 	{
 		if (!_location.getCgiPath().empty())
 			path += _location.getCgiPath();
-		std::cout << "CGI PATH: " << path << std::endl;
 		CgiHandler cgi(request, config, path);
 		if (cgi.getError().empty())
 			_cgiResponse = cgi.getResponse();

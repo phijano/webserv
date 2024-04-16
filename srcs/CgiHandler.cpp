@@ -3,20 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/11 12:05:12 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/16 17:27:49 by vnaslund         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CgiHandler.hpp"
 
-CgiHandler::CgiHandler()
+CgiHandler::CgiHandler() : _env(NULL) 
 {
+	
 }
 
-CgiHandler::CgiHandler(const Request& request, const Config& config, const std::string& path)
+CgiHandler::CgiHandler(const Request& request, const Config& config, const std::string& path) : _env(NULL)
 {
 	_path = path;
 	if (_path[_path.size() - 1] != '/')
@@ -40,7 +41,12 @@ CgiHandler& CgiHandler::operator=(const CgiHandler& other)
 
 CgiHandler::~CgiHandler()
 {
-	delete _env;
+	if (_env != NULL)
+	{
+        for (int i = 0; _env[i] != NULL; ++i) 
+            delete[] _env[i];
+        delete[] _env;
+    }
 }
 
 std::string CgiHandler::getResponse() const
@@ -185,7 +191,7 @@ void CgiHandler::exitStatus(const int& pid)
 		if (time == 2000000)
 		{
 			kill(pid, SIGKILL);
-			_error = "500";
+			_error = "508";
 			return;
 		}
 		time++;
