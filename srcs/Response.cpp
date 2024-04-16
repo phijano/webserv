@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 18:46:28 by vnaslund          #+#    #+#             */
-/*   Updated: 2024/04/15 18:01:27 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/16 11:45:46 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,9 @@ void	Response::setCode(const std::string& code) // add more codes as we need
 			break;
 		case 501:
 			_code = "501 Not Implemented";
+			break;
+		case 508:
+			_code = "508 Loop Detected";
 			break;
 		default:
 			break;

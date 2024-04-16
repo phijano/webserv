@@ -6,7 +6,7 @@
 /*   By: phijano- <phijano-@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/11 12:05:12 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/16 11:45:05 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,7 @@ void CgiHandler::exitStatus(const int& pid)
 		if (time == 2000000)
 		{
 			kill(pid, SIGKILL);
-			_error = "500";
+			_error = "508";
 			return;
 		}
 		time++;
