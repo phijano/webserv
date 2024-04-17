@@ -5,7 +5,7 @@ ServerManager::ServerManager()
 
 ServerManager::ServerManager(std::vector<Config> configs)
 {
-	int			dup;
+	int			dupServer;
 	std::string	host;
 	int			port;
 
@@ -13,11 +13,11 @@ ServerManager::ServerManager(std::vector<Config> configs)
 	{	
 		host = configs[i].getHost();
 		port = configs[i].getPort();
-		dup = 0;
+		dupServer = 0;
 		for (size_t j = 0; j < i; j++)
 			if (port == configs[j].getPort())
-				dup = 1;
-		if (!dup)
+				dupServer = 1;
+		if (!dupServer)
 			addServer(configs[i]);
 	}
 	initialSize = 0;
