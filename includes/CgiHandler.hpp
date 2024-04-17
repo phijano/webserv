@@ -6,7 +6,7 @@
 /*   By: pbengoec <pbengoec@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:34:46 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/09 13:02:51 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/17 12:13:06 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class CgiHandler
 		char* setEnvParam(const std::string& param);
 		void closePipeError(int *fdPipe, const std::string &error);
 		void closeFdError(int fdPipe, const std::string &error);
+		void initBuffer(char* buffer, unsigned int size);
 };
 
 #endif
