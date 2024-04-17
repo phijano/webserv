@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/16 17:27:49 by vnaslund         ###   ########.fr       */
+/*   Updated: 2024/04/17 12:18:03 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ CgiHandler::CgiHandler() : _env(NULL)
 CgiHandler::CgiHandler(const Request& request, const Config& config, const std::string& path) : _env(NULL)
 {
 	_path = path;
+	_error = "";
+	_response = "";
 	if (_path[_path.size() - 1] != '/')
 		_path += "/";
 	sendToCgi(request, config);
@@ -36,6 +38,18 @@ CgiHandler& CgiHandler::operator=(const CgiHandler& other)
 	_path = other._path;
 	_response = other._response;
 	_error = other._error;
+	_env = NULL;
+	if (other._env)
+	{
+		int i = 0;
+		while (other._env[i])
+			i++;
+		_env = new char*[i];
+		i = -1;
+		while(other._env[++i])
+			_env[i] = setEnvParam(other._env[i]);
+ 		_env[i] = NULL;
+	}
 	return *this;
 }
 
@@ -204,6 +218,14 @@ void CgiHandler::exitStatus(const int& pid)
 	}
 }
 
+void CgiHandler::initBuffer(char* buffer, unsigned int size)
+{
+	unsigned int i = 0;
+
+	while (i < size)
+		buffer[i++] = '\0';
+}
+
 void CgiHandler::sendToCgi(const Request& request, const Config& config)
 {
 	pid_t pid;
@@ -211,6 +233,7 @@ void CgiHandler::sendToCgi(const Request& request, const Config& config)
 	int fdCgi[2];
 	char buffer[30720];
 
+	initBuffer(buffer, 30720);
 	setCgiEnv(request, config);
 	if (access((_path + request.getFile()).c_str(), F_OK) == -1)
 		return setError("404");
@@ -234,8 +257,10 @@ void CgiHandler::sendToCgi(const Request& request, const Config& config)
 		if (request.getMethod() == "POST")
 			if (close(fdPost[0]) == -1)
 				return closePipeError(fdCgi, "500");
+
 		if (close(fdCgi[1]) == -1)
 			return closeFdError(fdCgi[0], "500");
+
 		exitStatus(pid);
 		if (!_error.empty())
 		{
@@ -247,7 +272,7 @@ void CgiHandler::sendToCgi(const Request& request, const Config& config)
 		{
 			bytes = read(fdCgi[0], buffer, 30720);
 			if (bytes > 0)
-				_response += buffer;
+				_response = buffer;
 			else if (bytes < 0)
 				return closeFdError(fdCgi[0], "500");
 		}
