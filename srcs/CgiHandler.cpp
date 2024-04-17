@@ -6,7 +6,7 @@
 /*   By: vnaslund <vnaslund@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:44:14 by phijano-          #+#    #+#             */
-/*   Updated: 2024/04/17 12:18:03 by phijano-         ###   ########.fr       */
+/*   Updated: 2024/04/17 12:35:02 by phijano-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@ CgiHandler::CgiHandler() : _env(NULL)
 CgiHandler::CgiHandler(const Request& request, const Config& config, const std::string& path) : _env(NULL)
 {
 	_path = path;
-	_error = "";
-	_response = "";
 	if (_path[_path.size() - 1] != '/')
 		_path += "/";
 	sendToCgi(request, config);
@@ -260,7 +258,6 @@ void CgiHandler::sendToCgi(const Request& request, const Config& config)
 
 		if (close(fdCgi[1]) == -1)
 			return closeFdError(fdCgi[0], "500");
-
 		exitStatus(pid);
 		if (!_error.empty())
 		{
@@ -272,7 +269,7 @@ void CgiHandler::sendToCgi(const Request& request, const Config& config)
 		{
 			bytes = read(fdCgi[0], buffer, 30720);
 			if (bytes > 0)
-				_response = buffer;
+				_response += buffer;
 			else if (bytes < 0)
 				return closeFdError(fdCgi[0], "500");
 		}
